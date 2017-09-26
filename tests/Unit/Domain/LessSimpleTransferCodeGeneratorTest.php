@@ -22,7 +22,7 @@ class LessSimpleTransferCodeGeneratorTest extends TestCase {
 			$this->newFixedCharacterGenerator( $usedCharacters )
 		);
 
-		$this->assertSame( $expectedCode, $generator->generateTransferCode() );
+		$this->assertSame( $expectedCode, $generator->generateTransferCode( '' ) );
 	}
 
 	public function characterAndCodeProvider(): iterable {
@@ -74,7 +74,7 @@ class LessSimpleTransferCodeGeneratorTest extends TestCase {
 		$generator = LessSimpleTransferCodeGenerator::newRandomGenerator();
 
 		for ( $i = 0; $i < 42; $i++ ) {
-			$this->assertTrue( $generator->transferCodeIsValid( $generator->generateTransferCode() ) );
+			$this->assertTrue( $generator->transferCodeIsValid( $generator->generateTransferCode( '' ) ) );
 		}
 	}
 

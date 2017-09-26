@@ -12,6 +12,6 @@ namespace WMDE\Fundraising\Frontend\PaymentContext\Domain;
  */
 interface TransferCodeGenerator {
 
-	public function generateTransferCode(): string;
+	public function generateTransferCode( string $prefix ): string;
 
 }

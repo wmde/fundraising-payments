@@ -23,9 +23,9 @@ class UniqueTransferCodeGenerator implements TransferCodeGenerator {
 		$this->entityRepository = $entityManager->getRepository( Donation::class );
 	}
 
-	public function generateTransferCode(): string {
+	public function generateTransferCode( string $prefix ): string {
 		do {
-			$transferCode = $this->generator->generateTransferCode();
+			$transferCode = $this->generator->generateTransferCode( $prefix );
 		} while ( $this->codeIsNotUnique( $transferCode ) );
 
 		return $transferCode;

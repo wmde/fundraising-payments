@@ -10,8 +10,8 @@ namespace WMDE\Fundraising\Frontend\PaymentContext\Domain;
  */
 class SimpleTransferCodeGenerator implements TransferCodeGenerator {
 
-	public function generateTransferCode(): string {
-		$transferCode = 'W-Q-';
+	public function generateTransferCode( string $prefix ): string {
+		$transferCode = $prefix;
 
 		for ( $i = 0; $i < 6; ++$i ) {
 			$transferCode .= $this->getRandomCharacter();
