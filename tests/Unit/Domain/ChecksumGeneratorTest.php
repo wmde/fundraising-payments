@@ -65,17 +65,12 @@ class ChecksumGeneratorTest extends TestCase {
 		$characters = [ 'A', 'B', 'C', 'D', 'E', 'F' ];
 		$generator = new ChecksumGenerator( $characters );
 
-		// $distribution = ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0, 'F' => 0];
-
 		foreach ( $this->getRandomStrings() as $string ) {
-			// $distribution[$generator->createChecksum( $string )]++;
 			$this->assertContains(
 				$generator->createChecksum( $string ),
 				$characters
 			);
 		}
-
-		//var_dump($distribution);exit;
 	}
 
 	public function getRandomStrings(): iterable {
