@@ -68,16 +68,11 @@ class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 		$transferCode = '';
 
 		for ( $i = 0; $i < self::LENGTH_CODE; $i++ ) {
-			$transferCode .= $this->getCharacter();
+			$transferCode .= $this->characterSource->current();
+			$this->characterSource->next();
 		}
 
 		return $transferCode;
-	}
-
-	private function getCharacter(): string {
-		$character = $this->characterSource->current();
-		$this->characterSource->next();
-		return $character;
 	}
 
 }
