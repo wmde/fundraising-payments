@@ -38,10 +38,16 @@ class LessSimpleTransferCodeValidatorTest extends TestCase {
 	}
 
 	public function characterAndCodeProvider(): iterable {
+		yield [ 'XW-A3d-EFT-Z '];
+		yield [ 'XW_A3d_EFT_Z '];
+		yield [ 'XW--A3d--EFT--Z '];
+		yield [ 'XWA3dEFTZ '];
+
 		yield [ 'XW-ACD-EFK-4' ];
 		yield [ 'XW-AAA-AAA-M' ];
 		yield [ 'XW-CAA-AAA-L' ];
 		yield [ 'XW-ACA-CAC-X' ];
+
 		yield [ 'XR-ACD-EFK-4' ];
 		yield [ 'XR-aCD-EFK-4' ];
 	}
