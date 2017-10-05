@@ -54,18 +54,24 @@ class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 			throw new InvalidArgumentException( 'The prefix must only contain characters from the ALLOWED_CHARACTERS set.' );
 		}
 
-		$code = $prefix . self::READABILITY_DELIMITER . $this->generateCode();
-		return $code . self::READABILITY_DELIMITER . $this->checksumGenerator->createChecksum( $code );
+		$code = $prefix . $this->generateCode();
+		$code .= $this->checksumGenerator->createChecksum( $code );
+
+		return $this->formatCodeForReadability( $code );
+	}
+
+	private function formatCodeForReadability( string $code ): string {
+		return vsprintf( '%s%s-%s%s%s-%s%s%s-%s', str_split( $code ) );
 	}
 
 	private function generateCode(): string {
-		return $this->getCharacter()
-			. $this->getCharacter()
-			. $this->getCharacter()
-			. self::READABILITY_DELIMITER
-			. $this->getCharacter()
-			. $this->getCharacter()
-			. $this->getCharacter();
+		$transferCode = '';
+
+		for ( $i = 0; $i < self::LENGTH_CODE; $i++ ) {
+			$transferCode .= $this->getCharacter();
+		}
+
+		return $transferCode;
 	}
 
 	private function getCharacter(): string {

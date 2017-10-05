@@ -13,12 +13,14 @@ class LessSimpleTransferCodeValidator {
 	}
 
 	public function transferCodeIsValid( string $code ): bool {
+		$code = strtoupper( $code );
+		$code = preg_replace( '/[^' . preg_quote( LessSimpleTransferCodeGenerator::ALLOWED_CHARACTERS ).  ']/', '', $code );
+
 		return $this->formatIsValid( $code )
 			&& $this->checksumIsCorrect( $code );
 	}
 
 	private function formatIsValid( string $code ): bool {
-		$code = preg_replace( '/[^' . preg_quote( LessSimpleTransferCodeGenerator::ALLOWED_CHARACTERS ).  ']/', '', $code );
 		return strlen( $code ) ===
 			LessSimpleTransferCodeGenerator::LENGTH_PREFIX +
 			LessSimpleTransferCodeGenerator::LENGTH_CODE +

@@ -32,7 +32,7 @@ class ChecksumGenerator {
 	 * @return string The checksum as a single character present in the constructors array argument
 	 */
 	public function createChecksum( string $string ): string {
-		$checksum = md5( $this->normalizeString( $string ) );
+		$checksum = md5( $string );
 		$checkDigitSum = array_sum(
 			array_map(
 				function ( $digit ) {
@@ -43,10 +43,6 @@ class ChecksumGenerator {
 		);
 
 		return $this->checksumCharacters[$checkDigitSum % count( $this->checksumCharacters )];
-	}
-
-	private function normalizeString( string $string ): string {
-		return strtoupper( str_replace( [ '-', '_', ' ' ], '', $string ) );
 	}
 
 }

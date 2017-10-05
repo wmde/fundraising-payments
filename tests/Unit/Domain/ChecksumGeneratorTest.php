@@ -22,8 +22,8 @@ class ChecksumGeneratorTest extends TestCase {
 	public function testCanGenerateChecksumWithTwoCharacters(): void {
 		$generator = new ChecksumGenerator( [ 'a', 'b' ] );
 
-		$this->assertSame( 'b', $generator->createChecksum( 'aaaa' ) );
-		$this->assertSame( 'a', $generator->createChecksum( 'aaaaa' ) );
+		$this->assertSame( 'a', $generator->createChecksum( 'aaaa' ) );
+		$this->assertSame( 'b', $generator->createChecksum( 'aaaaa' ) );
 	}
 
 	public function testCanGenerateChecksumWithManyCharacters(): void {
@@ -33,32 +33,6 @@ class ChecksumGeneratorTest extends TestCase {
 		$this->assertSame( '3', $generator->createChecksum( 'AAAA' ) );
 		$this->assertSame( 'X', $generator->createChecksum( 'QAQA' ) );
 		$this->assertSame( '9', $generator->createChecksum( 'ABCD' ) );
-	}
-
-	public function testIgnoresDashesUnderscoresAndSpaces(): void {
-		$generator = new ChecksumGenerator( str_split( 'ACDEFKLMNPRSTWXYZ349' ) );
-
-		$checksum = $generator->createChecksum( 'CAT' );
-
-		$this->assertSame( $checksum, $generator->createChecksum( 'C-AT-' ) );
-		$this->assertSame( $checksum, $generator->createChecksum( '_CAT_' ) );
-		$this->assertSame( $checksum, $generator->createChecksum( 'C A T' ) );
-	}
-
-	public function testLowerAndMixedCaseProduceConsistentChecksum(): void {
-		$generator = new ChecksumGenerator( str_split( 'ACDEFKLMNPRSTWXYZ349' ) );
-
-		$this->assertSame( 'W', $generator->createChecksum( 'AAAU' ) );
-		$this->assertSame( 'W', $generator->createChecksum( 'aAAU' ) );
-
-		$this->assertSame( '3', $generator->createChecksum( 'aAaa' ) );
-		$this->assertSame( '3', $generator->createChecksum( 'aaaa' ) );
-
-		$this->assertSame( 'X', $generator->createChecksum( 'QaQa' ) );
-		$this->assertSame( 'X', $generator->createChecksum( 'qaqa' ) );
-
-		$this->assertSame( 'C', $generator->createChecksum( 'xxxx' ) );
-		$this->assertSame( 'C', $generator->createChecksum( 'XXXX' ) );
 	}
 
 	public function testChecksumIsOneOfTheExpectedCharacters(): void {

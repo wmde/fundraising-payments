@@ -43,6 +43,7 @@ class LessSimpleTransferCodeValidatorTest extends TestCase {
 		yield [ 'XW-CAA-AAA-L' ];
 		yield [ 'XW-ACA-CAC-X' ];
 		yield [ 'XR-ACD-EFK-4' ];
+		yield [ 'XR-aCD-EFK-4' ];
 	}
 
 }
