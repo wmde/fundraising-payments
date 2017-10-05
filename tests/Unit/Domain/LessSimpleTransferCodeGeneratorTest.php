@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\Domain;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\Frontend\PaymentContext\Domain\LessSimpleTransferCodeGenerator;
+use WMDE\Fundraising\Frontend\PaymentContext\Domain\LessSimpleTransferCodeValidator;
 
 /**
  * @covers \WMDE\Fundraising\Frontend\PaymentContext\Domain\LessSimpleTransferCodeGenerator
@@ -17,65 +18,56 @@ class LessSimpleTransferCodeGeneratorTest extends TestCase {
 	/**
 	 * @dataProvider characterAndCodeProvider
 	 */
-	public function testGenerateBankTransferCode( string $expectedCode, string $usedCharacters ): void {
+	public function testGenerateBankTransferCode( string $expectedCode, string $usedCharacters, string $prefix ): void {
 		$generator = LessSimpleTransferCodeGenerator::newDeterministicGenerator(
 			$this->newFixedCharacterGenerator( $usedCharacters )
 		);
 
-		$this->assertSame( $expectedCode, $generator->generateTransferCode( '' ) );
+		$this->assertSame( $expectedCode, $generator->generateTransferCode( $prefix ) );
 	}
 
 	public function characterAndCodeProvider(): iterable {
-		yield [ 'ACD-EFK-M', 'ACDEFKLMNPRSTWXYZ349ACDEF' ];
-		yield [ 'AAA-AAA-R', 'AAAAAAAAAAAAAAAAAAAAAAAAA' ];
-		yield [ 'CAA-AAA-E', 'CAAAAAAAAAAAAAAAAAAAAAAAA' ];
-		yield [ 'ACA-CAC-E', 'ACACACACACACACACACACACACA' ];
+		yield [ 'XW-ACD-EFK-4', 'ACDEFKLMNPRSTWXYZ349ACDEF', 'XW' ];
+		yield [ 'XW-AAA-AAA-M', 'AAAAAAAAAAAAAAAAAAAAAAAAA', 'XW' ];
+		yield [ 'XW-CAA-AAA-L', 'CAAAAAAAAAAAAAAAAAAAAAAAA', 'XW' ];
+		yield [ 'XW-ACA-CAC-X', 'ACACACACACACACACACACACACA', 'XW' ];
+		yield [ 'XR-ACD-EFK-4', 'ACDEFKLMNPRSTWXYZ349', 'XR' ];
 	}
 
 	private function newFixedCharacterGenerator( string $characters ): \Generator {
 		yield from str_split( $characters );
 	}
 
-	/**
-	 * @dataProvider invalidCodeProvider
-	 */
-	public function testInvalidTransferCodesAreNotValid( string $invalidCode ): void {
-		$this->assertFalse( $this->newGenerator()->transferCodeIsValid( $invalidCode ) );
-	}
-
-	private function newGenerator(): LessSimpleTransferCodeGenerator {
-		return LessSimpleTransferCodeGenerator::newDeterministicGenerator(
-			$this->newFixedCharacterGenerator( 'ACDEFKLMNPRSTWXYZ349' )
-		);
-	}
-
-	public function invalidCodeProvider(): iterable {
-		yield 'Empty code' => [ '' ];
-		yield 'Without checksum' => [ 'ACD-EFK-' ];
-		yield 'Missing dash' => [ 'ACDEFK-X' ];
-		yield 'Missing checksum dash' => [ 'ACD-EFK' ];
-		yield 'Missing both dashes' => [ 'ACDEFK' ];
-		yield 'Extra dash' => [ 'ACD-EFK-X-' ];
-		yield 'Extra character' => [ 'ACD-EFKK-X' ];
-		yield 'Extra checksum character' => [ 'ACD-EFK-XX' ];
-		yield 'Not allowed character' => [ '0CD-EFK-X' ];
-		yield 'Extra character at front' => [ 'AACD-EFK-X' ];
-		yield 'Invalid checksum' => [ 'ACD-EFK-A' ];
-	}
-
-	/**
-	 * @dataProvider characterAndCodeProvider
-	 */
-	public function testValidTransferCodesAreValid( string $transferCode ): void {
-		$this->assertTrue( $this->newGenerator()->transferCodeIsValid( $transferCode ) );
-	}
-
 	public function testRandomGeneratorProducesValidCodes(): void {
 		$generator = LessSimpleTransferCodeGenerator::newRandomGenerator();
-
+		$validator = new LessSimpleTransferCodeValidator();
 		for ( $i = 0; $i < 42; $i++ ) {
-			$this->assertTrue( $generator->transferCodeIsValid( $generator->generateTransferCode( '' ) ) );
+			$code = $generator->generateTransferCode( 'XD' );
+			$this->assertTrue( $validator->transferCodeIsValid( $code ) );
 		}
 	}
 
+	/**
+	 * @dataProvider tooShortPrefixProvider
+	 * @expectedException \InvalidArgumentException
+	 * @expectedExceptionMessage The prefix must have a set length of 2 characters.
+	 */
+	public function testGenerationWithShortPrefixCausesException( string $prefix ): void {
+		$generator = LessSimpleTransferCodeGenerator::newRandomGenerator();
+		$generator->generateTransferCode( $prefix );
+	}
+
+	public function tooShortPrefixProvider(): iterable {
+		yield [ '' ];
+		yield [ 'X' ];
+	}
+
+	/**
+	 * @expectedException \InvalidArgumentException
+	 * @expectedExceptionMessage The prefix must only contain characters from the ALLOWED_CHARACTERS set.
+	 */
+	public function testGenerationWithInvalidPrefixCharactersCausesException(): void {
+		$generator = LessSimpleTransferCodeGenerator::newRandomGenerator();
+		$generator->generateTransferCode( '5S' );
+	}
 }

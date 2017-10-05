@@ -4,12 +4,19 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\Frontend\PaymentContext\Domain;
 
+use InvalidArgumentException;
+
 /**
  * @licence GNU GPL v2+
  */
 class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 
 	public const ALLOWED_CHARACTERS = 'ACDEFKLMNPRTWXYZ349';
+	public const READABILITY_DELIMITER = '-';
+
+	public const LENGTH_PREFIX = 2;
+	public const LENGTH_CODE = 6;
+	public const LENGTH_CHECKSUM = 1;
 
 	private $characterSource;
 	private $checksumGenerator;
@@ -37,15 +44,25 @@ class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 	}
 
 	public function generateTransferCode( string $prefix ): string {
-		$code = $this->generateCode() . '-';
-		return $prefix . $code . $this->checksumGenerator->createChecksum( $code );
+		if ( strlen( $prefix ) !== self::LENGTH_PREFIX ) {
+			throw new InvalidArgumentException( sprintf(
+				'The prefix must have a set length of %d characters.',
+				self::LENGTH_PREFIX
+			) );
+		}
+		if ( !preg_match( '/[' . preg_quote( self::ALLOWED_CHARACTERS ).  ']/', $prefix ) ) {
+			throw new InvalidArgumentException( 'The prefix must only contain characters from the ALLOWED_CHARACTERS set.' );
+		}
+
+		$code = $prefix . self::READABILITY_DELIMITER . $this->generateCode();
+		return $code . self::READABILITY_DELIMITER . $this->checksumGenerator->createChecksum( $code );
 	}
 
 	private function generateCode(): string {
 		return $this->getCharacter()
 			. $this->getCharacter()
 			. $this->getCharacter()
-			. '-'
+			. self::READABILITY_DELIMITER
 			. $this->getCharacter()
 			. $this->getCharacter()
 			. $this->getCharacter();
@@ -55,22 +72,6 @@ class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 		$character = $this->characterSource->current();
 		$this->characterSource->next();
 		return $character;
-	}
-
-	public function transferCodeIsValid( string $code ): bool {
-		return $this->formatIsValid( $code )
-			&& $this->checksumIsCorrect( $code );
-	}
-
-	private function formatIsValid( string $code ): bool {
-		$allowedChars = '[' . self::ALLOWED_CHARACTERS . ']';
-		$pattern = '/^' . $allowedChars . '{3}-' . $allowedChars . '{3}-' . $allowedChars . '$/';
-		return preg_match( $pattern, $code ) === 1;
-	}
-
-	private function checksumIsCorrect( string $code ): bool {
-		return $this->checksumGenerator->createChecksum( substr( $code, 0, -1 ) )
-			=== substr( $code, -1 );
 	}
 
 }
