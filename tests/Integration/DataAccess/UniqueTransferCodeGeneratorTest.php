@@ -9,11 +9,11 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\Frontend\DonationContext\DataAccess\DoctrineDonationRepository;
 use WMDE\Fundraising\Frontend\DonationContext\Domain\Model\Donation;
 use WMDE\Fundraising\Frontend\DonationContext\Domain\Model\DonationPayment;
+use WMDE\Fundraising\Frontend\DonationContext\Tests\Data\ValidDonation;
+use WMDE\Fundraising\Frontend\DonationContext\Tests\TestEnvironment;
 use WMDE\Fundraising\Frontend\PaymentContext\DataAccess\UniqueTransferCodeGenerator;
 use WMDE\Fundraising\Frontend\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\Frontend\PaymentContext\Domain\TransferCodeGenerator;
-use WMDE\Fundraising\Frontend\DonationContext\Tests\Data\ValidDonation;
-use WMDE\Fundraising\Frontend\DonationContext\Tests\TestEnvironment;
 
 /**
  * @covers \WMDE\Fundraising\Frontend\PaymentContext\DataAccess\UniqueTransferCodeGenerator
@@ -44,7 +44,7 @@ class UniqueTransferCodeGeneratorTest extends \PHPUnit\Framework\TestCase {
 			private $position = 0;
 
 			public function generateTransferCode( string $prefix ): string {
-				return $prefix . ['first', 'second', 'third'][$this->position++];
+				return $prefix . [ 'first', 'second', 'third' ][$this->position++];
 			}
 		};
 	}

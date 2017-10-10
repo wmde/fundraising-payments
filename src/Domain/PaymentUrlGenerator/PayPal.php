@@ -48,10 +48,12 @@ class PayPal {
 			'notify_url' => $this->config->getNotifyUrl(),
 			'cancel_return' => $this->config->getCancelUrl(),
 			'return' => $this->config->getReturnUrl() . '?id=' . $itemId . '&accessToken=' . $accessToken,
-			'custom' => json_encode( [
-				'sid' => $itemId,
-				'utoken' => $updateToken
-			] )
+			'custom' => json_encode(
+				[
+					'sid' => $itemId,
+					'utoken' => $updateToken
+				]
+			)
 		];
 	}
 
@@ -72,6 +74,7 @@ class PayPal {
 
 	/**
 	 * This method returns a set of parameters needed for recurring payments.
+	 *
 	 * @link https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/wp_standard_overview/
 	 */
 	private function getSubscriptionParams( Euro $amount, int $interval ): array {
@@ -90,6 +93,7 @@ class PayPal {
 	/**
 	 * This method returns a set of parameters needed for delaying payments. It uses the parameters of one out of two
 	 * trial periods supported by PayPal.
+	 *
 	 * @link https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/wp_standard_overview/
 	 */
 	private function getDelayedSubscriptionParams( int $delayInDays ): array {
@@ -102,6 +106,7 @@ class PayPal {
 
 	/**
 	 * This method returns a set of parameters needed for one time payments.
+	 *
 	 * @link https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/wp_standard_overview/
 	 */
 	private function getSinglePaymentParams( Euro $amount ): array {

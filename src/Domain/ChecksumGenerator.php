@@ -35,7 +35,7 @@ class ChecksumGenerator {
 		$checksum = md5( $string );
 		$checkDigitSum = array_sum(
 			array_map(
-				function ( $digit ) {
+				function( $digit ) {
 					return base_convert( $digit, 16, 10 );
 				},
 				str_split( $checksum )

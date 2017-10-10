@@ -10,8 +10,8 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\Frontend\PaymentContext\DataAccess\Sofort\Transfer\Client;
 use WMDE\Fundraising\Frontend\PaymentContext\DataAccess\Sofort\Transfer\Request;
 use WMDE\Fundraising\Frontend\PaymentContext\DataAccess\Sofort\Transfer\Response;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\SofortConfig as SofortUrlConfig;
 use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\Sofort as SofortUrlGenerator;
+use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\SofortConfig as SofortUrlConfig;
 
 /**
  * @covers \WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\Sofort

@@ -38,6 +38,7 @@ class Sofort {
 	 * @param Euro $amount The amount of money to pay
 	 * @param string $updateToken A token to use to invoke our API to change payment details at a later point in time
 	 * @param string $accessToken A token to use to return to the payment process after completing the 3rd party process
+	 *
 	 * @return string
 	 */
 	public function generateUrl( int $internalItemId, string $externalItemId, Euro $amount, string $updateToken, string $accessToken ): string {
@@ -46,22 +47,27 @@ class Sofort {
 		$request->setCurrencyCode( self::CURRENCY );
 		$request->setReasons( [ $this->config->getReasonText(), $externalItemId ] );
 		$request->setSuccessUrl(
-			$this->config->getReturnUrl() . '?' . http_build_query( [
-				'id' => $internalItemId,
-				'accessToken' => $accessToken
-			] )
+			$this->config->getReturnUrl() . '?' . http_build_query(
+				[
+					'id' => $internalItemId,
+					'accessToken' => $accessToken
+				]
+			)
 		);
 		$request->setAbortUrl( $this->config->getCancelUrl() );
 		$request->setNotificationUrl(
-			$this->config->getNotificationUrl() . '?' . http_build_query( [
-				'id' => $internalItemId,
-				'updateToken' => $updateToken
-			] )
+			$this->config->getNotificationUrl() . '?' . http_build_query(
+				[
+					'id' => $internalItemId,
+					'updateToken' => $updateToken
+				]
+			)
 		);
 
 		try {
 			$response = $this->client->get( $request );
-		} catch ( RuntimeException $exception ) {
+		}
+		catch ( RuntimeException $exception ) {
 			throw new RuntimeException( 'Could not generate Sofort URL: ' . $exception->getMessage() );
 		}
 

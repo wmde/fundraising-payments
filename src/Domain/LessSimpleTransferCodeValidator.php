@@ -9,12 +9,18 @@ class LessSimpleTransferCodeValidator {
 	private $checksumGenerator;
 
 	public function __construct() {
-		$this->checksumGenerator = new ChecksumGenerator( str_split( LessSimpleTransferCodeGenerator::ALLOWED_CHARACTERS ) );
+		$this->checksumGenerator = new ChecksumGenerator(
+			str_split( LessSimpleTransferCodeGenerator::ALLOWED_CHARACTERS )
+		);
 	}
 
 	public function transferCodeIsValid( string $code ): bool {
 		$code = strtoupper( $code );
-		$code = preg_replace( '/[^' . preg_quote( LessSimpleTransferCodeGenerator::ALLOWED_CHARACTERS ).  ']/', '', $code );
+		$code = preg_replace(
+			'/[^' . preg_quote( LessSimpleTransferCodeGenerator::ALLOWED_CHARACTERS ) . ']/',
+			'',
+			$code
+		);
 
 		return $this->formatIsValid( $code )
 			&& $this->checksumIsCorrect( $code );
@@ -28,7 +34,9 @@ class LessSimpleTransferCodeValidator {
 	}
 
 	private function checksumIsCorrect( string $code ): bool {
-		return $this->checksumGenerator->createChecksum( substr( $code, 0, -LessSimpleTransferCodeGenerator::LENGTH_CHECKSUM ) )
+		return $this->checksumGenerator->createChecksum(
+				substr( $code, 0, -LessSimpleTransferCodeGenerator::LENGTH_CHECKSUM )
+			)
 			=== substr( $code, -LessSimpleTransferCodeGenerator::LENGTH_CHECKSUM );
 	}
 

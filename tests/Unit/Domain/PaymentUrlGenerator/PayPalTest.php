@@ -5,8 +5,8 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
 use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\PayPal as PaypalUrlGenerator;
+use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
 
 /**
  * @covers \WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\PayPal
@@ -50,13 +50,15 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	private function newPayPalUrlConfig(): PayPalConfig {
-		return PayPalConfig::newFromConfig( [
-			'base-url' => self::BASE_URL,
-			'account-address' => self::ACCOUNT_ADDRESS,
-			'notify-url' => self::NOTIFY_URL,
-			'return-url' => self::RETURN_URL,
-			'cancel-url' => self::CANCEL_URL
-		] );
+		return PayPalConfig::newFromConfig(
+			[
+				'base-url' => self::BASE_URL,
+				'account-address' => self::ACCOUNT_ADDRESS,
+				'notify-url' => self::NOTIFY_URL,
+				'return-url' => self::RETURN_URL,
+				'cancel-url' => self::CANCEL_URL
+			]
+		);
 	}
 
 	public function testGivenIncompletePayPalUrlConfig_exceptionIsThrown(): void {
@@ -65,13 +67,15 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	private function newIncompletePayPalUrlConfig(): PayPalConfig {
-		return PayPalConfig::newFromConfig( [
-			'base-url' => self::BASE_URL,
-			'account-address' => 'some@email-adress.com',
-			'notify-url' => self::NOTIFY_URL,
-			'return-url' => self::RETURN_URL,
-			'cancel-url' => ''
-		] );
+		return PayPalConfig::newFromConfig(
+			[
+				'base-url' => self::BASE_URL,
+				'account-address' => 'some@email-adress.com',
+				'notify-url' => self::NOTIFY_URL,
+				'return-url' => self::RETURN_URL,
+				'cancel-url' => ''
+			]
+		);
 	}
 
 	public function testDelayedSubscriptions(): void {
@@ -89,14 +93,16 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	private function newPayPalUrlConfigWithDelayedPayment(): PayPalConfig {
-		return PayPalConfig::newFromConfig( [
-			'base-url' => self::BASE_URL,
-			'account-address' => self::ACCOUNT_ADDRESS,
-			'notify-url' => self::NOTIFY_URL,
-			'return-url' => self::RETURN_URL,
-			'cancel-url' => self::CANCEL_URL,
-			'delay-in-days' => 90
-		] );
+		return PayPalConfig::newFromConfig(
+			[
+				'base-url' => self::BASE_URL,
+				'account-address' => self::ACCOUNT_ADDRESS,
+				'notify-url' => self::NOTIFY_URL,
+				'return-url' => self::RETURN_URL,
+				'cancel-url' => self::CANCEL_URL,
+				'delay-in-days' => 90
+			]
+		);
 	}
 
 	private function assertCommonParamsSet( string $generatedUrl ): void {

@@ -36,6 +36,7 @@ class CreditCardConfig {
 
 	/**
 	 * @param array $config
+	 *
 	 * @return self
 	 * @throws \RuntimeException
 	 */

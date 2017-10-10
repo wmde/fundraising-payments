@@ -45,13 +45,17 @@ class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 
 	public function generateTransferCode( string $prefix ): string {
 		if ( strlen( $prefix ) !== self::LENGTH_PREFIX ) {
-			throw new InvalidArgumentException( sprintf(
-				'The prefix must have a set length of %d characters.',
-				self::LENGTH_PREFIX
-			) );
+			throw new InvalidArgumentException(
+				sprintf(
+					'The prefix must have a set length of %d characters.',
+					self::LENGTH_PREFIX
+				)
+			);
 		}
-		if ( !preg_match( '/[' . preg_quote( self::ALLOWED_CHARACTERS ).  ']/', $prefix ) ) {
-			throw new InvalidArgumentException( 'The prefix must only contain characters from the ALLOWED_CHARACTERS set.' );
+		if ( !preg_match( '/[' . preg_quote( self::ALLOWED_CHARACTERS ) . ']/', $prefix ) ) {
+			throw new InvalidArgumentException(
+				'The prefix must only contain characters from the ALLOWED_CHARACTERS set.'
+			);
 		}
 
 		$code = $prefix . $this->generateCode();
