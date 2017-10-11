@@ -27,7 +27,7 @@ class PayPal {
 	}
 
 	public function generateUrl( int $itemId, Euro $amount, int $interval,
-								 string $updateToken, string $accessToken ): string {
+		string $updateToken, string $accessToken ): string {
 
 		$params = array_merge(
 			$this->getIntervalDependentParameters( $amount, $interval ),

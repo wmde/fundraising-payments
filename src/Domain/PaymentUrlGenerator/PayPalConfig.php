@@ -25,7 +25,7 @@ class PayPalConfig {
 	private $delayInDays;
 
 	private function __construct( string $payPalAccountAddress, string $payPalBaseUrl, string $notifyUrl,
-								  string $returnUrl, string $cancelUrl, int $delayInDays ) {
+		string $returnUrl, string $cancelUrl, int $delayInDays ) {
 		$this->payPalAccountAddress = $payPalAccountAddress;
 		$this->payPalBaseUrl = $payPalBaseUrl;
 		$this->notifyUrl = $notifyUrl;

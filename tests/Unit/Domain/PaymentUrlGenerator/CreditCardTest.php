@@ -18,7 +18,7 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 
 	/** @dataProvider donationProvider */
 	public function testUrlGeneration( string $expected, string $firstName, string $lastName, string $payText,
-									   int $donationId, string $accessToken, string $updateToken, Euro $amount ): void {
+		int $donationId, string $accessToken, string $updateToken, Euro $amount ): void {
 		$urlGenerator = new CreditCard(
 			CreditCardConfig::newFromConfig(
 				[
