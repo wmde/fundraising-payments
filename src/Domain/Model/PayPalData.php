@@ -5,7 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\Frontend\PaymentContext\Domain\Model;
 
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\Frontend\FreezableValueObject;
+use WMDE\FreezableValueObject\FreezableValueObject;
 
 /**
  * @licence GNU GPL v2+
