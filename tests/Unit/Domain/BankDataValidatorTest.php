@@ -17,7 +17,7 @@ use WMDE\FunValidators\ValidationResult;
  * @license GNU GPL v2+
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class BankDataValidatorTest extends ValidatorTestCase {
+class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @dataProvider invalidBankDataProvider
