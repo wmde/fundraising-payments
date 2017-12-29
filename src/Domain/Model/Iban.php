@@ -13,7 +13,7 @@ class Iban {
 	private $iban;
 
 	public function __construct( string $iban ) {
-		$this->iban = strtoupper( preg_replace( '/\s+/', '', $iban ) );
+		$this->iban = $this->sanitizeIban( $iban );
 	}
 
 	public function toString(): string {
@@ -32,4 +32,7 @@ class Iban {
 		return substr( $this->iban, 0, 2 );
 	}
 
+	private function sanitizeIban( string $iban ): string {
+		return preg_replace( '/[^0-9A-Z]/u', '', strtoupper( $iban ) );
+	}
 }
