@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\Domain\Model;
 
+use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\Frontend\PaymentContext\Domain\Model\Iban;
 
 /**
@@ -12,11 +13,11 @@ use WMDE\Fundraising\Frontend\PaymentContext\Domain\Model\Iban;
  * @licence GNU GPL v2+
  * @author Gabriel Birke < gabriel.birke@wikimedia.de >
  */
-class IbanTest extends \PHPUnit\Framework\TestCase {
+class IbanTest extends TestCase {
 
-	const TEST_IBAN_WITH_WHITESPACE = 'DE12 5001 0517 0648 4898 90 ';
-	const TEST_IBAN = 'DE12500105170648489890';
-	const TEST_LOWERCASE_IBAN = 'de12500105170648489890';
+	private const TEST_IBAN_WITH_WHITESPACE = 'DE12 5001 0517 0648 4898 90 ';
+	private const TEST_IBAN = 'DE12500105170648489890';
+	private const TEST_LOWERCASE_IBAN = 'de12500105170648489890';
 
 	/**
 	 * @dataProvider getValidIbansWithDisallowedCharacters
