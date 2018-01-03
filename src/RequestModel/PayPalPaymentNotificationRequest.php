@@ -247,15 +247,4 @@ class PayPalPaymentNotificationRequest {
 		return $this;
 	}
 
-	public function isSuccessfulPaymentNotification(): bool {
-		return $this->paymentStatus === 'Completed' || $this->paymentStatus === 'Processed';
-	}
-
-	public function isRecurringPaymentCompletion(): bool {
-		return $this->transactionType === 'subscr_payment';
-	}
-
-	public function isForRecurringPayment(): bool {
-		return strpos( $this->transactionType, 'subscr_' ) === 0;
-	}
 }
