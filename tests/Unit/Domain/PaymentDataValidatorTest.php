@@ -16,8 +16,8 @@ use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentDataValidator;
  */
 class PaymentDataValidatorTest extends \PHPUnit\Framework\TestCase {
 
-	const MIN_DONATION_AMOUNT = 1;
-	const MAX_DONATION_AMOUNT = 100000;
+	private const MIN_DONATION_AMOUNT = 1;
+	private const MAX_DONATION_AMOUNT = 100000;
 
 	public function testGivenAmountWithinLimits_validationSucceeds(): void {
 		$validator = $this->newPaymentValidator();

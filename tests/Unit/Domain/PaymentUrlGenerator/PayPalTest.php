@@ -16,12 +16,12 @@ use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\PayPalCo
  */
 class PayPalTest extends \PHPUnit\Framework\TestCase {
 
-	const BASE_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr?';
-	const ACCOUNT_ADDRESS = 'foerderpp@wikimedia.de';
-	const NOTIFY_URL = 'http://my.donation.app/handler/paypal/';
-	const RETURN_URL = 'http://my.donation.app/donation/confirm/';
-	const CANCEL_URL = 'http://my.donation.app/donation/cancel/';
-	const ITEM_NAME = 'Mentioning that awesome organization on the invoice';
+	private const BASE_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr?';
+	private const ACCOUNT_ADDRESS = 'foerderpp@wikimedia.de';
+	private const NOTIFY_URL = 'http://my.donation.app/handler/paypal/';
+	private const RETURN_URL = 'http://my.donation.app/donation/confirm/';
+	private const CANCEL_URL = 'http://my.donation.app/donation/cancel/';
+	private const ITEM_NAME = 'Mentioning that awesome organization on the invoice';
 
 	public function testSubscriptions(): void {
 		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), self::ITEM_NAME );

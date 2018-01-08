@@ -12,11 +12,11 @@ use WMDE\Euro\Euro;
  */
 class PayPal {
 
-	const PAYMENT_RECUR = '1';
-	const PAYMENT_REATTEMPT = '1';
-	const PAYMENT_CYCLE_INFINITE = '0';
-	const PAYMENT_CYCLE_MONTHLY = 'M';
-	const DEFAULT_LOCALE = 'de_DE';
+	private const PAYMENT_RECUR = '1';
+	private const PAYMENT_REATTEMPT = '1';
+	private const PAYMENT_CYCLE_INFINITE = '0';
+	private const PAYMENT_CYCLE_MONTHLY = 'M';
+	private const DEFAULT_LOCALE = 'de_DE';
 
 	private $config;
 	private $itemName;

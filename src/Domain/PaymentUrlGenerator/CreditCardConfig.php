@@ -10,12 +10,12 @@ namespace WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator;
  */
 class CreditCardConfig {
 
-	const CONFIG_KEY_BASE_URL = 'base-url';
-	const CONFIG_KEY_PROJECT_ID = 'project-id';
-	const CONFIG_KEY_BACKGROUND_COLOR = 'background-color';
-	const CONFIG_KEY_LOGO = 'logo';
-	const CONFIG_KEY_THEME = 'theme';
-	const CONFIG_KEY_TESTMODE = 'testmode';
+	private const CONFIG_KEY_BASE_URL = 'base-url';
+	private const CONFIG_KEY_PROJECT_ID = 'project-id';
+	private const CONFIG_KEY_BACKGROUND_COLOR = 'background-color';
+	private const CONFIG_KEY_LOGO = 'logo';
+	private const CONFIG_KEY_THEME = 'theme';
+	private const CONFIG_KEY_TESTMODE = 'testmode';
 
 	private $baseUrl;
 	private $projectId;
