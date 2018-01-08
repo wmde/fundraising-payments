@@ -21,8 +21,8 @@ class SofortPayment implements PaymentMethod {
 		$this->bankTransferCode = $bankTransferCode;
 	}
 
-	public function getType(): string {
-		return PaymentType::SOFORT;
+	public function getId(): string {
+		return PaymentMethods::SOFORT;
 	}
 
 	public function getBankTransferCode(): string {

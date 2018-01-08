@@ -12,7 +12,7 @@ class SofortPaymentTest extends TestCase {
 
 	public function testInitialProperties(): void {
 		$sofortPayment = new SofortPayment( 'lorem' );
-		$this->assertSame( 'SUB', $sofortPayment->getType() );
+		$this->assertSame( 'SUB', $sofortPayment->getId() );
 		$this->assertSame( 'lorem', $sofortPayment->getBankTransferCode() );
 		$this->assertNull( $sofortPayment->getConfirmedAt() );
 	}

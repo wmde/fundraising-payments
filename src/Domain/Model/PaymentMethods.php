@@ -9,15 +9,15 @@ namespace WMDE\Fundraising\Frontend\PaymentContext\Domain\Model;
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-final class PaymentType {
+final class PaymentMethods {
 
-	const BANK_TRANSFER = 'UEB';
-	const CREDIT_CARD = 'MCP';
-	const DIRECT_DEBIT = 'BEZ';
-	const PAYPAL = 'PPL';
-	const SOFORT = 'SUB';
+	public const BANK_TRANSFER = 'UEB';
+	public const CREDIT_CARD = 'MCP';
+	public const DIRECT_DEBIT = 'BEZ';
+	public const PAYPAL = 'PPL';
+	public const SOFORT = 'SUB';
 
-	public static function getPaymentTypes(): array {
+	public static function getList(): array {
 		return ( new \ReflectionClass( self::class ) )->getConstants();
 	}
 

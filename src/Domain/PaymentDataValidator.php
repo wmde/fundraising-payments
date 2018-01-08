@@ -25,34 +25,34 @@ class PaymentDataValidator {
 
 	private $minAmount;
 	private $maxAmount;
-	private $allowedTypes = [];
+	private $allowedMethods = [];
 
 	private $minAmountPerType;
 
 	/**
 	 * @param float $minAmount
 	 * @param float $maxAmount
-	 * @param array $allowedTypes
-	 * @param float[] $minAmountPerType keys from the PaymentType enum
+	 * @param array $allowedMethods
+	 * @param float[] $minAmountPerType keys from the PaymentMethods enum
 	 */
-	public function __construct( float $minAmount, float $maxAmount, array $allowedTypes, array $minAmountPerType = [] ) {
+	public function __construct( float $minAmount, float $maxAmount, array $allowedMethods, array $minAmountPerType = [] ) {
 		$this->minAmount = $minAmount;
 		$this->maxAmount = $maxAmount;
-		$this->allowedTypes = $allowedTypes;
+		$this->allowedMethods = $allowedMethods;
 		$this->minAmountPerType = $minAmountPerType;
 	}
 
 	/**
 	 * @param mixed $amount For validation to succeed, needs to be numeric or Euro
-	 * @param string $paymentType
+	 * @param string $paymentMethodId
 	 *
 	 * @return ValidationResult
 	 */
-	public function validate( $amount, string $paymentType ): ValidationResult {
-		if ( !in_array( $paymentType, $this->allowedTypes ) ) {
+	public function validate( $amount, string $paymentMethodId ): ValidationResult {
+		if ( !in_array( $paymentMethodId, $this->allowedMethods ) ) {
 			return new ValidationResult(
 				new ConstraintViolation(
-					$paymentType,
+					$paymentMethodId,
 					self::VIOLATION_UNKNOWN_PAYMENT_TYPE,
 					self::SOURCE_PAYMENT_TYPE
 				)
@@ -73,7 +73,7 @@ class PaymentDataValidator {
 			);
 		}
 
-		if ( $amount < $this->getMinAmountFor( $paymentType ) ) {
+		if ( $amount < $this->getMinAmountFor( $paymentMethodId ) ) {
 			return new ValidationResult(
 				new ConstraintViolation(
 					$amount,

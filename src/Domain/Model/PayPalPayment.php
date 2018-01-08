@@ -16,8 +16,8 @@ class PayPalPayment implements PaymentMethod {
 		$this->payPalData = $payPalData;
 	}
 
-	public function getType(): string {
-		return PaymentType::PAYPAL;
+	public function getId(): string {
+		return PaymentMethods::PAYPAL;
 	}
 
 	public function getPayPalData(): PayPalData {

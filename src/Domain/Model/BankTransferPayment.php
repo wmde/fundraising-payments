@@ -16,8 +16,8 @@ class BankTransferPayment implements PaymentMethod {
 		$this->bankTransferCode = $bankTransferCode;
 	}
 
-	public function getType(): string {
-		return PaymentType::BANK_TRANSFER;
+	public function getId(): string {
+		return PaymentMethods::BANK_TRANSFER;
 	}
 
 	public function getBankTransferCode(): string {

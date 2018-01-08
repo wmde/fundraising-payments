@@ -10,13 +10,13 @@ namespace WMDE\Fundraising\Frontend\PaymentContext\Domain\Model;
  */
 class PaymentWithoutAssociatedData implements PaymentMethod {
 
-	private $paymentType;
+	private $paymentMethod;
 
-	public function __construct( string $paymentType ) {
-		$this->paymentType = $paymentType;
+	public function __construct( string $paymentMethodId ) {
+		$this->paymentMethod = $paymentMethodId;
 	}
 
-	public function getType(): string {
-		return $this->paymentType;
+	public function getId(): string {
+		return $this->paymentMethod;
 	}
 }

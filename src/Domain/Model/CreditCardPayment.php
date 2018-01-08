@@ -16,8 +16,8 @@ class CreditCardPayment implements PaymentMethod {
 		$this->creditCardData = $creditCardData;
 	}
 
-	public function getType(): string {
-		return PaymentType::CREDIT_CARD;
+	public function getId(): string {
+		return PaymentMethods::CREDIT_CARD;
 	}
 
 	public function getCreditCardData(): ?CreditCardTransactionData {

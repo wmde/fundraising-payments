@@ -11,8 +11,8 @@ namespace WMDE\Fundraising\Frontend\PaymentContext\Domain\Model;
 interface PaymentMethod {
 
 	/**
-	 * @return string Element of the PaymentType:: enum
+	 * @return string Element of the PaymentMethods:: enum
 	 */
-	public function getType(): string;
+	public function getId(): string;
 
 }
