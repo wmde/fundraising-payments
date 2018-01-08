@@ -10,12 +10,12 @@ namespace WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator;
  */
 class PayPalConfig {
 
-	const CONFIG_KEY_ACCOUNT_ADDRESS = 'account-address';
-	const CONFIG_KEY_BASE_URL = 'base-url';
-	const CONFIG_KEY_NOTIFY_URL = 'notify-url';
-	const CONFIG_KEY_RETURN_URL = 'return-url';
-	const CONFIG_KEY_CANCEL_URL = 'cancel-url';
-	const CONFIG_KEY_DELAY_IN_DAYS = 'delay-in-days';
+	public const CONFIG_KEY_ACCOUNT_ADDRESS = 'account-address';
+	public const CONFIG_KEY_BASE_URL = 'base-url';
+	public const CONFIG_KEY_NOTIFY_URL = 'notify-url';
+	public const CONFIG_KEY_RETURN_URL = 'return-url';
+	public const CONFIG_KEY_CANCEL_URL = 'cancel-url';
+	public const CONFIG_KEY_DELAY_IN_DAYS = 'delay-in-days';
 
 	private $payPalAccountAddress;
 	private $payPalBaseUrl;

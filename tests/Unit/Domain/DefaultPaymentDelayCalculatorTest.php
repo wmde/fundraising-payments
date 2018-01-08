@@ -15,7 +15,7 @@ use WMDE\Fundraising\Frontend\PaymentContext\Domain\DefaultPaymentDelayCalculato
  */
 class DefaultPaymentDelayCalculatorTest extends \PHPUnit\Framework\TestCase {
 
-	const PAYMENT_DELAY_IN_DAYS = 45;
+	private const PAYMENT_DELAY_IN_DAYS = 45;
 
 	public function testCalculatorAddsIntervalToGivenDate(): void {
 		$calculator = new DefaultPaymentDelayCalculator( self::PAYMENT_DELAY_IN_DAYS );
