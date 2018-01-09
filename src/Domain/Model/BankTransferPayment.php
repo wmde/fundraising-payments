@@ -17,7 +17,7 @@ class BankTransferPayment implements PaymentMethod {
 	}
 
 	public function getId(): string {
-		return PaymentMethods::BANK_TRANSFER;
+		return PaymentMethod::BANK_TRANSFER;
 	}
 
 	public function getBankTransferCode(): string {

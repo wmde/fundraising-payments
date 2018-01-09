@@ -22,7 +22,7 @@ class SofortPayment implements PaymentMethod {
 	}
 
 	public function getId(): string {
-		return PaymentMethods::SOFORT;
+		return PaymentMethod::SOFORT;
 	}
 
 	public function getBankTransferCode(): string {

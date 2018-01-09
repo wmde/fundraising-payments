@@ -17,7 +17,7 @@ class PayPalPayment implements PaymentMethod {
 	}
 
 	public function getId(): string {
-		return PaymentMethods::PAYPAL;
+		return PaymentMethod::PAYPAL;
 	}
 
 	public function getPayPalData(): PayPalData {

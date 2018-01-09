@@ -11,14 +11,8 @@ namespace WMDE\Fundraising\Frontend\PaymentContext\Domain\Model;
  */
 final class PaymentMethods {
 
-	public const BANK_TRANSFER = 'UEB';
-	public const CREDIT_CARD = 'MCP';
-	public const DIRECT_DEBIT = 'BEZ';
-	public const PAYPAL = 'PPL';
-	public const SOFORT = 'SUB';
-
 	public static function getList(): array {
-		return ( new \ReflectionClass( self::class ) )->getConstants();
+		return ( new \ReflectionClass( PaymentMethod::class ) )->getConstants();
 	}
 
 }

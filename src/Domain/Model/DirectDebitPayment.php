@@ -17,7 +17,7 @@ class DirectDebitPayment implements PaymentMethod {
 	}
 
 	public function getId(): string {
-		return PaymentMethods::DIRECT_DEBIT;
+		return PaymentMethod::DIRECT_DEBIT;
 	}
 
 	public function getBankData(): BankData {

@@ -10,8 +10,14 @@ namespace WMDE\Fundraising\Frontend\PaymentContext\Domain\Model;
  */
 interface PaymentMethod {
 
+	public const BANK_TRANSFER = 'UEB';
+	public const CREDIT_CARD = 'MCP';
+	public const DIRECT_DEBIT = 'BEZ';
+	public const PAYPAL = 'PPL';
+	public const SOFORT = 'SUB';
+
 	/**
-	 * @return string Element of the PaymentMethods:: enum
+	 * @return string Element of the PaymentMethod:: enum
 	 */
 	public function getId(): string;
 

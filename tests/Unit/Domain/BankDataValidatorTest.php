@@ -8,7 +8,6 @@ use WMDE\Fundraising\Frontend\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\Frontend\PaymentContext\Domain\IbanValidator;
 use WMDE\Fundraising\Frontend\PaymentContext\Domain\Model\BankData;
 use WMDE\Fundraising\Frontend\PaymentContext\Domain\Model\Iban;
-use WMDE\Fundraising\Frontend\Tests\Unit\Validation\ValidatorTestCase;
 use WMDE\FunValidators\ValidationResult;
 
 /**

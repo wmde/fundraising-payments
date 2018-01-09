@@ -17,7 +17,7 @@ class CreditCardPayment implements PaymentMethod {
 	}
 
 	public function getId(): string {
-		return PaymentMethods::CREDIT_CARD;
+		return PaymentMethod::CREDIT_CARD;
 	}
 
 	public function getCreditCardData(): ?CreditCardTransactionData {
