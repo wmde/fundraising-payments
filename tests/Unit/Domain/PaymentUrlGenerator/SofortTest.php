@@ -2,19 +2,19 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
+namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\Frontend\PaymentContext\DataAccess\Sofort\Transfer\Client;
-use WMDE\Fundraising\Frontend\PaymentContext\DataAccess\Sofort\Transfer\Request;
-use WMDE\Fundraising\Frontend\PaymentContext\DataAccess\Sofort\Transfer\Response;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\Sofort as SofortUrlGenerator;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\SofortConfig as SofortUrlConfig;
+use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Client;
+use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Request;
+use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Response;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort as SofortUrlGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\SofortConfig as SofortUrlConfig;
 
 /**
- * @covers \WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\Sofort
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort
  */
 class SofortTest extends TestCase {
 

@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Infrastructure;
+namespace WMDE\Fundraising\PaymentContext\Infrastructure;
 
 /**
  * @license GNU GPL v2+

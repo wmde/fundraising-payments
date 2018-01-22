@@ -2,11 +2,11 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\DataAccess;
+namespace WMDE\Fundraising\PaymentContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
 use WMDE\Fundraising\Entities\Donation;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\TransferCodeGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\TransferCodeGenerator;
 
 /**
  * @licence GNU GPL v2+

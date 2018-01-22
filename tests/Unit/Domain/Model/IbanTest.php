@@ -2,13 +2,13 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\Domain\Model;
+namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\Model\Iban;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 
 /**
- * @covers \WMDE\Fundraising\Frontend\PaymentContext\Domain\Model\Iban
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\Iban
  *
  * @licence GNU GPL v2+
  * @author Gabriel Birke < gabriel.birke@wikimedia.de >

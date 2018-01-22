@@ -2,13 +2,13 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\Domain;
+namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
 use DateTime;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\DefaultPaymentDelayCalculator;
+use WMDE\Fundraising\PaymentContext\Domain\DefaultPaymentDelayCalculator;
 
 /**
- * @covers \WMDE\Fundraising\Frontend\PaymentContext\Domain\DefaultPaymentDelayCalculator
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\DefaultPaymentDelayCalculator
  *
  * @licence GNU GPL v2+
  * @author Kai Nissen < kai.nissen@wikimedia.de >

@@ -2,11 +2,11 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\Domain\Model;
+namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\Model\SofortPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 
 class SofortPaymentTest extends TestCase {
 

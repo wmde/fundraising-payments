@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\RequestModel;
+namespace WMDE\Fundraising\PaymentContext\RequestModel;
 
 use WMDE\Euro\Euro;
 

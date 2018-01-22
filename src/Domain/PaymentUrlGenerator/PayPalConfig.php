@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator;
+namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
 /**
  * @licence GNU GPL v2+

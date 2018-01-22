@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Domain;
+namespace WMDE\Fundraising\PaymentContext\Domain;
 
 /**
  * Adds days to a given base date.

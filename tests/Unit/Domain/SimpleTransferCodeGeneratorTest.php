@@ -2,12 +2,12 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\Domain;
+namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\SimpleTransferCodeGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\SimpleTransferCodeGenerator;
 
 /**
- * @covers \WMDE\Fundraising\Frontend\PaymentContext\Domain\SimpleTransferCodeGenerator
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\SimpleTransferCodeGenerator
  *
  * @licence GNU GPL v2+
  * @author Kai Nissen < kai.nissen@wikimedia.de >

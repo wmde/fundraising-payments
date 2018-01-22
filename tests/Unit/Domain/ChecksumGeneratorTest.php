@@ -2,13 +2,13 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\Domain;
+namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\ChecksumGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\ChecksumGenerator;
 
 /**
- * @covers \WMDE\Fundraising\Frontend\PaymentContext\Domain\ChecksumGenerator
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\ChecksumGenerator
  *
  * @licence GNU GPL v2+
  */

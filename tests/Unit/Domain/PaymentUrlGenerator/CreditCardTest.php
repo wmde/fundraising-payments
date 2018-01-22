@@ -2,14 +2,14 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
+namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\CreditCard;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\CreditCardConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCard;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardConfig;
 
 /**
- * @covers \WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\CreditCard
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCard
  *
  * @licence GNU GPL v2+
  * @author Kai Nissen < kai.nissen@wikimedia.de >

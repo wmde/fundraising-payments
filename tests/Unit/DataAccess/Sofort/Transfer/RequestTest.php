@@ -2,14 +2,14 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\DataAccess\Sofort\Transfer;
+namespace WMDE\Fundraising\PaymentContext\Tests\Unit\DataAccess\Sofort\Transfer;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\Frontend\PaymentContext\DataAccess\Sofort\Transfer\Request;
+use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Request;
 
 /**
- * @covers \WMDE\Fundraising\Frontend\PaymentContext\DataAccess\Sofort\Transfer\Request
+ * @covers \WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Request
  */
 class RequestTest extends TestCase {
 

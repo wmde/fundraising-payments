@@ -2,12 +2,12 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator;
+namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
 use RuntimeException;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\Frontend\PaymentContext\DataAccess\Sofort\Transfer\Client;
-use WMDE\Fundraising\Frontend\PaymentContext\DataAccess\Sofort\Transfer\Request;
+use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Client;
+use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Request;
 
 /**
  * Generate the URL of the Sofort checkout process

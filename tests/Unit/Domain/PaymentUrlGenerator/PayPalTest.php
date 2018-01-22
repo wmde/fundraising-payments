@@ -2,14 +2,14 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
+namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\PayPal as PaypalUrlGenerator;
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPal as PaypalUrlGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
 
 /**
- * @covers \WMDE\Fundraising\Frontend\PaymentContext\Domain\PaymentUrlGenerator\PayPal
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPal
  *
  * @licence GNU GPL v2+
  * @author Kai Nissen < kai.nissen@wikimedia.de >

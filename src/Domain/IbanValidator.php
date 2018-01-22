@@ -2,9 +2,9 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\Frontend\PaymentContext\Domain;
+namespace WMDE\Fundraising\PaymentContext\Domain;
 
-use WMDE\Fundraising\Frontend\PaymentContext\Domain\Model\Iban;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\FunValidators\ValidationResult;
 
 /**
