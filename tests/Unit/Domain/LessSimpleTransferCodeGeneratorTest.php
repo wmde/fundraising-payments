@@ -49,11 +49,13 @@ class LessSimpleTransferCodeGeneratorTest extends TestCase {
 
 	/**
 	 * @dataProvider tooShortPrefixProvider
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessage The prefix must have a set length of 2 characters.
 	 */
 	public function testGenerationWithShortPrefixCausesException( string $prefix ): void {
 		$generator = LessSimpleTransferCodeGenerator::newRandomGenerator();
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'The prefix must have a set length of 2 characters.' );
+
 		$generator->generateTransferCode( $prefix );
 	}
 
@@ -62,12 +64,12 @@ class LessSimpleTransferCodeGeneratorTest extends TestCase {
 		yield [ 'X' ];
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessage The prefix must only contain characters from the ALLOWED_CHARACTERS set.
-	 */
 	public function testGenerationWithInvalidPrefixCharactersCausesException(): void {
 		$generator = LessSimpleTransferCodeGenerator::newRandomGenerator();
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'The prefix must only contain characters from the ALLOWED_CHARACTERS set.' );
+
 		$generator->generateTransferCode( '5S' );
 	}
 }
