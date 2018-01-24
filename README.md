@@ -1,6 +1,8 @@
 # Fundraising Payments
 
 [![Build Status](https://travis-ci.org/wmde/fundraising-payments.svg?branch=master)](https://travis-ci.org/wmde/fundraising-payments)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/wmde/fundraising-payments/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/wmde/fundraising-payments/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/wmde/fundraising-payments/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/wmde/fundraising-payments/?branch=master)
 
 Bounded Context for the Wikimedia Deutschland fundraising payment (sub-)domain. Used by the
 [user facing donation application](https://github.com/wmde/FundraisingFrontend) and the
