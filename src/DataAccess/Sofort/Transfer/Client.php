@@ -34,7 +34,6 @@ class Client {
 	 * @throws RuntimeException
 	 */
 	public function get( Request $request ): Response {
-
 		// Mapping currency amount to 3rd party float format. Known flaw
 		$this->api->setAmount( $request->getAmount()->getEuroFloat() );
 

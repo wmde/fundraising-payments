@@ -1,0 +1,37 @@
+{
+	"name": "wmde/fundraising-payments",
+	"license": "GPL-2.0-or-later",
+	"description": "Bounded Context for the Wikimedia Deutschland fundraising payment subdomain",
+	"require": {
+		"php": ">=7.1",
+
+		"wmde/euro": "~1.0",
+		"wmde/fun-validators": "~1.0",
+		"wmde/freezable-value-object": "~1.0",
+
+		"sofort/sofortlib-php": "^3.2"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "~6.2",
+		"ockcyp/covers-validator": "~0.6",
+		"squizlabs/php_codesniffer": "~3.0",
+		"slevomat/coding-standard": "~4.0",
+		"mediawiki/mediawiki-codesniffer": "~13.0",
+		"phpstan/phpstan": "~0.8.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"WMDE\\Fundraising\\PaymentContext\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"WMDE\\Fundraising\\PaymentContext\\Tests\\": "tests/"
+		}
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "1.0.x-dev"
+		}
+	}
+}
