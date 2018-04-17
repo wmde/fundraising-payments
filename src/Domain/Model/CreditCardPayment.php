@@ -8,7 +8,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
  * @licence GNU GPL v2+
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class CreditCardPayment implements PaymentMethod {
+class CreditCardPayment extends BasePaymentMethod {
 
 	private $creditCardData;
 

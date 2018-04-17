@@ -8,7 +8,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class BankTransferPayment implements PaymentMethod {
+class BankTransferPayment extends BasePaymentMethod {
 
 	private $bankTransferCode;
 

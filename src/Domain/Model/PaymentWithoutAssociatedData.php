@@ -8,7 +8,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-class PaymentWithoutAssociatedData implements PaymentMethod {
+class PaymentWithoutAssociatedData extends BasePaymentMethod {
 
 	private $paymentMethod;
 

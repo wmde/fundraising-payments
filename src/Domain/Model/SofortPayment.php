@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use DateTime;
 
-class SofortPayment implements PaymentMethod {
+class SofortPayment extends BasePaymentMethod {
 
 	/**
 	 * @var string
