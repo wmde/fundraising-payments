@@ -6,7 +6,10 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BasePaymentMethod;
+use WMDE\Fundraising\PaymentContext\Domain\Model\InvalidPaymentTypeException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentMethodStub;
 
 class SofortPaymentTest extends TestCase {
 
@@ -32,5 +35,30 @@ class SofortPaymentTest extends TestCase {
 		$sofortPayment = new SofortPayment( 'ipsum' );
 		$sofortPayment->setConfirmedAt( new DateTime( 'now' ) );
 		$this->assertTrue( $sofortPayment->isConfirmedPayment() );
+	}
+
+	public function testDispatchCallsCallbackForSofortPaymentFunction(): void {
+		$sofortPayment = new SofortPayment( 'ipsum' );
+		$sofortPayment->dispatch( function ( SofortPayment $payment ) use ( $sofortPayment ) {
+			$this->assertSame( $sofortPayment, $payment, 'Payment should be callback parameter' );
+		} );
+	}
+
+	public function testDispatchReturnsCallbackResult(): void {
+		$sofortPayment = new SofortPayment( 'ipsum' );
+		$this->assertSame(
+			'success!',
+			$sofortPayment->dispatch( function ( SofortPayment $payment ) {
+				return 'success!';
+			} )
+		);
+	}
+
+	public function testDispatchThrowsForNonSofortPaymentFunction(): void {
+		$sofortPayment = new SofortPayment( 'ipsum' );
+		$this->expectException( \TypeError::class );
+		$sofortPayment->dispatch( function ( PaymentMethodStub $payment ) {
+			$this->fail( 'Callback should not be called' );
+		} );
 	}
 }

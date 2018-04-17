@@ -21,4 +21,12 @@ interface PaymentMethod {
 	 */
 	public function getId(): string;
 
+	/**
+	 * Execute code for a specific payment method
+	 *
+	 * @param callable $callback
+	 * @return mixed
+	 */
+	public function dispatch( callable $callback );
+
 }
