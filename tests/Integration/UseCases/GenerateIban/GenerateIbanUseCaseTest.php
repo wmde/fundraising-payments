@@ -6,10 +6,9 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Integration\UseCases\GenerateIba
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
 use WMDE\Fundraising\PaymentContext\ResponseModel\IbanResponse;
 use WMDE\Fundraising\PaymentContext\Tests\Data\ValidBankData;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingIbanBlacklist;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingIbanBlacklist;
 use WMDE\Fundraising\PaymentContext\UseCases\GenerateIban\GenerateIbanRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\GenerateIban\GenerateIbanUseCase;
 
@@ -22,11 +21,11 @@ use WMDE\Fundraising\PaymentContext\UseCases\GenerateIban\GenerateIbanUseCase;
 class GenerateIbanUseCaseTest extends TestCase {
 
 	private $bankDataGenerator;
-	private $ibanBlacklist;
+	private $ibanBlocklist;
 
 	public function setUp() {
 		$this->bankDataGenerator = $this->newSucceedingBankDataGenerator();
-		$this->ibanBlacklist = new SucceedingIbanBlacklist();
+		$this->ibanBlocklist = new IbanBlocklist( [] );
 	}
 
 	private function newSucceedingBankDataGenerator(): BankDataGenerator {
@@ -40,7 +39,7 @@ class GenerateIbanUseCaseTest extends TestCase {
 	private function newGenerateIbanUseCase(): GenerateIbanUseCase {
 		return new GenerateIbanUseCase(
 			$this->bankDataGenerator,
-			$this->ibanBlacklist
+			$this->ibanBlocklist
 		);
 	}
 
@@ -65,21 +64,18 @@ class GenerateIbanUseCaseTest extends TestCase {
 		$this->bankDataGenerator->method( $this->anything() )->willThrowException( new \RuntimeException() );
 
 		$useCase = $this->newGenerateIbanUseCase();
+		$response = $useCase->generateIban( new GenerateIbanRequest( '1015754241', '20050550' ) );
 
-		$this->assertEquals(
-			IbanResponse::newFailureResponse(),
-			$useCase->generateIban( new GenerateIbanRequest( '1015754241', '20050550' ) )
-		);
+		$this->assertFalse( $response->isSuccessful() );
 	}
 
 	public function testWhenBlockedBankAccountDataIsGiven_failureResponseIsReturned(): void {
-		$this->ibanBlacklist = new FailingIbanBlacklist();
+		$this->ibanBlocklist = new IbanBlocklist( [ ValidBankData::IBAN ] );
 
 		$useCase = $this->newGenerateIbanUseCase();
+		$response = $useCase->generateIban( new GenerateIbanRequest( '1194700', '10020500' ) );
 
-		$this->assertEquals(
-			IbanResponse::newFailureResponse(),
-			$useCase->generateIban( new GenerateIbanRequest( '1194700', '10020500' ) )
-		);
+		$this->assertFalse( $response->isSuccessful() );
+
 	}
 }

@@ -5,7 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\UseCases\GenerateIban;
 
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\IbanBlacklist;
+use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
 use WMDE\Fundraising\PaymentContext\ResponseModel\IbanResponse;
 
 /**
@@ -15,11 +15,11 @@ use WMDE\Fundraising\PaymentContext\ResponseModel\IbanResponse;
 class GenerateIbanUseCase {
 
 	private $bankDataGenerator;
-	private $ibanBlacklist;
+	private $ibanBlocklist;
 
-	public function __construct( BankDataGenerator $bankDataGenerator, IbanBlacklist $ibanBlacklist ) {
+	public function __construct( BankDataGenerator $bankDataGenerator, IbanBlocklist $ibanBlocklist ) {
 		$this->bankDataGenerator = $bankDataGenerator;
-		$this->ibanBlacklist = $ibanBlacklist;
+		$this->ibanBlocklist = $ibanBlocklist;
 	}
 
 	public function generateIban( GenerateIbanRequest $request ): IbanResponse {
@@ -28,12 +28,12 @@ class GenerateIbanUseCase {
 				$request->getBankAccount(),
 				$request->getBankCode()
 			);
-
-			if ( $this->ibanBlacklist->isIbanBlocked( $bankData->getIban() ) ) {
-				return IbanResponse::newFailureResponse();
-			}
 		}
 		catch ( \RuntimeException $ex ) {
+			return IbanResponse::newFailureResponse();
+		}
+
+		if ( $this->ibanBlocklist->isIbanBlocked( $bankData->getIban() ) ) {
 			return IbanResponse::newFailureResponse();
 		}
 

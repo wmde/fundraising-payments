@@ -10,7 +10,7 @@ use WMDE\FunValidators\ValidationResult;
 /**
  * @licence GNU GPL v2+
  */
-interface IbanValidator extends IbanBlacklist {
+interface IbanValidator {
 
 	public function validate( Iban $value, string $fieldName = '' ): ValidationResult;
 
