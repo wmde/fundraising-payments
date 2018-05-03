@@ -31,8 +31,6 @@ class BankDataValidator {
 
 		if ( $bankData->getIban()->getCountryCode() === 'DE' ) {
 			$stringLengthValidator = new StringLengthValidator();
-			$violations[] = $this->getFieldViolation( $validator->validate( $bankData->getAccount() ), 'konto' );
-			$violations[] = $this->getFieldViolation( $validator->validate( $bankData->getBankCode() ), 'blz' );
 			$violations[] = $this->getFieldViolation(
 				$stringLengthValidator->validate( $bankData->getAccount(), 10 ),
 				'konto'
