@@ -8,6 +8,7 @@ use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
+use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResult;
 
 /**
@@ -22,11 +23,11 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider invalidBankDataProvider
 	 */
 	public function testFieldsMissing_validationFails( string $iban, string $bic, string $bankName,
-		string $bankCode, string $account ): void {
+		string $bankCode, string $account, string $message ): void {
 
 		$bankDataValidator = $this->newBankDataValidator();
 		$bankData = $this->newBankData( $iban, $bic, $bankName, $bankCode, $account );
-		$this->assertFalse( $bankDataValidator->validate( $bankData )->isSuccessful() );
+		$this->assertFalse( $bankDataValidator->validate( $bankData )->isSuccessful(), $message );
 	}
 
 	public function invalidBankDataProvider(): array {
@@ -37,6 +38,7 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'',
 				'',
 				'',
+				'BIC is not sufficient',
 			],
 			[
 				'',
@@ -44,28 +46,48 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'Scrooge Bank',
 				'',
 				'',
+				'Bank name is not sufficient',
 			],
-			# validation fails for German IBAN and missing obsolete account data
+			[
+				'',
+				'',
+				'Scrooge Bank',
+				'124567',
+				'12345678',
+				'Old-Style bank data is not sufficient',
+			],
 			[
 				'DE00123456789012345678',
 				'SCROUSDBXXX',
 				'Scrooge Bank',
-				'',
-				'',
+				'0000000000124567',
+				'000000000012345678',
+				'Old-Style bank data must not be too long',
 			],
 		];
 	}
 
-	public function testAllRequiredFieldsGiven_validationSucceeds(): void {
+	public function testGivenFailingIbanValidator_validationFails() {
+		$failingIbanValidator = $this->getMockBuilder( IbanValidator::class )->disableOriginalConstructor()->getMock();
+		$failingIbanValidator->method( 'validate' )
+			->willReturn( new ValidationResult( new ConstraintViolation( '', 'IBAN smells funny' ) ) );
+		$bankData = $this->newBankData( 'DE00123456789012345678', 'SCROUSDBXXX', 'Scrooge Bank',
+			'12345678', '1234567890' );
+		$validator = new BankDataValidator( $failingIbanValidator );
+
+		$this->assertFalse( $validator->validate( $bankData )->isSuccessful() );
+	}
+
+	/**
+	 * @dataProvider validBankDataProvider
+	 */
+	public function testAllRequiredFieldsGiven_validationSucceeds( string $iban, string $bic, string $bankName,
+		string $bankCode, string $account, string $message ): void {
+
+		$bankData = $this->newBankData( $iban, $bic, $bankName, $bankCode, $account );
 		$bankDataValidator = $this->newBankDataValidator();
-		$bankData = $this->newBankData(
-			'DE00123456789012345678',
-			'SCROUSDBXXX',
-			'Scrooge Bank',
-			'12345678',
-			'1234567890'
-		);
-		$this->assertTrue( $bankDataValidator->validate( $bankData )->isSuccessful() );
+
+		$this->assertTrue( $bankDataValidator->validate( $bankData )->isSuccessful(), $message );
 	}
 
 	public function validBankDataProvider(): array {
@@ -76,6 +98,7 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'',
 				'',
 				'',
+				'Single IBAN is valid',
 			],
 			[
 				'DB00123456789012345678',
@@ -83,6 +106,7 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'Scrooge Bank',
 				'',
 				'',
+				'IBAN, BIC and Bank name are valid',
 			],
 			[
 				'DE00123456789012345678',
@@ -90,6 +114,7 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'Scrooge Bank',
 				'12345678',
 				'1234567890',
+				'Full set of payment data is valid',
 			],
 		];
 	}
@@ -100,7 +125,8 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 			->setBic( $bic )
 			->setBankName( $bankName )
 			->setBankCode( $bankCode )
-			->setAccount( $account );
+			->setAccount( $account )
+			->freeze();
 	}
 
 	private function newBankDataValidator(): BankDataValidator {
