@@ -32,13 +32,6 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 	public function invalidBankDataProvider(): array {
 		return [
 			[
-				'DB00123456789012345678',
-				'',
-				'',
-				'',
-				'',
-			],
-			[
 				'',
 				'SCROUSDBXXX',
 				'',
@@ -77,6 +70,13 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 
 	public function validBankDataProvider(): array {
 		return [
+			[
+				'DB00123456789012345678',
+				'',
+				'',
+				'',
+				'',
+			],
 			[
 				'DB00123456789012345678',
 				'SCROUSDBXXX',
