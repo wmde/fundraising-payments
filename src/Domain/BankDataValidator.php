@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain;
 
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 use WMDE\FunValidators\CanValidateField;
+use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResult;
 use WMDE\FunValidators\Validators\RequiredFieldValidator;
 use WMDE\FunValidators\Validators\StringLengthValidator;
@@ -17,6 +18,12 @@ use WMDE\FunValidators\Validators\StringLengthValidator;
 class BankDataValidator {
 	use CanValidateField;
 
+	public const INVALID_BIC = 'invalid_bic';
+
+	private const BIC_MAXLEN = 11;
+	private const BANK_ACCOUNT_MAXLEN = 10;
+	private const BANK_CODE_MAXLEN = 8;
+
 	private $ibanValidator;
 
 	public function __construct( IbanValidator $ibanValidator ) {
@@ -24,22 +31,23 @@ class BankDataValidator {
 	}
 
 	public function validate( BankData $bankData ): ValidationResult {
-		$validator = new RequiredFieldValidator();
+		$requiredValidator = new RequiredFieldValidator();
+		$stringLengthValidator = new StringLengthValidator();
 		$violations = [];
 
-		$violations[] = $this->getFieldViolation( $validator->validate( $bankData->getIban()->toString() ), 'iban' );
-		$violations[] = $this->getFieldViolation( $validator->validate( $bankData->getBic() ), 'bic' );
+		$violations[] = $this->getFieldViolation(
+			$requiredValidator->validate( $bankData->getIban()->toString() ),
+			'iban'
+		);
+		$violations[] = $this->validateBic( $bankData->getBic() );
 
 		if ( $bankData->getIban()->getCountryCode() === 'DE' ) {
-			$stringLengthValidator = new StringLengthValidator();
-			$violations[] = $this->getFieldViolation( $validator->validate( $bankData->getAccount() ), 'konto' );
-			$violations[] = $this->getFieldViolation( $validator->validate( $bankData->getBankCode() ), 'blz' );
 			$violations[] = $this->getFieldViolation(
-				$stringLengthValidator->validate( $bankData->getAccount(), 10 ),
+				$stringLengthValidator->validate( $bankData->getAccount(), self::BANK_ACCOUNT_MAXLEN ),
 				'konto'
 			);
 			$violations[] = $this->getFieldViolation(
-				$stringLengthValidator->validate( $bankData->getBankCode(), 8 ),
+				$stringLengthValidator->validate( $bankData->getBankCode(), self::BANK_CODE_MAXLEN ),
 				'blz'
 			);
 		}
@@ -47,6 +55,14 @@ class BankDataValidator {
 		$violations[] = $this->getFieldViolation( $this->ibanValidator->validate( $bankData->getIban() ), 'iban' );
 
 		return new ValidationResult( ...array_filter( $violations ) );
+	}
+
+	private function validateBic( string $bic ): ?ConstraintViolation {
+		// see https://en.wikipedia.org/wiki/ISO_9362
+		if ( $bic === '' || preg_match( '/^[A-Z]{6}[2-9A-Z][0-9A-NP-Z](XXX|[0-9A-WYZ][0-9A-Z]{2})?$/', $bic ) ) {
+			return null;
+		}
+		return new ConstraintViolation( $bic, self::INVALID_BIC, 'bic' );
 	}
 
 }
