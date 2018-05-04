@@ -64,6 +64,22 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'000000000012345678',
 				'Old-Style bank data must not be too long',
 			],
+			[
+				'DE00123456789012345678',
+				' BCEELULL ',
+				'',
+				'',
+				'',
+				'BIC must not contain spaces',
+			],
+			[
+				'DE00123456789012345678',
+				'No BIC',
+				'Scrooge Bank',
+				'',
+				'',
+				'BIC must be well-formed',
+			],
 		];
 	}
 
@@ -99,6 +115,30 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'',
 				'',
 				'Single IBAN is valid',
+			],
+			[
+				'DB00123456789012345678',
+				'RZTIAT22263',
+				'',
+				'',
+				'',
+				'Long BIC is valid',
+			],
+			[
+				'DB00123456789012345678',
+				'BCEELULL',
+				'',
+				'',
+				'',
+				'Short BIC is valid',
+			],
+			[
+				'DB00123456789012345678',
+				'BELADEBEXXX',
+				'',
+				'',
+				'',
+				'BIC with XXX branch name is valid',
 			],
 			[
 				'DB00123456789012345678',
