@@ -59,6 +59,14 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 			[
 				'DE00123456789012345678',
 				'SCROUSDBXXX',
+				str_repeat( 'Cats', 500 ),
+				'124567',
+				'12345678',
+				'Bank name must not be too long',
+			],
+			[
+				'DE00123456789012345678',
+				'SCROUSDBXXX',
 				'Scrooge Bank',
 				'0000000000124567',
 				'000000000012345678',
