@@ -20,9 +20,9 @@ class BankDataValidator {
 
 	public const INVALID_BIC = 'invalid_bic';
 
-	private const BIC_MAXLEN = 11;
 	private const BANK_ACCOUNT_MAXLEN = 10;
 	private const BANK_CODE_MAXLEN = 8;
+	private const BANK_NAME_MAXLEN = 250;
 
 	private $ibanValidator;
 
@@ -40,6 +40,10 @@ class BankDataValidator {
 			'iban'
 		);
 		$violations[] = $this->validateBic( $bankData->getBic() );
+		$violations[] = $this->getFieldViolation(
+			$stringLengthValidator->validate( $bankData->getBankName(), self::BANK_NAME_MAXLEN ),
+			'bankname'
+		);
 
 		if ( $bankData->getIban()->getCountryCode() === 'DE' ) {
 			$violations[] = $this->getFieldViolation(
