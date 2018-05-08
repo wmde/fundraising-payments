@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
+use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
@@ -23,11 +24,16 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider invalidBankDataProvider
 	 */
 	public function testFieldsMissing_validationFails( string $iban, string $bic, string $bankName,
-		string $bankCode, string $account, string $message ): void {
+		string $bankCode, string $account, string $expectedViolation, string $expectedSource, string $message ): void {
 
 		$bankDataValidator = $this->newBankDataValidator();
 		$bankData = $this->newBankData( $iban, $bic, $bankName, $bankCode, $account );
-		$this->assertFalse( $bankDataValidator->validate( $bankData )->isSuccessful(), $message );
+
+		$validationResult = $bankDataValidator->validate( $bankData );
+
+		$this->assertFalse( $validationResult->isSuccessful(), $message );
+		$this->assertEquals( $expectedViolation, $validationResult->getViolations()[0]->getMessageIdentifier() );
+		$this->assertEquals( $expectedSource, $validationResult->getViolations()[0]->getSource() );
 	}
 
 	public function invalidBankDataProvider(): array {
@@ -38,6 +44,8 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'',
 				'',
 				'',
+				BankDataValidationResult::VIOLATION_MISSING,
+				BankDataValidationResult::SOURCE_IBAN,
 				'BIC is not sufficient',
 			],
 			[
@@ -46,6 +54,8 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'Scrooge Bank',
 				'',
 				'',
+				BankDataValidationResult::VIOLATION_MISSING,
+				BankDataValidationResult::SOURCE_IBAN,
 				'Bank name is not sufficient',
 			],
 			[
@@ -54,6 +64,8 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'Scrooge Bank',
 				'124567',
 				'12345678',
+				BankDataValidationResult::VIOLATION_MISSING,
+				BankDataValidationResult::SOURCE_IBAN,
 				'Old-Style bank data is not sufficient',
 			],
 			[
@@ -62,6 +74,8 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				str_repeat( 'Cats', 500 ),
 				'124567',
 				'12345678',
+				BankDataValidationResult::VIOLATION_WRONG_LENGTH,
+				BankDataValidationResult::SOURCE_BANK_NAME,
 				'Bank name must not be too long',
 			],
 			[
@@ -70,6 +84,8 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'Scrooge Bank',
 				'0000000000124567',
 				'000000000012345678',
+				BankDataValidationResult::VIOLATION_WRONG_LENGTH,
+				BankDataValidationResult::SOURCE_BANK_ACCOUNT,
 				'Old-Style bank data must not be too long',
 			],
 			[
@@ -78,6 +94,8 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'',
 				'',
 				'',
+				BankDataValidationResult::VIOLATION_INVALID_BIC,
+				BankDataValidationResult::SOURCE_BIC,
 				'BIC must not contain spaces',
 			],
 			[
@@ -86,6 +104,8 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 				'Scrooge Bank',
 				'',
 				'',
+				BankDataValidationResult::VIOLATION_INVALID_BIC,
+				BankDataValidationResult::SOURCE_BIC,
 				'BIC must be well-formed',
 			],
 		];
@@ -99,7 +119,10 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 			'12345678', '1234567890' );
 		$validator = new BankDataValidator( $failingIbanValidator );
 
-		$this->assertFalse( $validator->validate( $bankData )->isSuccessful() );
+		$result = $validator->validate( $bankData );
+
+		$this->assertFalse( $result->isSuccessful() );
+		$this->assertEquals( BankDataValidationResult::SOURCE_IBAN, $result->getViolations()[0]->getSource() );
 	}
 
 	/**

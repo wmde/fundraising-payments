@@ -14,6 +14,9 @@ test: covers phpunit
 
 cs: phpcs stan
 
+fix-cs:
+	docker-compose run --rm --no-deps app ./vendor/bin/phpcbf
+
 phpunit:
 	docker-compose run --rm app ./vendor/bin/phpunit
 

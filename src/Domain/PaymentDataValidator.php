@@ -15,14 +15,6 @@ use WMDE\FunValidators\ValidationResult;
  */
 class PaymentDataValidator {
 
-	private const VIOLATION_AMOUNT_NOT_NUMERIC = 'Amount is not numeric';
-	private const VIOLATION_AMOUNT_TOO_LOW = 'Amount too low';
-	private const VIOLATION_AMOUNT_TOO_HIGH = 'Amount too high';
-	private const VIOLATION_UNKNOWN_PAYMENT_TYPE = 'Unknown payment type';
-
-	private const SOURCE_AMOUNT = 'amount';
-	private const SOURCE_PAYMENT_TYPE = 'paymentType';
-
 	private $minAmount;
 	private $maxAmount;
 	private $allowedMethods = [];
@@ -53,8 +45,8 @@ class PaymentDataValidator {
 			return new ValidationResult(
 				new ConstraintViolation(
 					$paymentMethodId,
-					self::VIOLATION_UNKNOWN_PAYMENT_TYPE,
-					self::SOURCE_PAYMENT_TYPE
+					PaymentDataValidationResult::VIOLATION_UNKNOWN_PAYMENT_TYPE,
+					PaymentDataValidationResult::SOURCE_PAYMENT_TYPE
 				)
 			);
 		}
@@ -67,8 +59,8 @@ class PaymentDataValidator {
 			return new ValidationResult(
 				new ConstraintViolation(
 					$amount,
-					self::VIOLATION_AMOUNT_NOT_NUMERIC,
-					self::SOURCE_AMOUNT
+					PaymentDataValidationResult::VIOLATION_AMOUNT_NOT_NUMERIC,
+					PaymentDataValidationResult::SOURCE_AMOUNT
 				)
 			);
 		}
@@ -77,8 +69,8 @@ class PaymentDataValidator {
 			return new ValidationResult(
 				new ConstraintViolation(
 					$amount,
-					self::VIOLATION_AMOUNT_TOO_LOW,
-					self::SOURCE_AMOUNT
+					PaymentDataValidationResult::VIOLATION_AMOUNT_TOO_LOW,
+					PaymentDataValidationResult::SOURCE_AMOUNT
 				)
 			);
 		}
@@ -87,8 +79,8 @@ class PaymentDataValidator {
 			return new ValidationResult(
 				new ConstraintViolation(
 					$amount,
-					self::VIOLATION_AMOUNT_TOO_HIGH,
-					self::SOURCE_AMOUNT
+					PaymentDataValidationResult::VIOLATION_AMOUNT_TOO_HIGH,
+					PaymentDataValidationResult::SOURCE_AMOUNT
 				)
 			);
 		}
