@@ -39,18 +39,6 @@ class PaymentDataValidatorTest extends \PHPUnit\Framework\TestCase {
 		$this->assertFalse( $validator->validate( 'much money', 'UEB' )->isSuccessful() );
 	}
 
-	public function testGivenPaymentMethodSpecificLimits_differentPaymentMethodUsesMainLimit(): void {
-		$validator = new PaymentDataValidator( 1, 100000, [ 'UEB', 'BEZ', 'PPL' ], [ 'BEZ' => 100, 'PPL' => 200 ] );
-		$this->assertTrue( $validator->validate( 50, 'UEB' )->isSuccessful() );
-	}
-
-	public function testGivenPaymentWithTypeSpecificLimits_specificLimitIsUsed(): void {
-		$validator = new PaymentDataValidator( 10, 100000, [ 'UEB', 'BEZ', 'PPL' ], [ 'BEZ' => 50, 'UEB' => 100 ] );
-
-		$this->assertTrue( $validator->validate( 60, 'BEZ' )->isSuccessful() );
-		$this->assertFalse( $validator->validate( 40, 'BEZ' )->isSuccessful() );
-	}
-
 	public function testNumberEqualToBoundIsAllowed(): void {
 		$validator = $this->newPaymentValidator();
 		$this->assertTrue( $validator->validate( 1, 'UEB' )->isSuccessful() );
