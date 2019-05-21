@@ -31,4 +31,4 @@ covers:
 
 composer:
 	docker run --rm --interactive --tty --volume $(shell pwd):/app -w /app\
-	 --volume ~/.composer:/composer --user $(shell id -u):$(shell id -g) composer composer --no-scripts $(filter-out $@,$(MAKECMDGOALS))
+	 --volume ~/.composer:/composer --user $(shell id -u):$(shell id -g) wikimediade/fundraising-frontend:composer composer --no-scripts $(filter-out $@,$(MAKECMDGOALS))
