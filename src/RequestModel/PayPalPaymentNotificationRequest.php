@@ -211,11 +211,11 @@ class PayPalPaymentNotificationRequest {
 		return $this;
 	}
 
-	public function getPaymentTimestamp(): string {
+	public function getPaymentTimestamp(): \DateTimeImmutable {
 		return $this->paymentTimestamp;
 	}
 
-	public function setPaymentTimestamp( string $paymentTimestamp ): self {
+	public function setPaymentTimestamp( \DateTimeImmutable $paymentTimestamp ): self {
 		$this->paymentTimestamp = $paymentTimestamp;
 		return $this;
 	}
