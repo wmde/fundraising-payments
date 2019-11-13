@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
+use DateTimeImmutable;
+
 /**
  * @licence GNU GPL v2+
  * @author Kai Nissen < kai.nissen@wikimedia.de >
@@ -27,4 +29,13 @@ class CreditCardPayment implements PaymentMethod {
 	public function addCreditCardTransactionData( CreditCardTransactionData $creditCardData ): void {
 		$this->creditCardData = $creditCardData;
 	}
+
+	public function hasExternalProvider(): bool {
+		return true;
+	}
+
+	public function getValuationDate(): ?DateTimeImmutable {
+		return DateTimeImmutable::createFromMutable( $this->creditCardData->getTransactionTimestamp() );
+	}
+
 }

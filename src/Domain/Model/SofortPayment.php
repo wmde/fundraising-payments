@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use DateTime;
+use DateTimeImmutable;
 
 class SofortPayment implements PaymentMethod {
 
@@ -40,4 +41,13 @@ class SofortPayment implements PaymentMethod {
 	public function isConfirmedPayment(): bool {
 		return !is_null( $this->getConfirmedAt() );
 	}
+
+	public function hasExternalProvider(): bool {
+		return true;
+	}
+
+	public function getValuationDate(): ?DateTimeImmutable {
+		return $this->confirmedAt ? DateTimeImmutable::createFromMutable( $this->confirmedAt ) : null;
+	}
+
 }
