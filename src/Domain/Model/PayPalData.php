@@ -211,4 +211,8 @@ class PayPalData {
 		return $this->childPayments[$paymentId];
 	}
 
+	public function getAllChildPayments(): array {
+		return $this->childPayments;
+	}
+
 }
