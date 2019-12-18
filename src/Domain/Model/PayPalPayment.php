@@ -27,4 +27,13 @@ class PayPalPayment implements PaymentMethod {
 	public function addPayPalData( PayPalData $palPayData ): void {
 		$this->payPalData = $palPayData;
 	}
+
+	public function hasExternalProvider(): bool {
+		return true;
+	}
+
+	public function getValuationDate(): \DateTimeImmutable {
+		return new \DateTimeImmutable( $this->payPalData->getPaymentTimestamp() );
+	}
+
 }

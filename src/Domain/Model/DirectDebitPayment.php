@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
+use DateTimeImmutable;
+
 /**
  * @licence GNU GPL v2+
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
@@ -22,6 +24,14 @@ class DirectDebitPayment implements PaymentMethod {
 
 	public function getBankData(): BankData {
 		return $this->bankData;
+	}
+
+	public function hasExternalProvider(): bool {
+		return false;
+	}
+
+	public function getValuationDate(): ?DateTimeImmutable {
+		return null;
 	}
 
 }
