@@ -14,12 +14,20 @@ use WMDE\FreezableValueObject\FreezableValueObject;
 class PayPalData {
 	use FreezableValueObject;
 
+	const TIMESTAMP_FORMAT = 'H:i:s M j, Y T';
+
 	private $payerId = '';
 	private $subscriberId = '';
 	private $payerStatus = '';
 	private $addressStatus = '';
+	/**
+	 * @var Euro
+	 */
 	private $amount;
 	private $currencyCode = '';
+	/**
+	 * @var Euro
+	 */
 	private $fee;
 	private $settleAmount;
 	private $firstName = '';
@@ -28,7 +36,10 @@ class PayPalData {
 	private $paymentId = '';
 	private $paymentType = '';
 	private $paymentStatus = '';
-	private $paymentTimestamp = '';
+	/**
+	 * @var \DateTimeImmutable
+	 */
+	private $paymentTime;
 	private $firstPaymentDate = '';
 	private $childPayments = [];
 
@@ -178,13 +189,39 @@ class PayPalData {
 		return $this;
 	}
 
+	/**
+	 * @deprecated
+	 * @see getPaymentTime
+	 */
 	public function getPaymentTimestamp(): string {
-		return $this->paymentTimestamp;
+		return $this->paymentTime->format( self::TIMESTAMP_FORMAT );
 	}
 
+	public function getPaymentTime(): \DateTimeImmutable {
+		return $this->paymentTime;
+	}
+
+	/**
+	 * @deprecated
+	 * @see setPaymentTime
+	 */
 	public function setPaymentTimestamp( string $paymentTimestamp ): self {
 		$this->assertIsWritable();
-		$this->paymentTimestamp = $paymentTimestamp;
+		$time = \DateTimeImmutable::createFromFormat( self::TIMESTAMP_FORMAT, $paymentTimestamp );
+		if ( !$time ) {
+			throw new \InvalidArgumentException( sprintf(
+				'Could not create PayPal Payment Timestamp in format "%s" from timestamp "%s"',
+				self::TIMESTAMP_FORMAT,
+				$paymentTimestamp
+			) );
+		}
+		$this->paymentTime = $time;
+		return $this;
+	}
+
+	public function setPaymentTime( \DateTimeImmutable $paymentTime ): self {
+		$this->assertIsWritable();
+		$this->paymentTime = $paymentTime;
 		return $this;
 	}
 
