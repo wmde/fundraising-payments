@@ -16,8 +16,8 @@
 		"ockcyp/covers-validator": "~0.7.1",
 		"squizlabs/php_codesniffer": "~3.0",
 		"slevomat/coding-standard": "~4.0",
-		"mediawiki/mediawiki-codesniffer": "~13.0",
-		"phpstan/phpstan": "~0.8.0"
+		"mediawiki/mediawiki-codesniffer": "~28.0",
+		"phpstan/phpstan": "~0.11.0"
 	},
 	"autoload": {
 		"psr-4": {
