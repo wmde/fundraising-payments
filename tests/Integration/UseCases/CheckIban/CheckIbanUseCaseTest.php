@@ -23,7 +23,7 @@ class CheckIbanUseCaseTest extends TestCase {
 	private $ibanBlocklist;
 	private $ibanValidator;
 
-	protected function setUp()/* The :void return type declaration that should be here would cause a BC issue */ {
+	protected function setUp(): void {
 		$this->bankDataGenerator = $this->newSucceedingBankDataGenerator();
 		$this->ibanBlocklist = new IbanBlocklist( [] );
 		$this->ibanValidator = $this->newSucceedingIbanValidator();

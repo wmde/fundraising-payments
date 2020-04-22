@@ -170,5 +170,6 @@
     <rule ref="MediaWiki.WhiteSpace.DisallowEmptyLineFunctions">
         <exclude name="MediaWiki.WhiteSpace.DisallowEmptyLineFunctions.NoEmptyLine" />
         <exclude name="MediaWiki.WhiteSpace.SpaceAfterClosure.NoWhitespaceAfterClosure" />
+        <exclude name="PEAR.Functions.FunctionCallSignature.OpeningIndent" />
     </rule>
 </ruleset>
