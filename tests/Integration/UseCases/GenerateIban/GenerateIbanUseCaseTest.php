@@ -23,7 +23,7 @@ class GenerateIbanUseCaseTest extends TestCase {
 	private $bankDataGenerator;
 	private $ibanBlocklist;
 
-	public function setUp() {
+	public function setUp(): void {
 		$this->bankDataGenerator = $this->newSucceedingBankDataGenerator();
 		$this->ibanBlocklist = new IbanBlocklist( [] );
 	}
