@@ -6,7 +6,7 @@
 		"php": ">=7.4",
 
 		"wmde/euro": "~1.0",
-		"wmde/fun-validators": "~1.0",
+		"wmde/fun-validators": "~v2.0.0",
 		"wmde/freezable-value-object": "~1.0",
 
 		"sofort/sofortlib-php": "^3.2"
@@ -19,6 +19,13 @@
 		"mediawiki/mediawiki-codesniffer": "~26.0",
 		"phpstan/phpstan": "~0.12.0"
 	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/wmde/fun-validators",
+			"no-api": true
+		}
+	],
 	"autoload": {
 		"psr-4": {
 			"WMDE\\Fundraising\\PaymentContext\\": "src/"
