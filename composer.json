@@ -6,7 +6,7 @@
 		"php": ">=7.4",
 
 		"wmde/euro": "~1.0",
-		"wmde/fun-validators": "~v2.0.0",
+		"wmde/fun-validators": "~v3.0.0",
 		"wmde/freezable-value-object": "~1.0",
 
 		"sofort/sofortlib-php": "^3.2"
