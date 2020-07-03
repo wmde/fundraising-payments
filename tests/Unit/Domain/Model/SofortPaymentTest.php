@@ -8,6 +8,9 @@ use DateTime;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 
+/**
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment
+ */
 class SofortPaymentTest extends TestCase {
 
 	public function testInitialProperties(): void {

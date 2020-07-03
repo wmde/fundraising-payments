@@ -18,8 +18,8 @@ class PayPal {
 	private const PAYMENT_CYCLE_MONTHLY = 'M';
 	private const DEFAULT_LOCALE = 'de_DE';
 
-	private $config;
-	private $itemName;
+	private PayPalConfig $config;
+	private string $itemName;
 
 	public function __construct( PayPalConfig $config, string $itemName ) {
 		$this->config = $config;
@@ -73,8 +73,12 @@ class PayPal {
 
 	/**
 	 * This method returns a set of parameters needed for recurring payments.
-	 *
 	 * @link https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/wp_standard_overview/
+	 *
+	 * @param Euro $amount
+	 * @param int $interval
+	 *
+	 * @return array
 	 */
 	private function getSubscriptionParams( Euro $amount, int $interval ): array {
 		return [
@@ -94,6 +98,10 @@ class PayPal {
 	 * trial periods supported by PayPal.
 	 *
 	 * @link https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/wp_standard_overview/
+	 *
+	 * @param int $delayInDays
+	 *
+	 * @return array
 	 */
 	private function getDelayedSubscriptionParams( int $delayInDays ): array {
 		return [
@@ -107,6 +115,10 @@ class PayPal {
 	 * This method returns a set of parameters needed for one time payments.
 	 *
 	 * @link https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/wp_standard_overview/
+	 *
+	 * @param Euro $amount
+	 *
+	 * @return array
 	 */
 	private function getSinglePaymentParams( Euro $amount ): array {
 		return [
