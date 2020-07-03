@@ -10,7 +10,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\Iban
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Gabriel Birke < gabriel.birke@wikimedia.de >
  */
 class IbanTest extends TestCase {

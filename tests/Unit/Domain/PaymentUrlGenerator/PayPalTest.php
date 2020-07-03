@@ -11,7 +11,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPal
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class PayPalTest extends \PHPUnit\Framework\TestCase {

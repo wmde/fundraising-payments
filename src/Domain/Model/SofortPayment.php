@@ -39,7 +39,7 @@ class SofortPayment implements PaymentMethod {
 	}
 
 	public function isConfirmedPayment(): bool {
-		return !is_null( $this->getConfirmedAt() );
+		return $this->getConfirmedAt() !== null;
 	}
 
 	public function hasExternalProvider(): bool {

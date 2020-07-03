@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain;
 use WMDE\FunValidators\ValidationResult;
 
 /**
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Gabriel Birke < gabriel.birke@wikimedia.de >
  */
 class PaymentDataValidationResult extends ValidationResult {

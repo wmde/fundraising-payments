@@ -10,7 +10,7 @@ use WMDE\Fundraising\PaymentContext\Domain\DefaultPaymentDelayCalculator;
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\DefaultPaymentDelayCalculator
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class DefaultPaymentDelayCalculatorTest extends \PHPUnit\Framework\TestCase {

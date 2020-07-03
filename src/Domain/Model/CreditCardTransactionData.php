@@ -9,7 +9,7 @@ use WMDE\FreezableValueObject\FreezableValueObject;
 use WMDE\Fundraising\PaymentContext\Infrastructure\CreditCardExpiry;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class CreditCardTransactionData {

@@ -15,7 +15,7 @@ use WMDE\FunValidators\ValidationResult;
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\BankDataValidator
  *
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
@@ -25,7 +25,6 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testFieldsMissing_validationFails( string $iban, string $bic, string $bankName,
 		string $bankCode, string $account, string $expectedViolation, string $expectedSource, string $message ): void {
-
 		$bankDataValidator = $this->newBankDataValidator();
 		$bankData = $this->newBankData( $iban, $bic, $bankName, $bankCode, $account );
 
@@ -130,7 +129,6 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testAllRequiredFieldsGiven_validationSucceeds( string $iban, string $bic, string $bankName,
 		string $bankCode, string $account, string $message ): void {
-
 		$bankData = $this->newBankData( $iban, $bic, $bankName, $bankCode, $account );
 		$bankDataValidator = $this->newBankDataValidator();
 

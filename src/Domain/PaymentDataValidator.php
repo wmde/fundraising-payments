@@ -9,7 +9,7 @@ use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResult;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
@@ -37,7 +37,6 @@ class PaymentDataValidator {
 	 * @return ValidationResult
 	 */
 	public function validate( $amount, string $paymentMethodId ): ValidationResult {
-
 		$violations = array_filter( [
 			$this->validatePaymentMethod( $paymentMethodId ),
 			$this->validateAmount( $amount )
@@ -64,7 +63,6 @@ class PaymentDataValidator {
 	 * @return ConstraintViolation|null
 	 */
 	public function validateAmount( $amount ): ?ConstraintViolation {
-
 		if ( $amount instanceof Euro ) {
 			$amount = $amount->getEuroFloat();
 		}
