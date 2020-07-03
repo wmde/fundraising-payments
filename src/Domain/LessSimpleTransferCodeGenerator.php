@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain;
 use InvalidArgumentException;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  */
 class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 
@@ -29,7 +29,7 @@ class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 
 	public static function newRandomGenerator(): self {
 		return new self(
-			( function() {
+			( function () {
 				$characterCount = strlen( self::ALLOWED_CHARACTERS );
 				$characters = str_split( self::ALLOWED_CHARACTERS );
 				while ( true ) {

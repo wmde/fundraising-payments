@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 use WMDE\Euro\Euro;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class PayPal {
@@ -28,7 +28,6 @@ class PayPal {
 
 	public function generateUrl( int $itemId, Euro $amount, int $interval,
 		string $updateToken, string $accessToken ): string {
-
 		$params = array_merge(
 			$this->getIntervalDependentParameters( $amount, $interval ),
 			$this->getIntervalAgnosticParameters( $itemId, $updateToken, $accessToken ),

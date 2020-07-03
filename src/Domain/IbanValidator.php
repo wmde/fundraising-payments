@@ -8,7 +8,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\FunValidators\ValidationResult;
 
 /**
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  */
 interface IbanValidator {
 

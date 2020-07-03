@@ -15,7 +15,7 @@ use WMDE\Fundraising\PaymentContext\UseCases\GenerateIban\GenerateIbanUseCase;
 /**
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\GenerateIban\GenerateIbanUseCase
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen <kai.nissen@wikimedia.de>
  */
 class GenerateIbanUseCaseTest extends TestCase {
@@ -76,6 +76,5 @@ class GenerateIbanUseCaseTest extends TestCase {
 		$response = $useCase->generateIban( new GenerateIbanRequest( '1194700', '10020500' ) );
 
 		$this->assertFalse( $response->isSuccessful() );
-
 	}
 }

@@ -9,7 +9,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
 class PayPalConfigTest extends \PHPUnit\Framework\TestCase {

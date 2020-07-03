@@ -11,7 +11,7 @@ use WMDE\Fundraising\PaymentContext\Domain\LessSimpleTransferCodeValidator;
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\LessSimpleTransferCodeGenerator
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  */
 class LessSimpleTransferCodeGeneratorTest extends TestCase {
 

@@ -10,7 +10,7 @@ use WMDE\Fundraising\PaymentContext\Domain\ChecksumGenerator;
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\ChecksumGenerator
  *
- * @licence GNU GPL v2+
+ * @license GPL-2.0-or-later
  */
 class ChecksumGeneratorTest extends TestCase {
 
@@ -55,7 +55,7 @@ class ChecksumGeneratorTest extends TestCase {
 			yield implode(
 				'',
 				array_map(
-					function() use ( $characters, $characterCount ) {
+					function () use ( $characters, $characterCount ) {
 						return $characters[mt_rand( 0, $characterCount - 1 )];
 					},
 					array_fill( 0, 10, null )
