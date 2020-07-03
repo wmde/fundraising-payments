@@ -12,10 +12,7 @@ use Sofort\SofortLib\Sofortueberweisung;
  */
 class Client {
 
-	/**
-	 * @var Sofortueberweisung
-	 */
-	private $api;
+	private Sofortueberweisung $api;
 
 	public function __construct( string $configkey ) {
 		$this->api = new Sofortueberweisung( $configkey );
@@ -23,6 +20,7 @@ class Client {
 
 	/**
 	 * Set API to use instead of the one chosen by the facade
+	 * @param Sofortueberweisung $sofortueberweisung
 	 */
 	public function setApi( Sofortueberweisung $sofortueberweisung ): void {
 		$this->api = $sofortueberweisung;
@@ -31,6 +29,8 @@ class Client {
 	/**
 	 * Perform the given request and return a response
 	 *
+	 * @param Request $request
+	 * @return Response
 	 * @throws RuntimeException
 	 */
 	public function get( Request $request ): Response {
