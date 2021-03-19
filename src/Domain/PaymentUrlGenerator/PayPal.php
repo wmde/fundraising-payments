@@ -26,24 +26,25 @@ class PayPal {
 		$this->itemName = $itemName;
 	}
 
-	public function generateUrl( int $itemId, Euro $amount, int $interval,
+	public function generateUrl( int $itemId, string $invoiceId, Euro $amount, int $interval,
 		string $updateToken, string $accessToken ): string {
 		$params = array_merge(
 			$this->getIntervalDependentParameters( $amount, $interval ),
-			$this->getIntervalAgnosticParameters( $itemId, $updateToken, $accessToken ),
+			$this->getIntervalAgnosticParameters( $itemId, $invoiceId, $updateToken, $accessToken ),
 			$this->getPaymentDelayParameters()
 		);
 
 		return $this->config->getPayPalBaseUrl() . http_build_query( $params );
 	}
 
-	private function getIntervalAgnosticParameters( int $itemId, string $updateToken, string $accessToken ): array {
+	private function getIntervalAgnosticParameters( int $itemId, string $invoiceId, string $updateToken, string $accessToken ): array {
 		return [
 			'business' => $this->config->getPayPalAccountAddress(),
 			'currency_code' => 'EUR',
 			'lc' => self::DEFAULT_LOCALE,
 			'item_name' => $this->itemName,
 			'item_number' => $itemId,
+			'invoice' => $invoiceId,
 			'notify_url' => $this->config->getNotifyUrl(),
 			'cancel_return' => $this->config->getCancelUrl(),
 			'return' => $this->config->getReturnUrl() . '?id=' . $itemId . '&accessToken=' . $accessToken,
