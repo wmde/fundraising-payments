@@ -27,7 +27,7 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), self::ITEM_NAME );
 
 		$this->assertUrlValidForSubscriptions(
-			$generator->generateUrl( 1234, Euro::newFromString( '12.34' ), 3, 'utoken', 'atoken' )
+			$generator->generateUrl( 1234, 'd1234', Euro::newFromString( '12.34' ), 3, 'utoken', 'atoken' )
 		);
 	}
 
@@ -40,7 +40,7 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), self::ITEM_NAME );
 
 		$this->assertUrlValidForSinglePayments(
-			$generator->generateUrl( 1234, Euro::newFromString( '12.34' ), 0, 'utoken', 'atoken' )
+			$generator->generateUrl( 1234, 'd1234', Euro::newFromString( '12.34' ), 0, 'utoken', 'atoken' )
 		);
 	}
 
@@ -82,7 +82,7 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfigWithDelayedPayment(), self::ITEM_NAME );
 
 		$this->assertUrlValidForDelayedSubscriptions(
-			$generator->generateUrl( 1234, Euro::newFromString( '12.34' ), 3, 'utoken', 'atoken' )
+			$generator->generateUrl( 1234, 'd1234', Euro::newFromString( '12.34' ), 3, 'utoken', 'atoken' )
 		);
 	}
 
@@ -112,6 +112,7 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 		$this->assertStringContainsString( 'lc=de_DE', $generatedUrl );
 		$this->assertStringContainsString( 'item_name=Mentioning+that+awesome+organization+on+the+invoice', $generatedUrl );
 		$this->assertStringContainsString( 'item_number=1234', $generatedUrl );
+		$this->assertStringContainsString( 'invoice=d1234', $generatedUrl );
 		$this->assertStringContainsString( 'notify_url=http%3A%2F%2Fmy.donation.app%2Fhandler%2Fpaypal%2F', $generatedUrl );
 		$this->assertStringContainsString( 'cancel_return=http%3A%2F%2Fmy.donation.app%2Fdonation%2Fcancel%2F', $generatedUrl );
 		$this->assertStringContainsString(
