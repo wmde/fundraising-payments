@@ -34,4 +34,7 @@ class DirectDebitPayment implements PaymentMethod {
 		return null;
 	}
 
+	public function paymentCompleted(): bool {
+		return true;
+	}
 }

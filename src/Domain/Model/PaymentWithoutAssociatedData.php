@@ -30,4 +30,7 @@ class PaymentWithoutAssociatedData implements PaymentMethod {
 		return null;
 	}
 
+	public function paymentCompleted(): bool {
+		return false;
+	}
 }

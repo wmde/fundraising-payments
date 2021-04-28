@@ -38,6 +38,9 @@ class SofortPayment implements PaymentMethod {
 		$this->confirmedAt = $confirmedAt;
 	}
 
+	/**
+	 * @deprecated Use paymentCompleted() instead
+	 */
 	public function isConfirmedPayment(): bool {
 		return $this->getConfirmedAt() !== null;
 	}
@@ -50,4 +53,7 @@ class SofortPayment implements PaymentMethod {
 		return $this->confirmedAt ? DateTimeImmutable::createFromMutable( $this->confirmedAt ) : null;
 	}
 
+	public function paymentCompleted(): bool {
+		return $this->getConfirmedAt() !== null;
+	}
 }
