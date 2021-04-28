@@ -24,6 +24,8 @@ interface PaymentMethod {
 
 	public function hasExternalProvider(): bool;
 
+	public function paymentCompleted(): bool;
+
 	public function getValuationDate(): ?DateTimeImmutable;
 
 }

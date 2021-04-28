@@ -38,4 +38,7 @@ class CreditCardPayment implements PaymentMethod {
 		return DateTimeImmutable::createFromMutable( $this->creditCardData->getTransactionTimestamp() );
 	}
 
+	public function paymentCompleted(): bool {
+		return $this->creditCardData !== null;
+	}
 }

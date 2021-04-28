@@ -34,4 +34,7 @@ class BankTransferPayment implements PaymentMethod {
 		return null;
 	}
 
+	public function paymentCompleted(): bool {
+		return true;
+	}
 }

@@ -36,4 +36,7 @@ class PayPalPayment implements PaymentMethod {
 		return new \DateTimeImmutable( $this->payPalData->getPaymentTimestamp() );
 	}
 
+	public function paymentCompleted(): bool {
+		return $this->payPalData !== null;
+	}
 }
