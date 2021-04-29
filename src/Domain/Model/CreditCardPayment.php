@@ -39,6 +39,6 @@ class CreditCardPayment implements PaymentMethod {
 	}
 
 	public function paymentCompleted(): bool {
-		return $this->creditCardData !== null;
+		return $this->creditCardData !== null && $this->creditCardData->getTransactionId() !== '';
 	}
 }
