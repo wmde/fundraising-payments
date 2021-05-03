@@ -36,4 +36,15 @@ class SofortPaymentTest extends TestCase {
 		$sofortPayment->setConfirmedAt( new DateTime( 'now' ) );
 		$this->assertTrue( $sofortPayment->isConfirmedPayment() );
 	}
+
+	public function testPaymentWithoutDate_isUncompleted(): void {
+		$sofortPayment = new SofortPayment( 'ipsum' );
+		$this->assertFalse( $sofortPayment->paymentCompleted() );
+	}
+
+	public function testPaymentWithDate_isCompleted(): void {
+		$sofortPayment = new SofortPayment( 'ipsum' );
+		$sofortPayment->setConfirmedAt( new DateTime( 'now' ) );
+		$this->assertTrue( $sofortPayment->paymentCompleted() );
+	}
 }
