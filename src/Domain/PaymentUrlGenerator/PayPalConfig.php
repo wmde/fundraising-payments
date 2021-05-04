@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
+use RuntimeException;
+
 /**
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
@@ -17,12 +19,12 @@ class PayPalConfig {
 	public const CONFIG_KEY_CANCEL_URL = 'cancel-url';
 	public const CONFIG_KEY_DELAY_IN_DAYS = 'delay-in-days';
 
-	private $payPalAccountAddress;
-	private $payPalBaseUrl;
-	private $notifyUrl;
-	private $returnUrl;
-	private $cancelUrl;
-	private $delayInDays;
+	private string $payPalAccountAddress;
+	private string $payPalBaseUrl;
+	private string $notifyUrl;
+	private string $returnUrl;
+	private string $cancelUrl;
+	private int $delayInDays;
 
 	private function __construct( string $payPalAccountAddress, string $payPalBaseUrl, string $notifyUrl,
 		string $returnUrl, string $cancelUrl, int $delayInDays ) {
@@ -35,10 +37,10 @@ class PayPalConfig {
 	}
 
 	/**
-	 * @param string[] $config
+	 * @param array{ 'account-address': string, 'base-url': string, 'notify-url': string, 'return-url': string, 'cancel-url': string, 'delay-in-days'?: int } $config
 	 *
 	 * @return PayPalConfig
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	public static function newFromConfig( array $config ): self {
 		return ( new self(
@@ -54,7 +56,7 @@ class PayPalConfig {
 	private function assertNoEmptyFields(): self {
 		foreach ( get_object_vars( $this ) as $fieldName => $fieldValue ) {
 			if ( empty( $fieldValue ) ) {
-				throw new \RuntimeException( "Configuration variable '$fieldName' can not be empty" );
+				throw new RuntimeException( "Configuration variable '$fieldName' can not be empty" );
 			}
 		}
 
