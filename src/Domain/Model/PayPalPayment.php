@@ -37,6 +37,6 @@ class PayPalPayment implements PaymentMethod {
 	}
 
 	public function paymentCompleted(): bool {
-		return $this->payPalData !== null;
+		return $this->payPalData->getPayerId() !== '';
 	}
 }
