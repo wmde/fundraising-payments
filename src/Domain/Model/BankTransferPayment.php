@@ -12,7 +12,7 @@ use DateTimeImmutable;
  */
 class BankTransferPayment implements PaymentMethod {
 
-	private $bankTransferCode;
+	private string $bankTransferCode;
 
 	public function __construct( string $bankTransferCode ) {
 		$this->bankTransferCode = $bankTransferCode;
