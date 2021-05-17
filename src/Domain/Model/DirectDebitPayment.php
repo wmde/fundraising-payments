@@ -12,7 +12,7 @@ use DateTimeImmutable;
  */
 class DirectDebitPayment implements PaymentMethod {
 
-	private $bankData;
+	private BankData $bankData;
 
 	public function __construct( BankData $bankData ) {
 		$this->bankData = $bankData;

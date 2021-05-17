@@ -11,7 +11,7 @@ use WMDE\FreezableValueObject\FreezableValueObject;
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class PayPalData {
+class PayPalData implements PaymentTransactionData {
 	use FreezableValueObject;
 
 	private $payerId = '';

@@ -5,14 +5,16 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use DateTimeImmutable;
+use DomainException;
+use InvalidArgumentException;
 
 /**
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class CreditCardPayment implements PaymentMethod {
+class CreditCardPayment implements PaymentMethod, BookablePayment {
 
-	private $creditCardData;
+	private ?CreditCardTransactionData $creditCardData;
 
 	public function __construct( CreditCardTransactionData $creditCardData = null ) {
 		$this->creditCardData = $creditCardData;
@@ -26,6 +28,10 @@ class CreditCardPayment implements PaymentMethod {
 		return $this->creditCardData;
 	}
 
+	/**
+	 * @param CreditCardTransactionData $creditCardData
+	 * @deprecated use bookPayment instead
+	 */
 	public function addCreditCardTransactionData( CreditCardTransactionData $creditCardData ): void {
 		$this->creditCardData = $creditCardData;
 	}
@@ -41,4 +47,18 @@ class CreditCardPayment implements PaymentMethod {
 	public function paymentCompleted(): bool {
 		return $this->creditCardData !== null && $this->creditCardData->getTransactionId() !== '';
 	}
+
+	public function bookPayment( PaymentTransactionData $transactionData ): void {
+		if ( !( $transactionData instanceof CreditCardTransactionData ) ) {
+			throw new InvalidArgumentException( sprintf( 'Illegal transaction data class for credit card: %s', get_class( $transactionData ) ) );
+		}
+		if ( $transactionData->getTransactionId() === '' ) {
+			throw new InvalidArgumentException( 'Credit card transaction data must have transaction id' );
+		}
+		if ( $this->paymentCompleted() ) {
+			throw new DomainException( 'Payment is already completed' );
+		}
+		$this->creditCardData = $transactionData;
+	}
+
 }

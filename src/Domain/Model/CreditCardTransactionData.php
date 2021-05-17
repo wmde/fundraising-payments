@@ -12,7 +12,7 @@ use WMDE\Fundraising\PaymentContext\Infrastructure\CreditCardExpiry;
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class CreditCardTransactionData {
+class CreditCardTransactionData implements PaymentTransactionData {
 	use FreezableValueObject;
 
 	private $transactionId = '';

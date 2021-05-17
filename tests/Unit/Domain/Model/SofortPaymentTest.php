@@ -6,7 +6,9 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\SofortTransactionData;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment
@@ -47,4 +49,37 @@ class SofortPaymentTest extends TestCase {
 		$sofortPayment->setConfirmedAt( new DateTime( 'now' ) );
 		$this->assertTrue( $sofortPayment->paymentCompleted() );
 	}
+
+	public function testCompletePaymentWithInvalidTransactionObjectFails(): void {
+		$payment = new SofortPayment( 'ipsum' );
+		$wrongPaymentTransaction = new class() implements PaymentTransactionData {
+		};
+
+		$this->expectException( \InvalidArgumentException::class );
+
+		$payment->bookPayment( $wrongPaymentTransaction );
+	}
+
+	public function testGivenCompletedPayment_completePaymentFails(): void {
+		$payment = new SofortPayment( 'ipsum' );
+		$firstCompletion = new SofortTransactionData( new \DateTimeImmutable() );
+		$secondCompletion = new SofortTransactionData( new \DateTimeImmutable( '2021-12-24 0:00:00' ) );
+		$payment->bookPayment( $firstCompletion );
+
+		$this->expectException( \DomainException::class );
+
+		$payment->bookPayment( $secondCompletion );
+	}
+
+	public function testCompletePaymentWithValidTransactionDataSucceeds(): void {
+		$payment = new SofortPayment( 'ipsum' );
+		$valuationDate = new \DateTimeImmutable();
+		$transactionData = new SofortTransactionData( $valuationDate );
+
+		$payment->bookPayment( $transactionData );
+
+		$this->assertTrue( $payment->paymentCompleted() );
+		$this->assertEquals( $valuationDate, $payment->getValuationDate() );
+	}
+
 }

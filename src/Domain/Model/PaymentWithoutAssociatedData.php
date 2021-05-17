@@ -12,7 +12,7 @@ use DateTimeImmutable;
  */
 class PaymentWithoutAssociatedData implements PaymentMethod {
 
-	private $paymentMethod;
+	private string $paymentMethod;
 
 	public function __construct( string $paymentMethodId ) {
 		$this->paymentMethod = $paymentMethodId;
