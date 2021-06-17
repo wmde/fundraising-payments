@@ -29,4 +29,4 @@ build:
 
 build_failure_conditions:
     - 'project.metric_change("scrutinizer.test_coverage", < 0)'
-    - 'project.metric_change("scrutinizer.quality", < 1.0)'
+    - 'project.metric_change("scrutinizer.quality", < 0.0)'
