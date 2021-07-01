@@ -62,7 +62,7 @@ class PaymentDataValidator {
 	 *
 	 * @return ConstraintViolation|null
 	 */
-	public function validateAmount( $amount ): ?ConstraintViolation {
+	private function validateAmount( $amount ): ?ConstraintViolation {
 		if ( $amount instanceof Euro ) {
 			$amount = $amount->getEuroFloat();
 		}
