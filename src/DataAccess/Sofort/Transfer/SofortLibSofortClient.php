@@ -10,7 +10,7 @@ use Sofort\SofortLib\Sofortueberweisung;
 /**
  * Facade in front of Sofortueberweisung, an API to generate URLs of Sofort's checkout process
  */
-class Client {
+class SofortLibSofortClient implements SofortClient {
 
 	private Sofortueberweisung $api;
 
@@ -45,6 +45,7 @@ class Client {
 		$this->api->setSuccessUrl( $request->getSuccessUrl(), true );
 		$this->api->setAbortUrl( $request->getAbortUrl() );
 		$this->api->setNotificationUrl( $request->getNotificationUrl() );
+		$this->api->setLanguageCode( $request->getLocale() );
 
 		$this->api->sendRequest();
 

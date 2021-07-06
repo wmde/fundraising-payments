@@ -8,30 +8,16 @@ use WMDE\Euro\Euro;
 
 class Request {
 
-	/**
-	 * @var Euro
-	 */
-	private $amount;
-	/**
-	 * @var string
-	 */
-	private $currencyCode = '';
-	/**
-	 * @var string
-	 */
-	private $successUrl = '';
-	/**
-	 * @var string
-	 */
-	private $abortUrl = '';
-	/**
-	 * @var string
-	 */
-	private $notificationUrl = '';
+	private Euro $amount;
+	private string $currencyCode = '';
+	private string $successUrl = '';
+	private string $abortUrl = '';
+	private string $notificationUrl = '';
 	/**
 	 * @var string[]
 	 */
-	private $reasons = [ '', '' ];
+	private array $reasons = [ '', '' ];
+	private string $locale = '';
 
 	public function getAmount(): Euro {
 		return $this->amount;
@@ -85,5 +71,13 @@ class Request {
 	 */
 	public function setReasons( array $reasons ): void {
 		$this->reasons = $reasons;
+	}
+
+	public function getLocale(): string {
+		return $this->locale;
+	}
+
+	public function setLocale( string $locale ): void {
+		$this->locale = $locale;
 	}
 }

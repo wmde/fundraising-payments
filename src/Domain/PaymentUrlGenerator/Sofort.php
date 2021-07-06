@@ -6,26 +6,17 @@ namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
 use RuntimeException;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Client;
 use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Request;
+use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\SofortClient;
 
-/**
- * Generate the URL of the Sofort checkout process
- */
 class Sofort {
 
 	private const CURRENCY = 'EUR';
 
-	/**
-	 * @var SofortConfig
-	 */
-	private $config;
-	/**
-	 * @var Client
-	 */
-	private $client;
+	private SofortConfig $config;
+	private SofortClient $client;
 
-	public function __construct( SofortConfig $config, Client $client ) {
+	public function __construct( SofortConfig $config, SofortClient $client ) {
 		$this->config = $config;
 		$this->client = $client;
 	}
@@ -63,6 +54,7 @@ class Sofort {
 				]
 			)
 		);
+		$request->setLocale( $this->config->getLocale() );
 
 		try {
 			$response = $this->client->get( $request );
