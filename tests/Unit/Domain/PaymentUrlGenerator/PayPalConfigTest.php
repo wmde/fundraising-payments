@@ -23,6 +23,7 @@ class PayPalConfigTest extends \PHPUnit\Framework\TestCase {
 		return PayPalConfig::newFromConfig(
 			[
 				PayPalConfig::CONFIG_KEY_BASE_URL => 'http://that.paymentprovider.com/?',
+				PayPalConfig::CONFIG_KEY_LOCALE => 'de_DE',
 				PayPalConfig::CONFIG_KEY_ACCOUNT_ADDRESS => 'some@email-adress.com',
 				PayPalConfig::CONFIG_KEY_NOTIFY_URL => 'http://my.donation.app/handler/paypal/',
 				PayPalConfig::CONFIG_KEY_RETURN_URL => 'http://my.donation.app/donation/confirm/',
@@ -39,6 +40,7 @@ class PayPalConfigTest extends \PHPUnit\Framework\TestCase {
 		return PayPalConfig::newFromConfig(
 			[
 				PayPalConfig::CONFIG_KEY_BASE_URL => 'http://that.paymentprovider.com/?',
+				PayPalConfig::CONFIG_KEY_LOCALE => 'de_DE',
 				PayPalConfig::CONFIG_KEY_ACCOUNT_ADDRESS => 'some@email-adress.com',
 				PayPalConfig::CONFIG_KEY_NOTIFY_URL => 'http://my.donation.app/handler/paypal/',
 				PayPalConfig::CONFIG_KEY_RETURN_URL => 'http://my.donation.app/donation/confirm/',

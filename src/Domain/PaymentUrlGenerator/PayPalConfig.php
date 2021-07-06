@@ -13,6 +13,7 @@ use RuntimeException;
 class PayPalConfig {
 
 	public const CONFIG_KEY_ACCOUNT_ADDRESS = 'account-address';
+	public const CONFIG_KEY_LOCALE = 'locale';
 	public const CONFIG_KEY_BASE_URL = 'base-url';
 	public const CONFIG_KEY_NOTIFY_URL = 'notify-url';
 	public const CONFIG_KEY_RETURN_URL = 'return-url';
@@ -20,15 +21,17 @@ class PayPalConfig {
 	public const CONFIG_KEY_DELAY_IN_DAYS = 'delay-in-days';
 
 	private string $payPalAccountAddress;
+	private string $locale;
 	private string $payPalBaseUrl;
 	private string $notifyUrl;
 	private string $returnUrl;
 	private string $cancelUrl;
 	private int $delayInDays;
 
-	private function __construct( string $payPalAccountAddress, string $payPalBaseUrl, string $notifyUrl,
+	private function __construct( string $payPalAccountAddress, string $locale, string $payPalBaseUrl, string $notifyUrl,
 		string $returnUrl, string $cancelUrl, int $delayInDays ) {
 		$this->payPalAccountAddress = $payPalAccountAddress;
+		$this->locale = $locale;
 		$this->payPalBaseUrl = $payPalBaseUrl;
 		$this->notifyUrl = $notifyUrl;
 		$this->returnUrl = $returnUrl;
@@ -37,7 +40,7 @@ class PayPalConfig {
 	}
 
 	/**
-	 * @param array{ 'account-address': string, 'base-url': string, 'notify-url': string, 'return-url': string, 'cancel-url': string, 'delay-in-days'?: int } $config
+	 * @param array{ 'account-address': string, 'locale' : string, 'base-url': string, 'notify-url': string, 'return-url': string, 'cancel-url': string, 'delay-in-days'?: int } $config
 	 *
 	 * @return PayPalConfig
 	 * @throws RuntimeException
@@ -45,6 +48,7 @@ class PayPalConfig {
 	public static function newFromConfig( array $config ): self {
 		return ( new self(
 			$config[self::CONFIG_KEY_ACCOUNT_ADDRESS],
+			$config[self::CONFIG_KEY_LOCALE],
 			$config[self::CONFIG_KEY_BASE_URL],
 			$config[self::CONFIG_KEY_NOTIFY_URL],
 			$config[self::CONFIG_KEY_RETURN_URL],
@@ -65,6 +69,10 @@ class PayPalConfig {
 
 	public function getPayPalAccountAddress(): string {
 		return $this->payPalAccountAddress;
+	}
+
+	public function getLocale(): string {
+		return $this->locale;
 	}
 
 	public function getPayPalBaseUrl(): string {

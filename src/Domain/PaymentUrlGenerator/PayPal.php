@@ -16,7 +16,6 @@ class PayPal {
 	private const PAYMENT_REATTEMPT = '1';
 	private const PAYMENT_CYCLE_INFINITE = '0';
 	private const PAYMENT_CYCLE_MONTHLY = 'M';
-	private const DEFAULT_LOCALE = 'de_DE';
 
 	private PayPalConfig $config;
 	private string $itemName;
@@ -41,7 +40,7 @@ class PayPal {
 		return [
 			'business' => $this->config->getPayPalAccountAddress(),
 			'currency_code' => 'EUR',
-			'lc' => self::DEFAULT_LOCALE,
+			'lc' => $this->config->getLocale(),
 			'item_name' => $this->itemName,
 			'item_number' => $itemId,
 			'invoice' => $invoiceId,

@@ -17,10 +17,11 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
 class PayPalTest extends \PHPUnit\Framework\TestCase {
 
 	private const BASE_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr?';
+	private const LOCALE = 'de_DE';
 	private const ACCOUNT_ADDRESS = 'foerderpp@wikimedia.de';
-	private const NOTIFY_URL = 'http://my.donation.app/handler/paypal/';
-	private const RETURN_URL = 'http://my.donation.app/donation/confirm/';
-	private const CANCEL_URL = 'http://my.donation.app/donation/cancel/';
+	private const NOTIFY_URL = 'https://my.donation.app/handler/paypal/';
+	private const RETURN_URL = 'https://my.donation.app/donation/confirm/';
+	private const CANCEL_URL = 'https://my.donation.app/donation/cancel/';
 	private const ITEM_NAME = 'Mentioning that awesome organization on the invoice';
 
 	public function testSubscriptions(): void {
@@ -53,6 +54,7 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 		return PayPalConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
+				'locale' => self::LOCALE,
 				'account-address' => self::ACCOUNT_ADDRESS,
 				'notify-url' => self::NOTIFY_URL,
 				'return-url' => self::RETURN_URL,
@@ -70,6 +72,7 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 		return PayPalConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
+				'locale' => self::LOCALE,
 				'account-address' => 'some@email-adress.com',
 				'notify-url' => self::NOTIFY_URL,
 				'return-url' => self::RETURN_URL,
@@ -96,6 +99,7 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 		return PayPalConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
+				'locale' => self::LOCALE,
 				'account-address' => self::ACCOUNT_ADDRESS,
 				'notify-url' => self::NOTIFY_URL,
 				'return-url' => self::RETURN_URL,
@@ -113,10 +117,10 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 		$this->assertStringContainsString( 'item_name=Mentioning+that+awesome+organization+on+the+invoice', $generatedUrl );
 		$this->assertStringContainsString( 'item_number=1234', $generatedUrl );
 		$this->assertStringContainsString( 'invoice=d1234', $generatedUrl );
-		$this->assertStringContainsString( 'notify_url=http%3A%2F%2Fmy.donation.app%2Fhandler%2Fpaypal%2F', $generatedUrl );
-		$this->assertStringContainsString( 'cancel_return=http%3A%2F%2Fmy.donation.app%2Fdonation%2Fcancel%2F', $generatedUrl );
+		$this->assertStringContainsString( 'notify_url=https%3A%2F%2Fmy.donation.app%2Fhandler%2Fpaypal%2F', $generatedUrl );
+		$this->assertStringContainsString( 'cancel_return=https%3A%2F%2Fmy.donation.app%2Fdonation%2Fcancel%2F', $generatedUrl );
 		$this->assertStringContainsString(
-			'return=http%3A%2F%2Fmy.donation.app%2Fdonation%2Fconfirm%2F%3Fid%3D1234%26accessToken%3Datoken',
+			'return=https%3A%2F%2Fmy.donation.app%2Fdonation%2Fconfirm%2F%3Fid%3D1234%26accessToken%3Datoken',
 			$generatedUrl
 		);
 		$this->assertStringContainsString( 'custom=%7B%22sid%22%3A1234%2C%22utoken%22%3A%22utoken%22%7D', $generatedUrl );
