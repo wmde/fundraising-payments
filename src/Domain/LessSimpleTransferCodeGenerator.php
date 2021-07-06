@@ -29,7 +29,7 @@ class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 
 	public static function newRandomGenerator(): self {
 		return new self(
-			( function () {
+			( static function () {
 				$characterCount = strlen( self::ALLOWED_CHARACTERS );
 				$characters = str_split( self::ALLOWED_CHARACTERS );
 				while ( true ) {

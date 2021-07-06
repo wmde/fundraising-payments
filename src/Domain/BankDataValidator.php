@@ -72,7 +72,7 @@ class BankDataValidator {
 			$this->violations = array_merge(
 				$this->violations,
 				array_map(
-					function ( ConstraintViolation $violation ) {
+					static function ( ConstraintViolation $violation ) {
 						$violation->setSource( Result::SOURCE_IBAN );
 						return $violation;
 					},
