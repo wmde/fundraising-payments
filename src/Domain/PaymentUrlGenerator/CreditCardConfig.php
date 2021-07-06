@@ -12,22 +12,25 @@ class CreditCardConfig {
 
 	private const CONFIG_KEY_BASE_URL = 'base-url';
 	private const CONFIG_KEY_PROJECT_ID = 'project-id';
+	private const CONFIG_KEY_LOCALE = 'locale';
 	private const CONFIG_KEY_BACKGROUND_COLOR = 'background-color';
 	private const CONFIG_KEY_LOGO = 'logo';
 	private const CONFIG_KEY_THEME = 'theme';
 	private const CONFIG_KEY_TESTMODE = 'testmode';
 
-	private $baseUrl;
-	private $projectId;
-	private $backgroundColor;
-	private $logo;
-	private $theme;
-	private $testMode;
+	private string $baseUrl;
+	private string $projectId;
+	private string $locale;
+	private string $backgroundColor;
+	private string $logo;
+	private string $theme;
+	private bool $testMode;
 
-	private function __construct( string $baseUrl, string $projectId, string $backgroundColor, string $logo, string $theme,
+	private function __construct( string $baseUrl, string $projectId, string $locale, string $backgroundColor, string $logo, string $theme,
 		bool $testMode ) {
 		$this->baseUrl = $baseUrl;
 		$this->projectId = $projectId;
+		$this->locale = $locale;
 		$this->backgroundColor = $backgroundColor;
 		$this->logo = $logo;
 		$this->theme = $theme;
@@ -44,6 +47,7 @@ class CreditCardConfig {
 		return ( new self(
 			$config[self::CONFIG_KEY_BASE_URL],
 			$config[self::CONFIG_KEY_PROJECT_ID],
+			$config[self::CONFIG_KEY_LOCALE],
 			$config[self::CONFIG_KEY_BACKGROUND_COLOR],
 			$config[self::CONFIG_KEY_LOGO],
 			$config[self::CONFIG_KEY_THEME],
@@ -67,6 +71,10 @@ class CreditCardConfig {
 
 	public function getProjectId(): string {
 		return $this->projectId;
+	}
+
+	public function getLocale(): string {
+		return $this->locale;
 	}
 
 	public function getBackgroundColor(): string {
