@@ -8,16 +8,16 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Sofort\SofortLib\Sofortueberweisung;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Client;
 use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Request;
+use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\SofortLibSofortClient;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Client
+ * @covers \WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\SofortLibSofortClient
  */
-class ClientTest extends TestCase {
+class SofortLibClientTest extends TestCase {
 
 	public function testGet(): void {
-		$client = new Client( '47:11:00' );
+		$client = new SofortLibSofortClient( '47:11:00' );
 
 		$amount = Euro::newFromCents( 500 );
 		$amountConvertedToFloat = $amount->getEuroFloat();
@@ -73,7 +73,7 @@ class ClientTest extends TestCase {
 	}
 
 	public function testWhenApiReturnsErrorAnExceptionWithApiErrorMessageIsThrown(): void {
-		$client = new Client( '47:11:00' );
+		$client = new SofortLibSofortClient( '47:11:00' );
 
 		$api = $this->createMock( Sofortueberweisung::class );
 

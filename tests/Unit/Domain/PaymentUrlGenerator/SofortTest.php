@@ -7,69 +7,70 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Client;
-use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Request;
-use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Response;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort as SofortUrlGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\SofortConfig as SofortUrlConfig;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\ExceptionThrowingSofortSofortClient;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SofortSofortClientSpy;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort
  */
 class SofortTest extends TestCase {
 
-	public function testWhenClientReturnsSuccessResponseAUrlIsReturned(): void {
+	public function testSofortUrlGeneratorPassesValuesInRequestToClient(): void {
+		$internalItemId = 44;
+		$externalItemId = 'wx529836';
+		$amount = Euro::newFromCents( 600 );
+		$updateToken = 'makesandwich';
+		$accessToken = 'letmein';
+		$locale = 'DE';
+
 		$config = new SofortUrlConfig(
 			'Donation',
+			$locale,
 			'https://us.org/yes',
 			'https://us.org/no',
 			'https://us.org/callback'
 		);
-
-		$amount = Euro::newFromCents( 600 );
-
-		$request = new Request();
-		$request->setAmount( $amount );
-		$request->setCurrencyCode( 'EUR' );
-		$request->setReasons( [ 'Donation', 'wx529836' ] );
-		$request->setSuccessUrl( 'https://us.org/yes?id=44&accessToken=letmein' );
-		$request->setAbortUrl( 'https://us.org/no' );
-		$request->setNotificationUrl( 'https://us.org/callback?id=44&updateToken=makesandwich' );
-
-		$response = new Response();
-		$response->setTransactionId( '500m1l35' );
-		$response->setPaymentUrl( 'https://awsomepaymentprovider.tld/784trhhrf4' );
-
-		$client = $this->createMock( Client::class );
-		$client
-			->expects( $this->once() )
-			->method( 'get' )
-			->with( $request )
-			->willReturn( $response );
-
+		$client = new SofortSofortClientSpy( 'https://dn.ht/picklecat/' );
 		$urlGenerator = new SofortUrlGenerator( $config, $client );
-		$this->assertSame(
-			'https://awsomepaymentprovider.tld/784trhhrf4',
-			$urlGenerator->generateUrl( 44, 'wx529836', $amount, 'makesandwich', 'letmein' )
+
+		$urlGenerator->generateUrl( $internalItemId, $externalItemId, $amount, $updateToken, $accessToken );
+
+		$this->assertStringContainsString( "id=$internalItemId", $client->request->getSuccessUrl() );
+		$this->assertStringContainsString( "id=$internalItemId", $client->request->getNotificationUrl() );
+		$this->assertStringContainsString( "accessToken=$accessToken", $client->request->getSuccessUrl() );
+		$this->assertStringContainsString( "updateToken=$updateToken", $client->request->getNotificationUrl() );
+		$this->assertSame( $amount, $client->request->getAmount() );
+		$this->assertSame( $locale, $client->request->getLocale() );
+	}
+
+	public function testSofortUrlGeneratorReturnsUrlFromClient(): void {
+		$expectedUrl = 'https://dn.ht/picklecat/';
+		$config = new SofortUrlConfig(
+			'Donation',
+			'DE',
+			'https://us.org/yes',
+			'https://us.org/no',
+			'https://us.org/callback'
 		);
+		$client = new SofortSofortClientSpy( $expectedUrl );
+		$urlGenerator = new SofortUrlGenerator( $config, $client );
+
+		$returnedUrl = $urlGenerator->generateUrl( 44, 'wx529836', Euro::newFromCents( 600 ), 'makesandwich', 'letmein' );
+
+		$this->assertSame( $expectedUrl, $returnedUrl );
 	}
 
 	public function testWhenApiReturnsErrorAnExceptionWithApiErrorMessageIsThrown(): void {
 		$config = new SofortUrlConfig(
 			'Your purchase',
+			'DE',
 			'https://irreleva.nt/y',
 			'https://irreleva.nt/n',
 			'https://irreleva.nt/api'
 		);
-
-		$client = $this->createMock( Client::class );
-
-		$client
-			->expects( $this->once() )
-			->method( 'get' )
-			->withAnyParameters()
-			->willThrowException( new RuntimeException( 'boo boo' ) );
-
+		$client = new ExceptionThrowingSofortSofortClient( 'boo boo' );
 		$urlGenerator = new SofortUrlGenerator( $config, $client );
 
 		$this->expectException( RuntimeException::class );

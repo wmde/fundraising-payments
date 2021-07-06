@@ -6,25 +6,15 @@ namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
 class SofortConfig {
 
-	/**
-	 * @var string
-	 */
-	private $reasonText;
-	/**
-	 * @var string
-	 */
-	private $returnUrl;
-	/**
-	 * @var string
-	 */
-	private $cancelUrl;
-	/**
-	 * @var string
-	 */
-	private $notificationUrl;
+	private string $reasonText;
+	private string $locale;
+	private string $returnUrl;
+	private string $cancelUrl;
+	private string $notificationUrl;
 
-	public function __construct( string $reasonText, string $returnUrl, string $cancelUrl, string $notificationUrl ) {
+	public function __construct( string $reasonText, string $locale, string $returnUrl, string $cancelUrl, string $notificationUrl ) {
 		$this->reasonText = $reasonText;
+		$this->locale = $locale;
 		$this->returnUrl = $returnUrl;
 		$this->cancelUrl = $cancelUrl;
 		$this->notificationUrl = $notificationUrl;
@@ -32,6 +22,10 @@ class SofortConfig {
 
 	public function getReasonText(): string {
 		return $this->reasonText;
+	}
+
+	public function getLocale(): string {
+		return $this->locale;
 	}
 
 	public function getReturnUrl(): string {
