@@ -24,6 +24,7 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 				[
 					'base-url' => 'https://credit-card.micropayment.de/creditcard/event/index.php?',
 					'project-id' => 'wikimedia',
+					'locale' => 'de',
 					'background-color' => 'CCE7CD',
 					'logo' => 'wikimedia_black',
 					'theme' => 'wikimedia',
@@ -51,6 +52,7 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 				[
 					'base-url' => 'https://credit-card.micropayment.de/creditcard/event/index.php?',
 					'project-id' => 'wikimedia',
+					'locale' => 'de',
 					'background-color' => 'CCE7CD',
 					'logo' => 'wikimedia_black',
 					'theme' => 'wikimedia',
@@ -61,7 +63,7 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame(
 			'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 			'paytext=Ich+spende+einmalig&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
-			'token=my_access_token&utoken=my_update_token&amount=500&theme=wikimedia&producttype=fee&testmode=1',
+			'token=my_access_token&utoken=my_update_token&amount=500&theme=wikimedia&producttype=fee&lang=de&testmode=1',
 			$urlGenerator->generateUrl(
 				'Kai',
 				'Nissen',
@@ -79,7 +81,7 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 			[
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 				'paytext=Ich+spende+einmalig&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
-				'token=my_access_token&utoken=my_update_token&amount=500&theme=wikimedia&producttype=fee',
+				'token=my_access_token&utoken=my_update_token&amount=500&theme=wikimedia&producttype=fee&lang=de',
 				'Kai',
 				'Nissen',
 				'Ich spende einmalig',
@@ -91,7 +93,7 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 			[
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 				'paytext=Ich+spende+monatlich&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
-				'token=my_access_token&utoken=my_update_token&amount=123&theme=wikimedia&producttype=fee',
+				'token=my_access_token&utoken=my_update_token&amount=123&theme=wikimedia&producttype=fee&lang=de',
 				'Kai',
 				'Nissen',
 				'Ich spende monatlich',
@@ -104,7 +106,7 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 				'paytext=Ich+spende+halbj%C3%A4hrlich&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&' .
 				'gfx=wikimedia_black&token=my_access_token&utoken=my_update_token&amount=1250&theme=wikimedia&' .
-				'producttype=fee',
+				'producttype=fee&lang=de',
 				'Kai',
 				'Nissen',
 				'Ich spende halbjährlich',

@@ -20,7 +20,6 @@ class CreditCard {
 
 	public function generateUrl( string $firstName, string $lastName, string $payText, int $donationId,
 		string $accessToken, string $updateToken, Euro $amount ): string {
-		// TODO: implement sealed parameters (https://techdoc.micropayment.de/payment/payments/payments_en.html#id302721)
 		$baseUrl = $this->config->getBaseUrl();
 		$params = [
 			'project' => $this->config->getProjectId(),
@@ -34,7 +33,8 @@ class CreditCard {
 			'utoken' => $updateToken,
 			'amount' => $amount->getEuroCents(),
 			'theme' => $this->config->getTheme(),
-			'producttype' => 'fee'
+			'producttype' => 'fee',
+			'lang' => $this->config->getLocale(),
 		];
 		if ( $this->config->isTestMode() ) {
 			$params['testmode'] = '1';
