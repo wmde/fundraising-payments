@@ -10,7 +10,7 @@ use Sofort\SofortLib\Sofortueberweisung;
 /**
  * Facade in front of Sofortueberweisung, an API to generate URLs of Sofort's checkout process
  */
-class SofortLibSofortClient implements SofortClient {
+class SofortLibClient implements SofortClient {
 
 	private Sofortueberweisung $api;
 

@@ -9,15 +9,15 @@ use RuntimeException;
 use Sofort\SofortLib\Sofortueberweisung;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Request;
-use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\SofortLibSofortClient;
+use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\SofortLibClient;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\SofortLibSofortClient
+ * @covers \WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\SofortLibClient
  */
 class SofortLibClientTest extends TestCase {
 
 	public function testGet(): void {
-		$client = new SofortLibSofortClient( '47:11:00' );
+		$client = new SofortLibClient( '47:11:00' );
 
 		$amount = Euro::newFromCents( 500 );
 		$amountConvertedToFloat = $amount->getEuroFloat();
@@ -73,7 +73,7 @@ class SofortLibClientTest extends TestCase {
 	}
 
 	public function testWhenApiReturnsErrorAnExceptionWithApiErrorMessageIsThrown(): void {
-		$client = new SofortLibSofortClient( '47:11:00' );
+		$client = new SofortLibClient( '47:11:00' );
 
 		$api = $this->createMock( Sofortueberweisung::class );
 
