@@ -29,9 +29,11 @@ class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 
 	public static function newRandomGenerator(): self {
 		return new self(
-			( static function () {
+			( static function (): iterable {
 				$characterCount = strlen( self::ALLOWED_CHARACTERS );
 				$characters = str_split( self::ALLOWED_CHARACTERS );
+				// See https://github.com/phpstan/phpstan/issues/6189
+				// @phpstan-ignore-next-line
 				while ( true ) {
 					yield $characters[mt_rand( 0, $characterCount - 1 )];
 				}

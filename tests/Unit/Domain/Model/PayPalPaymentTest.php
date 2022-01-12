@@ -4,8 +4,6 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardTransactionData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
