@@ -1,0 +1,92 @@
+classDiagram
+  class Payment {
+    int id
+    Euro amount
+    PaymentMethod paymentMethod
+    PaymentReference paymentReference
+    
+    cancel()
+    isPaymentComplete()  bool
+    hasExternalProvider() bool
+  }
+  Payment "1" *-- "1"  Euro
+  Payment "1" *-- "1" Interval
+  Payment "1" *-- "1"  PaymentReference
+  Payment "1" *-- "1"  PaymentMethod
+
+  class PaymentReference {
+    <<interface>>
+    getItemType() string
+    getItemId() int
+  }
+  
+  class Interval {
+    <<enumeration>>
+    ONE_TIME
+    MONTHLY
+    QUARTERLY
+    BIANNUAL
+    YEARLY
+  }
+
+  class PaymentMethod {
+    <<interface>>
+    createdOn DateTime
+    cancel()
+    isPaymentComplete()  bool
+    hasExternalProvider() bool
+    isPaymentComplete()  bool
+    hasExternalProvider() bool
+    getValuationDate() DateTime
+  }
+
+  class DirectDebit {
+    Iban iban
+    string? BIC
+
+  }
+  PaymentMethod <|-- DirectDebit
+
+  class BankTransfer {
+    string transferCode
+  }
+  PaymentMethod <|-- BankTransfer
+
+  class CreditCard {
+    string transactionId
+	  string transactionStatus
+	  string transactionTimestamp
+	  string authId
+	  string sessionId
+	  string customerId
+	  string cardExpiry
+	  string currencyCode
+	  string countryCode
+	
+    bookPayment( CreditCardTransactionData )
+  }
+  PaymentMethod <|-- CreditCard
+  
+
+  class PayPal {
+    string payerId
+	  string subscriberId
+	  string payerStatus
+	  string paymentId
+	  string paymentType
+	  string paymentStatus
+	  string paymentTimestamp
+	  string firstPaymentDate
+	  PayPal[] childPayments
+    bookPayment( PayPalTransactionData )
+  }
+  PaymentMethod <|-- PayPal
+  
+
+  class SofortPayment {
+    string transferCode
+    DateTime bookedOn
+    bookPayment( SofortPaymentTransactionData )
+  }
+  PaymentMethod <|-- SofortPayment
+
