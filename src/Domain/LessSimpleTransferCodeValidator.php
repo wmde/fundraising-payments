@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain;
 
 class LessSimpleTransferCodeValidator {
 
-	private $checksumGenerator;
+	private ChecksumGenerator $checksumGenerator;
 
 	public function __construct() {
 		$this->checksumGenerator = new ChecksumGenerator(

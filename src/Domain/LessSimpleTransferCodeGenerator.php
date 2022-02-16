@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Domain;
 
 use InvalidArgumentException;
+use Iterator;
 
 /**
  * @license GPL-2.0-or-later
@@ -18,16 +19,22 @@ class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 	public const LENGTH_CODE = 6;
 	public const LENGTH_CHECKSUM = 1;
 
-	private $characterSource;
-	private $checksumGenerator;
+	/**
+	 * @var Iterator<string>
+	 */
+	private Iterator $characterSource;
+	private ChecksumGenerator $checksumGenerator;
 
-	private function __construct( \Iterator $characterSource ) {
+	/**
+	 * @param Iterator<string> $characterSource
+	 */
+	private function __construct( Iterator $characterSource ) {
 		$this->characterSource = $characterSource;
 
 		$this->checksumGenerator = new ChecksumGenerator( str_split( self::ALLOWED_CHARACTERS ) );
 	}
 
-	public static function newRandomGenerator(): self {
+	public static function newRandomGenerator(): static {
 		return new self(
 			( static function (): iterable {
 				$characterCount = strlen( self::ALLOWED_CHARACTERS );
@@ -41,7 +48,11 @@ class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 		);
 	}
 
-	public static function newDeterministicGenerator( \Iterator $characterSource ): self {
+	/**
+	 * @param Iterator<string> $characterSource
+	 * @return self
+	 */
+	public static function newDeterministicGenerator( Iterator $characterSource ): self {
 		return new self( $characterSource );
 	}
 

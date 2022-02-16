@@ -15,15 +15,17 @@ use WMDE\FunValidators\ValidationResult;
  */
 class BankDataValidator {
 
-	private $maximumFieldLengths = [
+	/** @var array<string, int> */
+	private array $maximumFieldLengths = [
 		Result::SOURCE_BANK_ACCOUNT => 10,
 		Result::SOURCE_BANK_CODE => 8,
 		Result::SOURCE_BANK_NAME => 250,
 	];
 
-	private $ibanValidator;
+	private IbanValidator $ibanValidator;
 
-	private $violations;
+	/** @var ConstraintViolation[] */
+	private array $violations;
 
 	public function __construct( IbanValidator $ibanValidator ) {
 		$this->ibanValidator = $ibanValidator;

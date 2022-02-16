@@ -11,6 +11,9 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
  */
 class IbanBlocklist {
 
+	/**
+	 * @var string[]
+	 */
 	private $blockedIbans;
 
 	/**
