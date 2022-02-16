@@ -30,7 +30,7 @@ fix-cs:
 	docker-compose run --rm --no-deps app ./vendor/bin/phpcbf
 
 stan:
-	docker-compose run --rm --no-deps app ./vendor/bin/phpstan analyse --level=5 --no-progress src/ tests/
+	docker-compose run --rm --no-deps app ./vendor/bin/phpstan analyse --level=9 --no-progress src/ tests/
 
 setup: install-php
 
