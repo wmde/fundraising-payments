@@ -13,7 +13,7 @@ use DateTime;
  */
 class DefaultPaymentDelayCalculator implements PaymentDelayCalculator {
 
-	private $paymentDelayInDays;
+	private int $paymentDelayInDays;
 
 	public function __construct( int $paymentDelayInDays ) {
 		$this->paymentDelayInDays = $paymentDelayInDays;

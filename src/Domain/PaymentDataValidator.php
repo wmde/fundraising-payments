@@ -15,14 +15,17 @@ use WMDE\FunValidators\ValidationResult;
  */
 class PaymentDataValidator {
 
-	private $minAmount;
-	private $maxAmount;
-	private $allowedMethods = [];
+	private float $minAmount;
+	private float $maxAmount;
+	/**
+	 * @var string[]
+	 */
+	private array $allowedMethods = [];
 
 	/**
 	 * @param float $minAmount
 	 * @param float $maxAmount
-	 * @param array $allowedMethods
+	 * @param string[] $allowedMethods
 	 */
 	public function __construct( float $minAmount, float $maxAmount, array $allowedMethods ) {
 		$this->minAmount = $minAmount;

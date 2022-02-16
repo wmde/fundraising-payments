@@ -14,11 +14,11 @@ use WMDE\FreezableValueObject\FreezableValueObject;
 class BankData {
 	use FreezableValueObject;
 
-	private $bic;
-	private $iban;
-	private $account;
-	private $bankCode;
-	private $bankName;
+	private string $bic = '';
+	private Iban $iban;
+	private string $account = '';
+	private string $bankCode = '';
+	private string $bankName = '';
 
 	public function getBic(): string {
 		return $this->bic;

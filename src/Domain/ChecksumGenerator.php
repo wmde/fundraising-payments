@@ -11,10 +11,11 @@ use InvalidArgumentException;
  */
 class ChecksumGenerator {
 
-	private $checksumCharacters;
+	/** @var string[] */
+	private array $checksumCharacters;
 
 	/**
-	 * @param array $checksumCharacters Characters that can be used for the checksum
+	 * @param string[] $checksumCharacters Characters that can be used for the checksum
 	 */
 	public function __construct( array $checksumCharacters ) {
 		if ( count( $checksumCharacters ) < 2 ) {
