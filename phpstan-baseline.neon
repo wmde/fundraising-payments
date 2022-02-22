@@ -11,11 +11,6 @@ parameters:
 			path: src/Domain/LessSimpleTransferCodeValidator.php
 
 		-
-			message: "#^Cannot call method getTransactionTimestamp\\(\\) on WMDE\\\\Fundraising\\\\PaymentContext\\\\Domain\\\\Model\\\\CreditCardTransactionData\\|null\\.$#"
-			count: 1
-			path: src/Domain/Model/CreditCardPayment.php
-
-		-
 			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\Domain\\\\Model\\\\CreditCardTransactionData\\:\\:\\$amount has no type specified\\.$#"
 			count: 1
 			path: src/Domain/Model/CreditCardTransactionData.php
@@ -524,11 +519,6 @@ parameters:
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\LessSimpleTransferCodeValidatorTest\\:\\:invalidCodeProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: tests/Unit/Domain/LessSimpleTransferCodeValidatorTest.php
-
-		-
-			message: "#^Cannot call method getTransactionId\\(\\) on WMDE\\\\Fundraising\\\\PaymentContext\\\\Domain\\\\Model\\\\CreditCardTransactionData\\|null\\.$#"
-			count: 1
-			path: tests/Unit/Domain/Model/CreditCardPaymentTest.php
 
 		-
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\Model\\\\IbanTest\\:\\:getValidIbansWithDisallowedCharacters\\(\\) return type has no value type specified in iterable type array\\.$#"

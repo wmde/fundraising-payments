@@ -7,33 +7,27 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 use DateTimeImmutable;
 use DomainException;
 use InvalidArgumentException;
+use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\TransactionShapes\CreditCardNotificationFields;
 
 /**
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class CreditCardPayment implements PaymentMethod, BookablePayment {
+class CreditCardPayment extends Payment implements BookablePayment {
 
-	private ?CreditCardTransactionData $creditCardData;
-
-	public function __construct( CreditCardTransactionData $creditCardData = null ) {
-		$this->creditCardData = $creditCardData;
-	}
-
-	public function getId(): string {
-		return PaymentMethod::CREDIT_CARD;
-	}
-
-	public function getCreditCardData(): ?CreditCardTransactionData {
-		return $this->creditCardData;
-	}
+	private const PAYMENT_METHOD = 'MCP';
 
 	/**
-	 * @param CreditCardTransactionData $creditCardData
-	 * @deprecated use bookPayment instead
+	 * @var array<string,mixed>
 	 */
-	public function addCreditCardTransactionData( CreditCardTransactionData $creditCardData ): void {
-		$this->creditCardData = $creditCardData;
+	private array $bookingData;
+
+	private ?DateTimeImmutable $valuationDate = null;
+
+	public function __construct( int $id, Euro $amount, PaymentInterval $interval ) {
+		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
+		$this->bookingData = [];
 	}
 
 	public function hasExternalProvider(): bool {
@@ -41,24 +35,23 @@ class CreditCardPayment implements PaymentMethod, BookablePayment {
 	}
 
 	public function getValuationDate(): ?DateTimeImmutable {
-		return DateTimeImmutable::createFromMutable( $this->creditCardData->getTransactionTimestamp() );
+		return $this->valuationDate;
 	}
 
 	public function paymentCompleted(): bool {
-		return $this->creditCardData !== null && $this->creditCardData->getTransactionId() !== '';
+		return !empty( $this->bookingData[CreditCardNotificationFields::TransactionId->value] );
 	}
 
-	public function bookPayment( PaymentTransactionData $transactionData ): void {
-		if ( !( $transactionData instanceof CreditCardTransactionData ) ) {
-			throw new InvalidArgumentException( sprintf( 'Illegal transaction data class for credit card: %s', get_class( $transactionData ) ) );
-		}
-		if ( $transactionData->getTransactionId() === '' ) {
+	public function bookPayment( array $transactionData ): void {
+		if ( empty( $transactionData[CreditCardNotificationFields::TransactionId->value] ) ) {
 			throw new InvalidArgumentException( 'Credit card transaction data must have transaction id' );
 		}
 		if ( $this->paymentCompleted() ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
-		$this->creditCardData = $transactionData;
+		// TODO filter fields and assign only required ones
+		$this->bookingData = $transactionData;
+		$this->valuationDate = new \DateTimeImmutable();
 	}
 
 }

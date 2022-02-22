@@ -5,7 +5,6 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
 use DateTime;
-use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortTransactionData;
@@ -13,7 +12,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\SofortTransactionData;
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment
  */
-class SofortPaymentTest extends TestCase {
+class SofortPaymentTest {
 
 	public function testInitialProperties(): void {
 		$sofortPayment = new SofortPayment( 'lorem' );

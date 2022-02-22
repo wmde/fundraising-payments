@@ -12,28 +12,17 @@ use InvalidArgumentException;
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class PayPalPayment implements PaymentMethod, BookablePayment {
-
-	private PayPalData $payPalData;
-
-	public function __construct( PayPalData $payPalData ) {
-		$this->payPalData = $payPalData;
-	}
-
-	public function getId(): string {
-		return PaymentMethod::PAYPAL;
-	}
-
-	public function getPayPalData(): PayPalData {
-		return $this->payPalData;
-	}
+class PayPalPayment implements BookablePayment {
 
 	/**
-	 * @param PayPalData $palPayData
-	 * @deprecated use bookPayment instead
+	 * @var array<string,mixed>
 	 */
-	public function addPayPalData( PayPalData $palPayData ): void {
-		$this->payPalData = $palPayData;
+	private array $bookingData;
+
+	private ?DateTimeImmutable $valuationDate = null;
+
+	public function __construct() {
+		$this->bookingData = [];
 	}
 
 	public function hasExternalProvider(): bool {
@@ -41,24 +30,29 @@ class PayPalPayment implements PaymentMethod, BookablePayment {
 	}
 
 	public function getValuationDate(): DateTimeImmutable {
-		return new DateTimeImmutable( $this->payPalData->getPaymentTimestamp() );
+		return $this->valuationDate;
 	}
 
 	public function paymentCompleted(): bool {
-		return $this->payPalData->getPayerId() !== '';
+		return $this->bookingData->getPayerId() !== '';
 	}
 
-	public function bookPayment( PaymentTransactionData $transactionData ): void {
-		if ( !( $transactionData instanceof PayPalData ) ) {
-			throw new InvalidArgumentException( sprintf( 'Illegal transaction data class for paypal: %s', get_class( $transactionData ) ) );
-		}
-		if ( $transactionData->getPayerId() === '' ) {
+	/**
+	 * @param array $transactionData
+	 *
+	 * @return void
+	 *
+	 * TODO: Turn paypal keys that exist in Fun App, PaypalNotificationController into useful enum
+	 */
+	public function bookPayment( array $transactionData ): void {
+		if ( !empty( $transactionData['payer_id'] ) ) {
 			throw new InvalidArgumentException( 'Transaction data must have payer ID' );
 		}
 		if ( $this->paymentCompleted() ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
-		$this->payPalData = $transactionData;
+		$this->bookingData = $transactionData;
+		$this->valuationDate = DateTimeImmutable::createFromMutable( $transactionData['payment_date'] );
 	}
 
 }

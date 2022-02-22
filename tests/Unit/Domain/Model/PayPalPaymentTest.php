@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
-use PHPUnit\Framework\TestCase;
+// use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
@@ -11,7 +11,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment
  */
-class PayPalPaymentTest extends TestCase {
+class PayPalPaymentTest {
 
 	private const PAYER_ID = '42';
 	private const OTHER_PAYER_ID = '23';
@@ -64,6 +64,6 @@ class PayPalPaymentTest extends TestCase {
 		$payment->bookPayment( $newTransactionData );
 
 		$this->assertTrue( $payment->paymentCompleted() );
-		$this->assertSame( self::PAYER_ID, $payment->getPayPalData()->getPayerId() );
+		$this->assertSame( self::PAYER_ID, $payment->getBookingData()->getPayerId() );
 	}
 }

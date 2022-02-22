@@ -2,6 +2,7 @@
 
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
+use DateTimeImmutable;
 use DomainException;
 use InvalidArgumentException;
 
@@ -9,12 +10,14 @@ interface BookablePayment {
 	/**
 	 * Mark payment as booked
 	 *
-	 * Implementations MUST check if $transactionData has the right type.
+	 * Implementations MUST check if $transactionData has the right shape.
 	 *
-	 * @param PaymentTransactionData $transactionData
+	 * @param array<string,mixed> $transactionData
 	 *
 	 * @throws DomainException If payment can't be booked (e.g. because it's already booked)
-	 * @throws InvalidArgumentException If $transactionData class does not match needed payment type
+	 * @throws InvalidArgumentException If $transactionData array does not match needed payment shape
 	 */
-	public function bookPayment( PaymentTransactionData $transactionData ): void;
+	public function bookPayment( array $transactionData ): void;
+
+	public function getValuationDate(): ?DateTimeImmutable;
 }
