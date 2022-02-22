@@ -5,9 +5,9 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
 use PHPUnit\Framework\TestCase;
+use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardTransactionData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment
@@ -17,59 +17,44 @@ class CreditCardPaymentTest extends TestCase {
 	private const TRANSACTION_ID = '7788998877';
 	private const OTHER_TRANSACTION_ID = '3388998877';
 
-	public function testGivenNullCreditCardTransactionData_isUncompleted(): void {
-		$creditCardPayment = new CreditCardPayment();
+	public function testNewCreditCardPaymentsAreUncompleted(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 		$this->assertFalse( $creditCardPayment->paymentCompleted() );
 	}
 
-	public function testGivenCreditCardTransactionDataWithNoTransactionID_isUncompleted(): void {
-		$creditCardPayment = new CreditCardPayment( new CreditCardTransactionData() );
-		$this->assertFalse( $creditCardPayment->paymentCompleted() );
-	}
-
-	public function testGivenCreditCardTransactionDataWithTransactionID_isCompleted(): void {
-		$creditCardPayment = new CreditCardPayment( ( new CreditCardTransactionData() )->setTransactionId( self::TRANSACTION_ID ) );
-		$this->assertTrue( $creditCardPayment->paymentCompleted() );
-	}
-
-	public function testCompletePaymentWithInvalidTransactionObjectFails(): void {
-		$creditCardPayment = new CreditCardPayment( new CreditCardTransactionData() );
-		$wrongPaymentTransaction = new class() implements PaymentTransactionData {
-		};
+	public function testCompletePaymentWithOutTransactionIdFails(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
 		$this->expectException( \InvalidArgumentException::class );
 
-		$creditCardPayment->bookPayment( $wrongPaymentTransaction );
+		$creditCardPayment->bookPayment( [] );
 	}
 
 	public function testCompletePaymentWithEmptyTransactionDataFails(): void {
-		$creditCardPayment = new CreditCardPayment( new CreditCardTransactionData() );
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
 		$this->expectException( \InvalidArgumentException::class );
 
-		$creditCardPayment->bookPayment( new CreditCardTransactionData() );
+		$creditCardPayment->bookPayment( [ 'transactionId' => '' ] );
 	}
 
-	public function testGivenCompletedPayment_completePaymentFails(): void {
-		$transactionData = new CreditCardTransactionData();
-		$transactionData->setTransactionId( self::TRANSACTION_ID );
-		$creditCardPayment = new CreditCardPayment( $transactionData );
-		$newTransactionData = new CreditCardTransactionData();
-		$newTransactionData->setTransactionId( self::OTHER_TRANSACTION_ID );
+	public function testPaymentCannotBeBookedMultipleTimes(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$creditCardPayment->bookPayment( [ 'transactionId' => self::TRANSACTION_ID ] );
 
 		$this->expectException( \DomainException::class );
 
-		$creditCardPayment->bookPayment( $newTransactionData );
+		$creditCardPayment->bookPayment( [ 'transactionId' => self::OTHER_TRANSACTION_ID ] );
 	}
 
-	public function testCompletePaymentWithValidTransactionDataSucceeds(): void {
-		$creditCardPayment = new CreditCardPayment( new CreditCardTransactionData() );
-		$transactionData = new CreditCardTransactionData();
-		$transactionData->setTransactionId( self::TRANSACTION_ID );
+	public function testBookPaymentWithValidTransactionMarksItCompleted(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
-		$creditCardPayment->bookPayment( $transactionData );
+		$creditCardPayment->bookPayment( [ 'transactionId' => self::TRANSACTION_ID ] );
 
 		$this->assertTrue( $creditCardPayment->paymentCompleted() );
-		$this->assertSame( self::TRANSACTION_ID, $creditCardPayment->getCreditCardData()->getTransactionId() );
+		// Credit cards get their valuation date from current time instead of transaction data
+		$this->assertNotNull($creditCardPayment->getValuationDate());
+		$this->assertEqualsWithDelta( time(), $creditCardPayment->getValuationDate()->getTimestamp(), 5 );
 	}
 }
