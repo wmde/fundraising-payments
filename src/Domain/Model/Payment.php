@@ -5,7 +5,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use WMDE\Euro\Euro;
 
-abstract class Payment {
+abstract class Payment implements LegacyDataTransformer {
 	protected int $id;
 	protected Euro $amount;
 	protected PaymentInterval $interval;

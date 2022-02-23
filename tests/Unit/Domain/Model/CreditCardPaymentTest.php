@@ -54,7 +54,7 @@ class CreditCardPaymentTest extends TestCase {
 
 		$this->assertTrue( $creditCardPayment->paymentCompleted() );
 		// Credit cards get their valuation date from current time instead of transaction data
-		$this->assertNotNull($creditCardPayment->getValuationDate());
+		$this->assertNotNull( $creditCardPayment->getValuationDate() );
 		$this->assertEqualsWithDelta( time(), $creditCardPayment->getValuationDate()->getTimestamp(), 5 );
 	}
 }
