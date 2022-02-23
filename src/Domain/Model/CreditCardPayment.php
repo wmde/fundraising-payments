@@ -6,9 +6,8 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use DateTimeImmutable;
 use DomainException;
-use InvalidArgumentException;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\PaymentContext\Domain\Model\TransactionShapes\CreditCardNotificationFields;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\CreditCardBookingTransformer;
 
 /**
  * @license GPL-2.0-or-later
@@ -19,7 +18,7 @@ class CreditCardPayment extends Payment implements BookablePayment {
 	private const PAYMENT_METHOD = 'MCP';
 
 	/**
-	 * @var array<string,mixed>
+	 * @var array<string,string>
 	 */
 	private array $bookingData;
 
@@ -39,19 +38,20 @@ class CreditCardPayment extends Payment implements BookablePayment {
 	}
 
 	public function paymentCompleted(): bool {
-		return !empty( $this->bookingData[CreditCardNotificationFields::TransactionId->value] );
+		return $this->valuationDate !== null && !empty( $this->bookingData );
 	}
 
 	public function bookPayment( array $transactionData ): void {
-		if ( empty( $transactionData[CreditCardNotificationFields::TransactionId->value] ) ) {
-			throw new InvalidArgumentException( 'Credit card transaction data must have transaction id' );
-		}
+		$transformer = new CreditCardBookingTransformer( $transactionData );
 		if ( $this->paymentCompleted() ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
-		// TODO filter fields and assign only required ones
-		$this->bookingData = $transactionData;
-		$this->valuationDate = new \DateTimeImmutable();
+		$this->bookingData = $transformer->getBookingData();
+		$this->valuationDate = $transformer->getValuationDate();
+	}
+
+	public function getLegacyData(): array {
+		return ( new CreditCardBookingTransformer( $this->bookingData ) )->getLegacyData();
 	}
 
 }
