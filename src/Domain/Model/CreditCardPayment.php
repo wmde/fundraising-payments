@@ -20,9 +20,9 @@ class CreditCardPayment extends Payment implements BookablePayment {
 	/**
 	 * @var array<string,string>
 	 */
-	private array $bookingData;
+	protected array $bookingData;
 
-	private ?DateTimeImmutable $valuationDate = null;
+	protected ?DateTimeImmutable $valuationDate = null;
 
 	public function __construct( int $id, Euro $amount, PaymentInterval $interval ) {
 		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
