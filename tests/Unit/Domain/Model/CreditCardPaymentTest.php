@@ -57,4 +57,17 @@ class CreditCardPaymentTest extends TestCase {
 		$this->assertNotNull( $creditCardPayment->getValuationDate() );
 		$this->assertEqualsWithDelta( time(), $creditCardPayment->getValuationDate()->getTimestamp(), 5 );
 	}
+
+	public function testGivenBookedPaymentGetLegacyDataReturnsNonEmptyArray(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$creditCardPayment->bookPayment( [ 'transactionId' => self::TRANSACTION_ID ] );
+
+		$this->assertNotEmpty( $creditCardPayment->getLegacyData() );
+	}
+
+	public function testGivenNewPaymentGetLegacyDataReturnsEmptyArray(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+
+		$this->assertSame( [],  $creditCardPayment->getLegacyData() );
+	}
 }
