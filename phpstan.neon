@@ -3,6 +3,13 @@ includes:
 	- vendor/phpstan/phpstan-phpunit/extension.neon
 	- vendor/phpstan/phpstan-phpunit/rules.neon
 parameters:
+	ignoreErrors:
+		# A workaround for https://github.com/doctrine/orm/issues/7780
+		# Might be unneccessay in the future with https://github.com/phpstan/phpstan-doctrine/issues/295
+		- message: /Doctrine\\DBAL\\Exception\\UniqueConstraintViolationException is never thrown in the try block/
+		  path: src/DataAccess/DoctrinePaymentRepository.php
+		  count: 1
+
 	# TODO remove these when working on the payment tickets
 	excludePaths:
 		analyse:
