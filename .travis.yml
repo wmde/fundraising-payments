@@ -14,8 +14,13 @@ install:
 
 script:
   - make ci-with-coverage COVERAGE_FLAGS="--coverage-clover coverage.clover"
-  - make install-php COMPOSER_FLAGS="--no-dev -q" # Remove dev dependencies to make sure PHPStan creates errors if prod code depends on dev classes
-  - docker run -v $PWD:/app --rm ghcr.io/phpstan/phpstan analyse --level 9 --no-progress src/ # Can't use "make stan" because stan was removed
+
+# The following 2 lines prevent using classes in the test directory in the prod part of the code.
+# We can't run them right now (2022-02-28) because the PHPStan docker image is not using PHP 8.1
+# We can wait until that's fixed or use an architecture checking tool like PHPArch.
+#
+#  - make install-php COMPOSER_FLAGS="--no-dev -q" # Remove dev dependencies to make sure PHPStan creates errors if prod code depends on dev classes
+#  - docker run -v $PWD:/app --rm ghcr.io/phpstan/phpstan analyse --level 9 --no-progress src/ # Can't use "make stan" because stan was removed
 
 after_success:
   - wget https://scrutinizer-ci.com/ocular.phar
