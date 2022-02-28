@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentRepository;
 use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
+use WMDE\Fundraising\PaymentContext\DataAccess\PaymentOverrideException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\CreditCardPaymentSpy;
@@ -45,9 +46,21 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( '{"transactionId":"badcaffee"}', $insertedPayment['booking_data'] );
 	}
 
+	public function testRepositoryPreventsOverridingPaymentsWithTheSameId(): void {
+		$firstPayment = new CreditCardPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
+		$firstPayment->bookPayment( [ 'transactionId' => 'badcaffee' ] );
+		$secondPayment = new CreditCardPayment( 1, Euro::newFromInt( 42 ), PaymentInterval::Monthly );
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$repo->storePayment( $firstPayment );
+
+		$this->expectException( PaymentOverrideException::class );
+
+		$repo->storePayment( $secondPayment );
+	}
+
 	public function testFindCreditCardPayment(): void {
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
-		$this->insertRawCreditCardData();
+		$this->insertRawBookedCreditCardData();
 
 		$payment = $repo->getPaymentById( 1 );
 
@@ -67,24 +80,42 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$repo->getPaymentById( 999 );
 	}
 
+	public function testFindAndSaveRoundTrip(): void {
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$this->insertRawUnBookedCreditCardData();
+
+		$payment = $repo->getPaymentById( 1 );
+		// This is a dummy assertion to make PHPUnit and PHPStan happy,
+		// the real test is that we avoid the PaymentOverrideException when storing again
+		$this->assertInstanceOf( CreditCardPayment::class, $payment );
+
+		$payment->bookPayment( [ 'transactionId' => 'badcaffee' ] );
+		$repo->storePayment( $payment );
+	}
+
 	/**
 	 * @return array<string,mixed>
 	 */
 	private function fetchRawCreditCardPaymentData(): array {
-		$data = $this->connection->createQueryBuilder()
+		$query = $this->connection->createQueryBuilder()
 			->select( 'p.amount', 'p.interval', 'p.payment_method', 'pcc.valuation_date', 'pcc.booking_data' )
 			->from( 'payments', 'p' )
 			->join( 'p', 'payments_credit_card', 'pcc', 'p.id=pcc.id' )
-			->where( 'p.id=1' )
-			->fetchAssociative();
+			->where( 'p.id=1' );
+		$data = $query->fetchAssociative();
 		if ( $data === false ) {
 			throw new AssertionFailedError( "Expected Credit Card payment was not found!" );
 		}
 		return $data;
 	}
 
-	private function insertRawCreditCardData(): void {
+	private function insertRawBookedCreditCardData(): void {
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'interval' => 12, 'payment_method' => 'MCP' ] );
 		$this->connection->insert( 'payments_credit_card', [ 'id' => 1, 'valuation_date' => '2021-12-24 23:00:00', 'booking_data' => '{"transactionId":"1eetcaffee"}' ] );
+	}
+
+	private function insertRawUnBookedCreditCardData(): void {
+		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'interval' => 12, 'payment_method' => 'MCP' ] );
+		$this->connection->insert( 'payments_credit_card', [ 'id' => 1, 'valuation_date' => null, 'booking_data' => null ] );
 	}
 }
