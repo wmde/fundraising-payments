@@ -27,7 +27,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	protected function setUp(): void {
 		$factory = TestEnvironment::newInstance()->getFactory();
 		$this->entityManager = $factory->getEntityManager();
-		$this->connection = $factory->getConnection();
+		$this->connection = $this->entityManager->getConnection();
 	}
 
 	public function testStoreCreditCardPayment(): void {

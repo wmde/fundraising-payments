@@ -16,7 +16,6 @@ class TestPaymentContextFactory {
 	private Configuration $doctrineConfig;
 	private PaymentContextFactory $contextFactory;
 	private ?EntityManager $entityManager;
-	private ?Connection $connection;
 
 	/**
 	 * @param array{db:array<string,mixed>} $config
@@ -24,15 +23,7 @@ class TestPaymentContextFactory {
 	public function __construct( private array $config ) {
 		$this->doctrineConfig = Setup::createConfiguration( true );
 		$this->contextFactory = new PaymentContextFactory();
-		$this->connection = null;
 		$this->entityManager = null;
-	}
-
-	public function getConnection(): Connection {
-		if ( $this->connection === null ) {
-			$this->connection = $this->newConnection();
-		}
-		return $this->connection;
 	}
 
 	public function getEntityManager(): EntityManager {
@@ -42,9 +33,9 @@ class TestPaymentContextFactory {
 		return $this->entityManager;
 	}
 
-	private function newEntityManager(): EntityManager {
+	public function newEntityManager(): EntityManager {
 		$this->doctrineConfig->setMetadataDriverImpl( $this->contextFactory->newMappingDriver() );
-		return EntityManager::create( $this->getConnection(), $this->doctrineConfig );
+		return EntityManager::create( $this->newConnection(), $this->doctrineConfig );
 	}
 
 	public function newSchemaCreator(): SchemaCreator {
