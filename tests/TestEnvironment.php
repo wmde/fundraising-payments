@@ -16,7 +16,12 @@ class TestEnvironment {
 		$environment = new self(
 			[
 				'db' => [
-					'driver' => 'pdo_sqlite',
+					'driver' => 'pdo_mysql',
+					'user' => 'fundraising',
+					'password' => 'INSECURE PASSWORD',
+					'dbname' => 'fundraising',
+					'host' => 'database',
+					'port' => 3306,
 					'memory' => true,
 				]
 			]
