@@ -9,6 +9,6 @@
             <generator strategy="NONE"/>
         </id>
         <field name="amount" type="Euro" column="amount"/>
-        <field name="interval" type="PaymentInterval" length="2" column="interval"/>
+        <field name="interval" type="PaymentInterval" length="2" column="payment_interval"/>
     </entity>
 </doctrine-mapping>
