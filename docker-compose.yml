@@ -2,7 +2,28 @@ version: '3.4'
 
 services:
   app:
-    image: "php:8.1-alpine"
+    build: build/app
     volumes:
       - ./:/usr/src/app
     working_dir: /usr/src/app
+    command:
+      - chmod +x /usr/src/app/build/wait-for-it.sh
+    depends_on:
+      - database
+
+  database:
+    image: mysql:5.6
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_USER=fundraising
+      - MYSQL_PASSWORD=INSECURE PASSWORD
+      - MYSQL_DATABASE=fundraising
+    ports:
+      - '3309:3306'
+    expose:
+      - "3309"
+    volumes:
+      - db-storage:/var/lib/mysql
+
+volumes:
+  db-storage:

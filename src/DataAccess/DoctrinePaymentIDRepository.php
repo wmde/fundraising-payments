@@ -17,7 +17,7 @@ class DoctrinePaymentIDRepository implements PaymentIDRepository {
 
 	public function getNewID(): int {
 		$connection = $this->entityManager->getConnection();
-		$statement = $connection->prepare( 'INSERT INTO payment_ids DEFAULT VALUES' );
+		$statement = $connection->prepare( 'INSERT INTO payment_ids VALUES ()' );
 		$statement->executeStatement();
 		return (int)$connection->lastInsertId();
 	}
