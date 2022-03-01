@@ -39,7 +39,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 		$insertedPayment = $this->fetchRawCreditCardPaymentData();
 		$this->assertSame( 9900, $insertedPayment['amount'] );
-		$this->assertSame( 3, $insertedPayment['interval'] );
+		$this->assertSame( 3, $insertedPayment['payment_interval'] );
 		$this->assertSame( 'MCP', $insertedPayment['payment_method'] );
 		$this->assertNotNull( $insertedPayment['valuation_date'] );
 		$this->assertSame( '{"transactionId":"badcaffee"}', $insertedPayment['booking_data'] );
@@ -72,7 +72,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	 */
 	private function fetchRawCreditCardPaymentData(): array {
 		$data = $this->connection->createQueryBuilder()
-			->select( 'p.amount', 'p.interval', 'p.payment_method', 'pcc.valuation_date', 'pcc.booking_data' )
+			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'pcc.valuation_date', 'pcc.booking_data' )
 			->from( 'payments', 'p' )
 			->join( 'p', 'payments_credit_card', 'pcc', 'p.id=pcc.id' )
 			->where( 'p.id=1' )
@@ -84,7 +84,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	private function insertRawCreditCardData(): void {
-		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'interval' => 12, 'payment_method' => 'MCP' ] );
+		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
 		$this->connection->insert( 'payments_credit_card', [ 'id' => 1, 'valuation_date' => '2021-12-24 23:00:00', 'booking_data' => '{"transactionId":"1eetcaffee"}' ] );
 	}
 }
