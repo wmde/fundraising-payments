@@ -1,24 +1,17 @@
 classDiagram
   class Payment {
+    <<abstract>>
     int id
     Euro amount
-    PaymentMethod paymentMethod
-    PaymentReference paymentReference
-    
+    Interval interval
+    createdOn DateTime
     cancel()
     isPaymentComplete()  bool
     hasExternalProvider() bool
+    getValuationDate() DateTime
   }
-  Payment "1" *-- "1"  Euro
   Payment "1" *-- "1" Interval
-  Payment "1" *-- "1"  PaymentReference
-  Payment "1" *-- "1"  PaymentMethod
-
-  class PaymentReference {
-    <<interface>>
-    getItemType() string
-    getItemId() int
-  }
+  
   
   class Interval {
     <<enumeration>>
@@ -29,30 +22,25 @@ classDiagram
     YEARLY
   }
 
-  class PaymentMethod {
-    <<interface>>
-    createdOn DateTime
-    cancel()
-    isPaymentComplete()  bool
-    hasExternalProvider() bool
-    isPaymentComplete()  bool
-    hasExternalProvider() bool
-    getValuationDate() DateTime
-  }
 
-  class DirectDebit {
+  class DirectDebitPayment {
     Iban iban
     string? BIC
 
   }
-  PaymentMethod <|-- DirectDebit
+  Payment <|-- DirectDebitPayment
 
-  class BankTransfer {
+  class BankTransferPayment {
     string transferCode
   }
-  PaymentMethod <|-- BankTransfer
+  Payment <|-- BankTransferPayment
 
-  class CreditCard {
+  class BookablePayment {
+    <<interface>>
+    bookPayment( TransactionDataInterface )
+  }
+
+  class CreditCardPayment {
     string transactionId
 	  string transactionStatus
 	  string transactionTimestamp
@@ -65,10 +53,11 @@ classDiagram
 	
     bookPayment( CreditCardTransactionData )
   }
-  PaymentMethod <|-- CreditCard
+  Payment <|-- CreditCardPayment
+  BookablePayment <|-- CreditCardPayment
   
 
-  class PayPal {
+  class PayPalPayment {
     string payerId
 	  string subscriberId
 	  string payerStatus
@@ -80,13 +69,14 @@ classDiagram
 	  PayPal[] childPayments
     bookPayment( PayPalTransactionData )
   }
-  PaymentMethod <|-- PayPal
-  
+  Payment <|-- PayPalPayment
+  BookablePayment <|-- PayPalPayment
 
   class SofortPayment {
     string transferCode
     DateTime bookedOn
     bookPayment( SofortPaymentTransactionData )
   }
-  PaymentMethod <|-- SofortPayment
+  Payment <|-- SofortPayment
+  BookablePayment <|-- SofortPayment
 
