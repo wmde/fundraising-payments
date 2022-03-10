@@ -34,6 +34,11 @@ class LessSimpleTransferCodeGeneratorTest extends TestCase {
 		yield [ 'XR-ACD-EFK-4', 'ACDEFKLMNPRSTWXYZ349', 'XR' ];
 	}
 
+	/**
+	 * @param string $characters
+	 *
+	 * @return \Generator<string>
+	 */
 	private function newFixedCharacterGenerator( string $characters ): \Generator {
 		yield from str_split( $characters );
 	}

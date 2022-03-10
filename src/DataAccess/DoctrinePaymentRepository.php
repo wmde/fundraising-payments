@@ -19,7 +19,7 @@ class DoctrinePaymentRepository implements PaymentRepository {
 
 	public function getPaymentById( int $id ): Payment {
 		$payment = $this->entityManager->find( Payment::class, $id );
-		if ( !$payment ) {
+		if ( $payment == null ) {
 			throw new PaymentNotFoundException( sprintf( "Payment with id %d not found", $id ) );
 		}
 		return $payment;
