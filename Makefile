@@ -34,7 +34,7 @@ stan:
 	docker-compose run --rm --no-deps app php -d memory_limit=1G ./vendor/bin/phpstan analyse --level=9 --no-progress src/ tests/
 
 generate-test-inspectors:
-	docker-compose run --rm --no-deps app php ./tests/generate_inspectors
+	docker-compose run --rm --no-deps app php -f ./tests/cli/bootstrap.php
 
 setup: install-php generate-test-inspectors
 
