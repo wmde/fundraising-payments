@@ -3,67 +3,75 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
-// use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalData;
+use PHPUnit\Framework\TestCase;
+use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
+use WMDE\Fundraising\PaymentContext\Tests\Inspectors\PayPalPaymentInspector;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment
  */
-class PayPalPaymentTest {
+class PayPalPaymentTest extends TestCase {
 
 	private const PAYER_ID = '42';
-	private const OTHER_PAYER_ID = '23';
 
-	public function testGivenPaypalDataWithNoPayerID_isUncompleted(): void {
-		$payPalPayment = new PayPalPayment( new PayPalData() );
-		$this->assertFalse( $payPalPayment->paymentCompleted() );
+	public function testNewPayPalPaymentsAreUncompleted(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+		$this->assertFalse( $payment->paymentCompleted() );
 	}
 
-	public function testGivenPaypalDataWithPayerID_isCompleted(): void {
-		$payPalPayment = new PayPalPayment( ( new PayPalData() )->setPayerId( self::PAYER_ID ) );
-		$this->assertTrue( $payPalPayment->paymentCompleted() );
-	}
-
-	public function testCompletePaymentWithInvalidTransactionObjectFails(): void {
-		$payment = new PayPalPayment( new PayPalData() );
-		$wrongPaymentTransaction = new class() implements PaymentTransactionData {
-		};
+	public function testCompletePaymentWithEmptyTransactionDataFails(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
 
 		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Transaction data must have payer ID' );
 
-		$payment->bookPayment( $wrongPaymentTransaction );
+		$payment->bookPayment( [] );
 	}
 
-	public function testCompletePaymentWithEmptyPayerId(): void {
-		$payment = new PayPalPayment( new PayPalData() );
+	public function testBookPaymentWithValidTransactionMarksItCompleted(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
 
-		$this->expectException( \InvalidArgumentException::class );
-
-		$payment->bookPayment( new PayPalData() );
-	}
-
-	public function testGivenCompletedPayment_completePaymentFails(): void {
-		$transactionData = new PayPalData();
-		$transactionData->setPayerId( self::PAYER_ID );
-		$payment = new PayPalPayment( $transactionData );
-		$newTransactionData = new PayPalData();
-		$newTransactionData->setPayerId( self::OTHER_PAYER_ID );
-
-		$this->expectException( \DomainException::class );
-
-		$payment->bookPayment( $newTransactionData );
-	}
-
-	public function testCompletePaymentWithValidTransactionDataSucceeds(): void {
-		$payment = new PayPalPayment( new PayPalData() );
-		$newTransactionData = new PayPalData();
-		$newTransactionData->setPayerId( self::PAYER_ID );
-
-		$payment->bookPayment( $newTransactionData );
+		$payment->bookPayment( [ 'payer_id' => self::PAYER_ID, 'payment_date' => '2022-01-01 01:01:01' ] );
 
 		$this->assertTrue( $payment->paymentCompleted() );
-		$this->assertSame( self::PAYER_ID, $payment->getBookingData()->getPayerId() );
 	}
+
+	public function testBookPaymentSetsValuationDate(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+
+		$payment->bookPayment( [ 'payer_id' => self::PAYER_ID, 'payment_date' => '2022-01-01 01:01:01' ] );
+
+		$this->assertEquals( new \DateTimeImmutable( '2022-01-01 01:01:01' ), $payment->getValuationDate() );
+	}
+
+	public function testPaymentCannotBeBookedMultipleTimes(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
+
+		$this->expectException( \DomainException::class );
+		$this->expectExceptionMessage( 'Payment is already completed' );
+
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
+	}
+
+	public function testBookPaymentAnonymisesPersonalData(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
+
+		$bookingData = ( new PayPalPaymentInspector( $payment ) )->getBookingData();
+		$this->assertArrayNotHasKey( 'first_name', $bookingData );
+		$this->assertArrayNotHasKey( 'last_name', $bookingData );
+		$this->assertArrayNotHasKey( 'address_name', $bookingData );
+		$this->assertArrayNotHasKey( 'address_street', $bookingData );
+		$this->assertArrayNotHasKey( 'address_status', $bookingData );
+		$this->assertArrayNotHasKey( 'address_zip', $bookingData );
+		$this->assertArrayNotHasKey( 'address_city', $bookingData );
+		$this->assertArrayNotHasKey( 'address_country_code', $bookingData );
+	}
+
 }
