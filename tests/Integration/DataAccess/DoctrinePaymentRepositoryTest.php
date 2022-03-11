@@ -27,6 +27,7 @@ use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\PaymentInterval
  */
 class DoctrinePaymentRepositoryTest extends TestCase {
+
 	private Connection $connection;
 	private EntityManager $entityManager;
 
@@ -196,13 +197,18 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	private function insertRawBookedCreditCardData(): void {
-		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
-		$this->connection->insert( 'payments_credit_card', [ 'id' => 1, 'valuation_date' => '2021-12-24 23:00:00', 'booking_data' => '{"transactionId":"1eetcaffee"}' ] );
+		$this->connection->insert( 'payments',
+			[ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
+		$this->connection->insert( 'payments_credit_card',
+			[ 'id' => 1, 'valuation_date' => '2021-12-24 23:00:00', 'booking_data' => '{"transactionId":"1eetcaffee"}' ]
+		);
 	}
 
 	private function insertRawUnBookedCreditCardData(): void {
-		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
-		$this->connection->insert( 'payments_credit_card', [ 'id' => 1, 'valuation_date' => null, 'booking_data' => null ] );
+		$this->connection->insert( 'payments',
+			[ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
+		$this->connection->insert( 'payments_credit_card',
+			[ 'id' => 1, 'valuation_date' => null, 'booking_data' => null ] );
 	}
 
 	/**
@@ -223,8 +229,14 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	private function insertRawPayPalData(): void {
-		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
-		$this->connection->insert( 'payments_paypal', [ 'id' => 1, 'valuation_date' => '2021-12-24 23:00:00', 'booking_data' => PayPalPaymentBookingData::newEncodedValidBookingData() ] );
+		$this->connection->insert( 'payments',
+			[ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
+		$this->connection->insert(
+			'payments_paypal',
+			[
+				'id' => 1,
+				'valuation_date' => '2021-12-24 23:00:00',
+				'booking_data' => PayPalPaymentBookingData::newEncodedValidBookingData() ] );
 	}
 
 	/**
