@@ -13,7 +13,7 @@ parameters:
 	# TODO remove these when working on the payment tickets
 	excludePaths:
 		analyse:
-			- src/Domain/Model/PayPalPayment.php
+			- tests/Inspectors
+			# TODO remove these when working on the payment tickets
 			- src/Domain/Model/SofortPayment.php
-			- tests/Unit/Domain/Model/PayPalPaymentTest.php
 			- tests/Unit/Domain/Model/SofortPaymentTest.php

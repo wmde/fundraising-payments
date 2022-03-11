@@ -33,6 +33,9 @@ fix-cs:
 stan:
 	docker-compose run --rm --no-deps app php -d memory_limit=1G ./vendor/bin/phpstan analyse --level=9 --no-progress src/ tests/
 
-setup: install-php
+generate-test-inspectors:
+	docker-compose run --rm --no-deps app php ./tests/generate_inspectors
 
-.PHONY: install-php update-php ci ci-with-coverage test phpunit phpunit-with-coverage cs fix-cs stan setup
+setup: install-php generate-test-inspectors
+
+.PHONY: install-php update-php ci ci-with-coverage test phpunit phpunit-with-coverage cs fix-cs stan generate-test-inspectors setup

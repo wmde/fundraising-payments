@@ -6,22 +6,26 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use DateTimeImmutable;
 use DomainException;
-use InvalidArgumentException;
+use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
 
 /**
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class PayPalPayment implements BookablePayment {
+class PayPalPayment extends Payment implements BookablePayment {
+
+	private const PAYMENT_METHOD = 'PPL';
 
 	/**
-	 * @var array<string,mixed>
+	 * @var array<string,string>
 	 */
 	private array $bookingData;
 
 	private ?DateTimeImmutable $valuationDate = null;
 
-	public function __construct() {
+	public function __construct( int $id, Euro $amount, PaymentInterval $interval ) {
+		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
 		$this->bookingData = [];
 	}
 
@@ -29,30 +33,36 @@ class PayPalPayment implements BookablePayment {
 		return true;
 	}
 
-	public function getValuationDate(): DateTimeImmutable {
+	public function getValuationDate(): ?DateTimeImmutable {
 		return $this->valuationDate;
 	}
 
 	public function paymentCompleted(): bool {
-		return $this->bookingData->getPayerId() !== '';
+		return $this->valuationDate !== null && !empty( $this->bookingData );
 	}
 
 	/**
-	 * @param array $transactionData
+	 * @param array<string,mixed> $transactionData
 	 *
 	 * @return void
 	 *
-	 * TODO: Turn paypal keys that exist in Fun App, PaypalNotificationController into useful enum
+	 * @throws DomainException
 	 */
 	public function bookPayment( array $transactionData ): void {
-		if ( !empty( $transactionData['payer_id'] ) ) {
-			throw new InvalidArgumentException( 'Transaction data must have payer ID' );
-		}
+		$transformer = new PayPalBookingTransformer( $transactionData );
 		if ( $this->paymentCompleted() ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
-		$this->bookingData = $transactionData;
-		$this->valuationDate = DateTimeImmutable::createFromMutable( $transactionData['payment_date'] );
+		$this->bookingData = $transformer->getBookingData();
+		$this->valuationDate = $transformer->getValuationDate();
 	}
 
+	/**
+	 * // TODO: What to do with child payments?
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function getLegacyData(): array {
+		return ( new PayPalBookingTransformer( $this->bookingData ) )->getLegacyData();
+	}
 }
