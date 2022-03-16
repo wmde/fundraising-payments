@@ -5,6 +5,7 @@
         <discriminator-map>
             <discriminator-mapping value="MCP" class="WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment"/>
             <discriminator-mapping value="PPL" class="WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment"/>
+            <discriminator-mapping value="SUB" class="WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment"/>
         </discriminator-map>
         <id name="id" type="integer" column="id">
             <generator strategy="NONE"/>
