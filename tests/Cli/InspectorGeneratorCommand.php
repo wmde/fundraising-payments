@@ -14,7 +14,8 @@ class InspectorGeneratorCommand {
 	private const INSPECTOR_FOLDER_LOCATION = __DIR__ . '/../';
 	private const INSPECTORS = [
 		'WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment' => 'CreditCardPaymentInspector',
-		'WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment' => 'PayPalPaymentInspector'
+		'WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment' => 'PayPalPaymentInspector',
+		'WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment' => 'SofortPaymentInspector',
 	];
 
 	public static function run(): void {

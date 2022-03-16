@@ -14,9 +14,11 @@ use WMDE\Fundraising\PaymentContext\DataAccess\PaymentOverrideException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\CreditCardPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\PayPalPaymentInspector;
+use WMDE\Fundraising\PaymentContext\Tests\Inspectors\SofortPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
 
 /**
@@ -120,6 +122,41 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		], $paymentSpy->getBookingData() );
 	}
 
+	public function testStoreSofortPayment(): void {
+		$payment = new SofortPayment(
+			42,
+			Euro::newFromInt( 12 ),
+			PaymentInterval::OneTime,
+			"I00AMavalidbookingcode"
+		);
+		$payment->bookPayment( [ 'transactionId' => 'imatransID42', 'valuationDate' => '2021-06-24 23:00:00' ] );
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+
+		$repo->storePayment( $payment );
+		$insertedPayment = $this->fetchRawSofortPaymentData();
+
+		$this->assertSame( 1200, $insertedPayment['amount'] );
+		$this->assertSame( 0, $insertedPayment['payment_interval'] );
+		$this->assertSame( 'SUB', $insertedPayment['payment_method'] );
+		$this->assertNotNull( $insertedPayment['valuation_date'] );
+		$this->assertSame( 'imatransID42', $insertedPayment['transaction_id'] );
+		$this->assertSame( 'I00AMavalidbookingcode', $insertedPayment['bank_transfer_code'] );
+	}
+
+	public function testFindSofortPayment(): void {
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$this->insertRawSofortData();
+
+		$payment = $repo->getPaymentById( 42 );
+		$this->assertInstanceOf( SofortPayment::class, $payment );
+		$paymentSpy = new SofortPaymentInspector( $payment );
+		$this->assertSame( 1233, $paymentSpy->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::OneTime, $paymentSpy->getInterval() );
+		$this->assertEquals( new \DateTimeImmutable( '2021-06-24 23:00:00' ), $paymentSpy->getValuationDate() );
+		$this->assertSame( 'imatransID42', $paymentSpy->getTransactionId() );
+		$this->assertSame( 'justacode42', $paymentSpy->getBankTransferCode() );
+	}
+
 	public function testFindPaymentThrowsExceptionWhenPaymentIsNotFound(): void {
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 
@@ -188,5 +225,44 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	private function insertRawPayPalData(): void {
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
 		$this->connection->insert( 'payments_paypal', [ 'id' => 1, 'valuation_date' => '2021-12-24 23:00:00', 'booking_data' => PayPalPaymentBookingData::newEncodedValidBookingData() ] );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 * @throws \Doctrine\DBAL\Exception
+	 */
+	private function fetchRawSofortPaymentData(): array {
+		$data = $this->connection->createQueryBuilder()
+			->select(
+				'p.amount',
+				'p.payment_interval',
+				'p.payment_method',
+				'psub.valuation_date',
+				'psub.transaction_id',
+				'psub.bank_transfer_code'
+			)
+			->from( 'payments', 'p' )
+			->join( 'p', 'payments_sofort', 'psub', 'p.id=psub.id' )
+			->where( 'p.id=42' )
+			->fetchAssociative();
+		if ( $data === false ) {
+			throw new AssertionFailedError( "Expected Sofort payment was not found!" );
+		}
+		return $data;
+	}
+
+	private function insertRawSofortData(): void {
+		$this->connection->insert( 'payments', [
+			'id' => 42,
+			'amount' => '1233',
+			'payment_interval' => 0,
+			'payment_method' => 'SUB'
+		] );
+		$this->connection->insert( 'payments_sofort', [
+			'id' => 42,
+			'valuation_date' => '2021-06-24 23:00:00',
+			'transaction_id' => 'imatransID42',
+			'bank_transfer_code' => 'justacode42'
+		] );
 	}
 }

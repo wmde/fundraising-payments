@@ -6,8 +6,11 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use DateTimeImmutable;
 use DomainException;
+use WMDE\Euro\Euro;
 
-class SofortPayment implements BookablePayment {
+class SofortPayment extends Payment implements BookablePayment {
+
+	private const PAYMENT_METHOD = 'SUB';
 
 	private string $bankTransferCode;
 
@@ -15,7 +18,11 @@ class SofortPayment implements BookablePayment {
 
 	private ?DateTimeImmutable $valuationDate = null;
 
-	public function __construct( string $bankTransferCode ) {
+	public function __construct( int $id, Euro $amount, PaymentInterval $interval, string $bankTransferCode ) {
+		if ( $interval !== PaymentInterval::OneTime ) {
+			throw new \InvalidArgumentException( "Provided payment interval must be 0 (= one time payment) for Sofort payments." );
+		}
+		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
 		$this->bankTransferCode = $bankTransferCode;
 	}
 
@@ -31,10 +38,16 @@ class SofortPayment implements BookablePayment {
 		return $this->valuationDate;
 	}
 
-	private function paymentCompleted(): bool {
+	public function paymentCompleted(): bool {
 		return $this->transactionId !== null;
 	}
 
+	/**
+	 * @param array<string,mixed> $transactionData
+	 *
+	 * @return void
+	 * @throws \DomainException|\Exception
+	 */
 	public function bookPayment( array $transactionData ): void {
 		if ( $this->paymentCompleted() ) {
 			throw new DomainException( 'Payment is already completed' );
@@ -43,4 +56,7 @@ class SofortPayment implements BookablePayment {
 		$this->valuationDate = new \DateTimeImmutable( $transactionData['valuationDate'] );
 	}
 
+	public function getLegacyData(): array {
+		return [];
+	}
 }
