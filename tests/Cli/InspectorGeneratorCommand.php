@@ -15,6 +15,7 @@ class InspectorGeneratorCommand {
 	private const INSPECTORS = [
 		'WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment' => 'CreditCardPaymentInspector',
 		'WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment' => 'PayPalPaymentInspector',
+		'WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment' => 'BankTransferPaymentInspector',
 		'WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment' => 'SofortPaymentInspector',
 	];
 
