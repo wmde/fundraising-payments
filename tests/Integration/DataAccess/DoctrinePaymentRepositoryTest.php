@@ -11,11 +11,13 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentRepository;
 use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\DataAccess\PaymentOverrideException;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
+use WMDE\Fundraising\PaymentContext\Tests\Inspectors\BankTransferPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\CreditCardPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\PayPalPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\SofortPaymentInspector;
@@ -121,6 +123,33 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			'subscr_id' => '8RHHUM3W3PRH7QY6B59',
 			'txn_id' => '4242',
 		], $paymentSpy->getBookingData() );
+	}
+
+	public function testStoreBankTransferPayment(): void {
+		$payment = new BankTransferPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly, 'T123456789' );
+
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+
+		$repo->storePayment( $payment );
+
+		$insertedPayment = $this->fetchRawBankTransferPaymentData();
+		$this->assertSame( 9900, $insertedPayment['amount'] );
+		$this->assertSame( 3, $insertedPayment['payment_interval'] );
+		$this->assertSame( 'UEB', $insertedPayment['payment_method'] );
+		$this->assertSame( 'T123456789', $insertedPayment['bank_transfer_code'] );
+	}
+
+	public function testFindBankTransferPayment(): void {
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$this->insertRawBankTransferData();
+
+		$payment = $repo->getPaymentById( 1 );
+		$this->assertInstanceOf( BankTransferPayment::class, $payment );
+
+		$paymentSpy = new BankTransferPaymentInspector( $payment );
+		$this->assertSame( 4223, $paymentSpy->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
+		$this->assertSame( 'T123456789', $paymentSpy->getBankTransferCode() );
 	}
 
 	public function testStoreSofortPayment(): void {
@@ -237,6 +266,28 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 				'id' => 1,
 				'valuation_date' => '2021-12-24 23:00:00',
 				'booking_data' => PayPalPaymentBookingData::newEncodedValidBookingData() ] );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 * @throws \Doctrine\DBAL\Exception
+	 */
+	private function fetchRawBankTransferPaymentData(): array {
+		$data = $this->connection->createQueryBuilder()
+			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'pbt.bank_transfer_code' )
+			->from( 'payments', 'p' )
+			->join( 'p', 'payments_bank_transfer', 'pbt', 'p.id=pbt.id' )
+			->where( 'p.id=1' )
+			->fetchAssociative();
+		if ( $data === false ) {
+			throw new AssertionFailedError( "Expected Bank Transfer payment was not found!" );
+		}
+		return $data;
+	}
+
+	private function insertRawBankTransferData(): void {
+		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'UEB' ] );
+		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'bank_transfer_code' => 'T123456789' ] );
 	}
 
 	/**
