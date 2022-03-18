@@ -8,9 +8,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 
 /**
- * @license GPL-2.0-or-later
- * @author Christoph Fischer < christoph.fischer@wikimedia.de >
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * TODO: Move the implementation to this context so this interface is not longer orphaned
  */
 interface BankDataGenerator {
 

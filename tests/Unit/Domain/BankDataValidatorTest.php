@@ -189,13 +189,7 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	private function newBankData( string $iban, string $bic, string $bankName, string $bankCode, string $account ): BankData {
-		return ( new BankData() )
-			->setIban( new Iban( $iban ) )
-			->setBic( $bic )
-			->setBankName( $bankName )
-			->setBankCode( $bankCode )
-			->setAccount( $account )
-			->freeze();
+		return new BankData( new Iban( $iban ), $bic, $account, $bankCode, $bankName );
 	}
 
 	private function newBankDataValidator(): BankDataValidator {
