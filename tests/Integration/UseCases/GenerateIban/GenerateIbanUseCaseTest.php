@@ -7,21 +7,20 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Integration\UseCases\GenerateIba
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
-use WMDE\Fundraising\PaymentContext\ResponseModel\IbanResponse;
-use WMDE\Fundraising\PaymentContext\Tests\Data\ValidBankData;
-use WMDE\Fundraising\PaymentContext\UseCases\GenerateIban\GenerateIbanRequest;
-use WMDE\Fundraising\PaymentContext\UseCases\GenerateIban\GenerateIbanUseCase;
+use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
+use WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData\GenerateBankDataFromGermanLegacyBankDataUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\IbanResponse;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\GenerateIban\GenerateIbanUseCase
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData\GenerateBankDataFromGermanLegacyBankDataUseCase
  *
  * @license GPL-2.0-or-later
  * @author Kai Nissen <kai.nissen@wikimedia.de>
  */
 class GenerateIbanUseCaseTest extends TestCase {
 
-	private $bankDataGenerator;
-	private $ibanBlocklist;
+	private BankDataGenerator $bankDataGenerator;
+	private IbanBlocklist $ibanBlocklist;
 
 	public function setUp(): void {
 		$this->bankDataGenerator = $this->newSucceedingBankDataGenerator();
@@ -31,13 +30,13 @@ class GenerateIbanUseCaseTest extends TestCase {
 	private function newSucceedingBankDataGenerator(): BankDataGenerator {
 		$generator = $this->createMock( BankDataGenerator::class );
 
-		$generator->method( $this->anything() )->willReturn( new ValidBankData() );
+		$generator->method( $this->anything() )->willReturn( DirectDebitBankData::validBankData() );
 
 		return $generator;
 	}
 
-	private function newGenerateIbanUseCase(): GenerateIbanUseCase {
-		return new GenerateIbanUseCase(
+	private function newGenerateIbanUseCase(): GenerateBankDataFromGermanLegacyBankDataUseCase {
+		return new GenerateBankDataFromGermanLegacyBankDataUseCase(
 			$this->bankDataGenerator,
 			$this->ibanBlocklist
 		);
@@ -49,13 +48,13 @@ class GenerateIbanUseCaseTest extends TestCase {
 		$this->bankDataGenerator->expects( $this->once() )
 			->method( 'getBankDataFromAccountData' )
 			->with( $this->equalTo( '1015754243' ), $this->equalTo( '20050550' ) )
-			->willReturn( new ValidBankData() );
+			->willReturn( DirectDebitBankData::validBankData() );
 
 		$useCase = $this->newGenerateIbanUseCase();
 
 		$this->assertEquals(
-			IbanResponse::newSuccessResponse( new ValidBankData() ),
-			$useCase->generateIban( new GenerateIbanRequest( '1015754243', '20050550' ) )
+			IbanResponse::newSuccessResponse( DirectDebitBankData::validBankData() ),
+			$useCase->generateIban( '1015754243', '20050550' )
 		);
 	}
 
@@ -64,16 +63,16 @@ class GenerateIbanUseCaseTest extends TestCase {
 		$this->bankDataGenerator->method( $this->anything() )->willThrowException( new \RuntimeException() );
 
 		$useCase = $this->newGenerateIbanUseCase();
-		$response = $useCase->generateIban( new GenerateIbanRequest( '1015754241', '20050550' ) );
+		$response = $useCase->generateIban( '1015754241', '20050550' );
 
 		$this->assertFalse( $response->isSuccessful() );
 	}
 
 	public function testWhenBlockedBankAccountDataIsGiven_failureResponseIsReturned(): void {
-		$this->ibanBlocklist = new IbanBlocklist( [ ValidBankData::IBAN ] );
+		$this->ibanBlocklist = new IbanBlocklist( [ DirectDebitBankData::IBAN ] );
 
 		$useCase = $this->newGenerateIbanUseCase();
-		$response = $useCase->generateIban( new GenerateIbanRequest( '1194700', '10020500' ) );
+		$response = $useCase->generateIban( '1194700', '10020500' );
 
 		$this->assertFalse( $response->isSuccessful() );
 	}

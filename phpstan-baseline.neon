@@ -16,11 +16,6 @@ parameters:
 			path: src/Domain/Model/Iban.php
 
 		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\Domain\\\\Model\\\\Iban\\:\\:\\$iban has no type specified\\.$#"
-			count: 1
-			path: src/Domain/Model/Iban.php
-
-		-
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Domain\\\\Model\\\\PaymentMethods\\:\\:getList\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Domain/Model/PaymentMethods.php
@@ -191,11 +186,6 @@ parameters:
 			path: src/RequestModel/PayPalPaymentNotificationRequest.php
 
 		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\ResponseModel\\\\IbanResponse\\:\\:\\$bankData has no type specified\\.$#"
-			count: 1
-			path: src/ResponseModel/IbanResponse.php
-
-		-
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\ResponseModel\\\\PaypalNotificationResponse\\:\\:__construct\\(\\) has parameter \\$handlingContext with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/ResponseModel/PaypalNotificationResponse.php
@@ -264,66 +254,6 @@ parameters:
 			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\ResponseModel\\\\SofortNotificationResponse\\:\\:\\$wasHandled has no type specified\\.$#"
 			count: 1
 			path: src/ResponseModel/SofortNotificationResponse.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\UseCases\\\\CheckIban\\\\CheckIbanUseCase\\:\\:\\$bankDataGenerator has no type specified\\.$#"
-			count: 1
-			path: src/UseCases/CheckIban/CheckIbanUseCase.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\UseCases\\\\CheckIban\\\\CheckIbanUseCase\\:\\:\\$ibanBlocklist has no type specified\\.$#"
-			count: 1
-			path: src/UseCases/CheckIban/CheckIbanUseCase.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\UseCases\\\\CheckIban\\\\CheckIbanUseCase\\:\\:\\$ibanValidator has no type specified\\.$#"
-			count: 1
-			path: src/UseCases/CheckIban/CheckIbanUseCase.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\UseCases\\\\GenerateIban\\\\GenerateIbanRequest\\:\\:\\$bankAccount has no type specified\\.$#"
-			count: 1
-			path: src/UseCases/GenerateIban/GenerateIbanRequest.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\UseCases\\\\GenerateIban\\\\GenerateIbanRequest\\:\\:\\$bankCode has no type specified\\.$#"
-			count: 1
-			path: src/UseCases/GenerateIban/GenerateIbanRequest.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\UseCases\\\\GenerateIban\\\\GenerateIbanUseCase\\:\\:\\$bankDataGenerator has no type specified\\.$#"
-			count: 1
-			path: src/UseCases/GenerateIban/GenerateIbanUseCase.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\UseCases\\\\GenerateIban\\\\GenerateIbanUseCase\\:\\:\\$ibanBlocklist has no type specified\\.$#"
-			count: 1
-			path: src/UseCases/GenerateIban/GenerateIbanUseCase.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Integration\\\\UseCases\\\\CheckIban\\\\CheckIbanUseCaseTest\\:\\:\\$bankDataGenerator has no type specified\\.$#"
-			count: 1
-			path: tests/Integration/UseCases/CheckIban/CheckIbanUseCaseTest.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Integration\\\\UseCases\\\\CheckIban\\\\CheckIbanUseCaseTest\\:\\:\\$ibanBlocklist has no type specified\\.$#"
-			count: 1
-			path: tests/Integration/UseCases/CheckIban/CheckIbanUseCaseTest.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Integration\\\\UseCases\\\\CheckIban\\\\CheckIbanUseCaseTest\\:\\:\\$ibanValidator has no type specified\\.$#"
-			count: 1
-			path: tests/Integration/UseCases/CheckIban/CheckIbanUseCaseTest.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Integration\\\\UseCases\\\\GenerateIban\\\\GenerateIbanUseCaseTest\\:\\:\\$bankDataGenerator has no type specified\\.$#"
-			count: 1
-			path: tests/Integration/UseCases/GenerateIban/GenerateIbanUseCaseTest.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Integration\\\\UseCases\\\\GenerateIban\\\\GenerateIbanUseCaseTest\\:\\:\\$ibanBlocklist has no type specified\\.$#"
-			count: 1
-			path: tests/Integration/UseCases/GenerateIban/GenerateIbanUseCaseTest.php
 
 		-
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\BankDataValidatorTest\\:\\:invalidBankDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"

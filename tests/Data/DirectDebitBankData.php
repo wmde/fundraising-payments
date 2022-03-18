@@ -7,11 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Data;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
-class ValidBankData extends BankData {
+class DirectDebitBankData {
 
 	public const IBAN = 'DE00123456789012345678';
 	public const BIC = 'SCROUSDBXXX';
@@ -19,14 +15,14 @@ class ValidBankData extends BankData {
 	public const BANK_CODE = '12345678';
 	public const ACCOUNT = '1234567890';
 
-	public function __construct() {
-		$this->setIban( new Iban( self::IBAN ) )
-			->setBic( self::BIC )
-			->setBankName( self::BANK_NAME )
-			->setBankCode( self::BANK_CODE )
-			->setAccount( self::ACCOUNT );
-
-		$this->assertNoNullFields()->freeze();
+	public static function validBankData(): BankData {
+		return new BankData(
+			new Iban( self::IBAN ),
+			self::BIC,
+			self::ACCOUNT,
+			self::BANK_CODE,
+			self::BANK_NAME
+		);
 	}
 
 }

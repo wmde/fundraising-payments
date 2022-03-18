@@ -5,6 +5,7 @@
         <discriminator-map>
             <discriminator-mapping value="MCP" class="WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment"/>
             <discriminator-mapping value="PPL" class="WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment"/>
+            <discriminator-mapping value="BEZ" class="WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment"/>
             <discriminator-mapping value="UEB" class="WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment"/>
             <discriminator-mapping value="SUB" class="WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment"/>
         </discriminator-map>

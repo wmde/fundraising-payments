@@ -4,13 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen <kai.nissen@wikimedia.de>
- */
 class Iban {
 
-	private $iban;
+	private string $iban;
 
 	public function __construct( string $iban ) {
 		$this->iban = $this->sanitizeIban( $iban );

@@ -13,12 +13,15 @@ use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\DataAccess\PaymentOverrideException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\BankTransferPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\CreditCardPaymentInspector;
+use WMDE\Fundraising\PaymentContext\Tests\Inspectors\DirectDebitPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\PayPalPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\SofortPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
@@ -27,11 +30,15 @@ use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentRepository
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\Euro
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\PaymentInterval
+ * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\Iban
  */
 class DoctrinePaymentRepositoryTest extends TestCase {
 
 	private Connection $connection;
 	private EntityManager $entityManager;
+
+	private const IBAN = 'DE00123456789012345678';
+	private const BIC = 'SCROUSDBXXX';
 
 	protected function setUp(): void {
 		$factory = TestEnvironment::newInstance()->getFactory();
@@ -123,6 +130,63 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			'subscr_id' => '8RHHUM3W3PRH7QY6B59',
 			'txn_id' => '4242',
 		], $paymentSpy->getBookingData() );
+	}
+
+	public function testStoreDirectDebitPayment(): void {
+		$payment = DirectDebitPayment::create( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly, new Iban( self::IBAN ), self::BIC );
+
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+
+		$repo->storePayment( $payment );
+
+		$insertedPayment = $this->fetchRawDirectDebitPaymentData();
+		$this->assertSame( 9900, $insertedPayment['amount'] );
+		$this->assertSame( 3, $insertedPayment['payment_interval'] );
+		$this->assertSame( 'BEZ', $insertedPayment['payment_method'] );
+		$this->assertSame( self::IBAN, $insertedPayment['iban'] );
+		$this->assertSame( self::BIC, $insertedPayment['bic'] );
+	}
+
+	public function testStoreAnonymisedDirectDebitPayment(): void {
+		$payment = DirectDebitPayment::create( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly, new Iban( self::IBAN ), self::BIC );
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$payment->anonymise();
+		$repo->storePayment( $payment );
+
+		$updatedPayment = $this->fetchRawDirectDebitPaymentData();
+		$this->assertSame( 9900, $updatedPayment['amount'] );
+		$this->assertSame( 3, $updatedPayment['payment_interval'] );
+		$this->assertSame( 'BEZ', $updatedPayment['payment_method'] );
+		$this->assertNull( $updatedPayment['iban'] );
+		$this->assertNull( $updatedPayment['bic'] );
+	}
+
+	public function testFindDirectDebitPayment(): void {
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$this->insertRawDirectDebitPaymentData();
+
+		$payment = $repo->getPaymentById( 1 );
+
+		$this->assertInstanceOf( DirectDebitPayment::class, $payment );
+		$paymentSpy = new DirectDebitPaymentInspector( $payment );
+		$this->assertSame( 4223, $paymentSpy->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
+		$this->assertSame( self::IBAN, $paymentSpy->getIban()?->toString() );
+		$this->assertSame( self::BIC, $paymentSpy->getBic() );
+	}
+
+	public function testFindAnonymisedDirectDebitPayment(): void {
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$this->insertRawAnonymisedDirectDebitPaymentData();
+
+		$payment = $repo->getPaymentById( 1 );
+
+		$this->assertInstanceOf( DirectDebitPayment::class, $payment );
+		$paymentSpy = new DirectDebitPaymentInspector( $payment );
+		$this->assertSame( 4223, $paymentSpy->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
+		$this->assertNull( $paymentSpy->getBic() );
+		$this->assertNull( $paymentSpy->getIban()?->toString() );
 	}
 
 	public function testStoreBankTransferPayment(): void {
@@ -226,18 +290,13 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	private function insertRawBookedCreditCardData(): void {
-		$this->connection->insert( 'payments',
-			[ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
-		$this->connection->insert( 'payments_credit_card',
-			[ 'id' => 1, 'valuation_date' => '2021-12-24 23:00:00', 'booking_data' => '{"transactionId":"1eetcaffee"}' ]
-		);
+		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
+		$this->connection->insert( 'payments_credit_card', [ 'id' => 1, 'valuation_date' => '2021-12-24 23:00:00', 'booking_data' => '{"transactionId":"1eetcaffee"}' ] );
 	}
 
 	private function insertRawUnBookedCreditCardData(): void {
-		$this->connection->insert( 'payments',
-			[ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
-		$this->connection->insert( 'payments_credit_card',
-			[ 'id' => 1, 'valuation_date' => null, 'booking_data' => null ] );
+		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
+		$this->connection->insert( 'payments_credit_card', [ 'id' => 1, 'valuation_date' => null, 'booking_data' => null ] );
 	}
 
 	/**
@@ -258,14 +317,12 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	private function insertRawPayPalData(): void {
-		$this->connection->insert( 'payments',
-			[ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
-		$this->connection->insert(
-			'payments_paypal',
-			[
-				'id' => 1,
-				'valuation_date' => '2021-12-24 23:00:00',
-				'booking_data' => PayPalPaymentBookingData::newEncodedValidBookingData() ] );
+		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
+		$this->connection->insert( 'payments_paypal', [
+			'id' => 1,
+			'valuation_date' => '2021-12-24 23:00:00',
+			'booking_data' => PayPalPaymentBookingData::newEncodedValidBookingData()
+		] );
 	}
 
 	/**
@@ -288,6 +345,33 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	private function insertRawBankTransferData(): void {
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'UEB' ] );
 		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'bank_transfer_code' => 'T123456789' ] );
+	}
+
+	private function insertRawDirectDebitPaymentData(): void {
+		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'BEZ' ] );
+		$this->connection->insert( 'payments_direct_debit', [ 'id' => 1, 'iban' => self::IBAN, 'bic' => self::BIC ] );
+	}
+
+	private function insertRawAnonymisedDirectDebitPaymentData(): void {
+		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'BEZ' ] );
+		$this->connection->insert( 'payments_direct_debit', [ 'id' => 1, 'iban' => null, 'bic' => null ] );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 * @throws \Doctrine\DBAL\Exception
+	 */
+	private function fetchRawDirectDebitPaymentData(): array {
+		$data = $this->connection->createQueryBuilder()
+			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'pdd.iban', 'pdd.bic' )
+			->from( 'payments', 'p' )
+			->join( 'p', 'payments_direct_debit', 'pdd', 'p.id=pdd.id' )
+			->where( 'p.id=1' )
+			->fetchAssociative();
+		if ( $data === false ) {
+			throw new AssertionFailedError( "Expected Direct Debit payment was not found!" );
+		}
+		return $data;
 	}
 
 	/**
