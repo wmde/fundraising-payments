@@ -36,4 +36,14 @@ class PaymentContextFactory {
 		$connection->getDatabasePlatform()->registerDoctrineTypeMapping( 'PaymentInterval', 'PaymentInterval' );
 		$isRegistered = true;
 	}
+
+	public function registerDoctrineIbanType( Connection $connection ): void {
+		static $isRegistered = false;
+		if ( $isRegistered ) {
+			return;
+		}
+		Type::addType( 'Iban', 'WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\Iban' );
+		$connection->getDatabasePlatform()->registerDoctrineTypeMapping( 'Iban', 'Iban' );
+		$isRegistered = true;
+	}
 }

@@ -6,13 +6,10 @@ namespace WMDE\Fundraising\PaymentContext\Domain;
 
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult as Result;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResult;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
 class BankDataValidator {
 
 	/** @var array<string, int> */
@@ -34,18 +31,18 @@ class BankDataValidator {
 	public function validate( BankData $bankData ): ValidationResult {
 		$this->violations = [];
 
-		if ( $bankData->getIban()->toString() === '' ) {
+		if ( $bankData->iban->toString() === '' ) {
 			$this->violations[] = new ConstraintViolation( '', Result::VIOLATION_MISSING, Result::SOURCE_IBAN );
 		}
-		$this->validateBic( $bankData->getBic() );
-		$this->validateFieldLength( $bankData->getBankName(), Result::SOURCE_BANK_NAME );
+		$this->validateBic( $bankData->bic );
+		$this->validateFieldLength( $bankData->bankName, Result::SOURCE_BANK_NAME );
 
-		if ( $bankData->getIban()->getCountryCode() === 'DE' ) {
-			$this->validateFieldLength( $bankData->getAccount(), Result::SOURCE_BANK_ACCOUNT );
-			$this->validateFieldLength( $bankData->getBankCode(), Result::SOURCE_BANK_CODE );
+		if ( $bankData->iban->getCountryCode() === 'DE' ) {
+			$this->validateFieldLength( $bankData->account, Result::SOURCE_BANK_ACCOUNT );
+			$this->validateFieldLength( $bankData->bankCode, Result::SOURCE_BANK_CODE );
 		}
 
-		$this->validateIban( $bankData );
+		$this->validateIban( $bankData->iban );
 
 		return new ValidationResult( ...$this->violations );
 	}
@@ -68,8 +65,8 @@ class BankDataValidator {
 		}
 	}
 
-	private function validateIban( BankData $bankData ): void {
-		$ibanValidationResult = $this->ibanValidator->validate( $bankData->getIban() );
+	private function validateIban( Iban $iban ): void {
+		$ibanValidationResult = $this->ibanValidator->validate( $iban );
 		if ( $ibanValidationResult->hasViolations() ) {
 			$this->violations = array_merge(
 				$this->violations,

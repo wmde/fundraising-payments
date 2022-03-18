@@ -5,25 +5,37 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use DateTimeImmutable;
+use WMDE\Euro\Euro;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
-class DirectDebitPayment implements PaymentMethod {
+class DirectDebitPayment extends Payment {
 
-	private BankData $bankData;
+	private const PAYMENT_METHOD = 'BEZ';
 
-	public function __construct( BankData $bankData ) {
-		$this->bankData = $bankData;
+	/**
+	 * @var Iban|null
+	 * This field is nullable to allow for anonymisation
+	 */
+	private ?Iban $iban;
+
+	/**
+	 * @var string|null
+	 * This field is nullable to allow for anonymisation
+	 */
+	private ?string $bic;
+
+	private function __construct( int $id, Euro $amount, PaymentInterval $interval, Iban $iban = null, string $bic = null ) {
+		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
+		$this->iban = $iban;
+		$this->bic = $bic;
 	}
 
-	public function getId(): string {
-		return PaymentMethod::DIRECT_DEBIT;
+	public static function create( int $id, Euro $amount, PaymentInterval $interval, Iban $iban, string $bic ): self {
+		return new self( $id, $amount, $interval, $iban, $bic );
 	}
 
-	public function getBankData(): BankData {
-		return $this->bankData;
+	public function anonymise(): void {
+		$this->iban = null;
+		$this->bic = null;
 	}
 
 	public function hasExternalProvider(): bool {
@@ -36,5 +48,17 @@ class DirectDebitPayment implements PaymentMethod {
 
 	public function paymentCompleted(): bool {
 		return true;
+	}
+
+	public function getLegacyData(): array {
+		return [];
+	}
+
+	public function getIban(): ?Iban {
+		return $this->iban;
+	}
+
+	public function getBic(): ?string {
+		return $this->bic;
 	}
 }

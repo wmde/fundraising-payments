@@ -8,23 +8,22 @@ use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
 use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
-use WMDE\Fundraising\PaymentContext\ResponseModel\IbanResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\IbanResponse;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen <kai.nissen@wikimedia.de>
- */
 class CheckIbanUseCase {
 
-	private $bankDataGenerator;
-	private $ibanBlocklist;
-	private $ibanValidator;
+	private BankDataGenerator $bankDataGenerator;
+	private IbanBlocklist $ibanBlocklist;
+	private IbanValidator $ibanValidator;
 
-	public function __construct( BankDataGenerator $bankDataGenerator, IbanValidator $ibanValidator,
-								 IbanBlocklist $blocklist ) {
+	public function __construct(
+		BankDataGenerator $bankDataGenerator,
+		IbanValidator $ibanValidator,
+		IbanBlocklist $blocklist
+	) {
 		$this->bankDataGenerator = $bankDataGenerator;
-		$this->ibanBlocklist = $blocklist;
 		$this->ibanValidator = $ibanValidator;
+		$this->ibanBlocklist = $blocklist;
 	}
 
 	public function checkIban( Iban $iban ): IbanResponse {
