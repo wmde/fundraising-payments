@@ -28,9 +28,9 @@ class SofortPaymentInspector
         return $prop->getValue($this->inspectionObject);
     }
 
-    public function getBankTransferCode(): string
+    public function getPaymentReferenceCode(): string
     {
-        $value = $this->getPrivateValue('bankTransferCode');
+        $value = $this->getPrivateValue('paymentReferenceCode');
         assert(is_string($value));
         return $value;
     }

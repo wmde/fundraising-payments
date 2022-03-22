@@ -17,7 +17,7 @@ class SofortPaymentTest {
 	public function testInitialProperties(): void {
 		$sofortPayment = new SofortPayment( 'lorem' );
 		$this->assertSame( 'SUB', $sofortPayment->getId() );
-		$this->assertSame( 'lorem', $sofortPayment->getBankTransferCode() );
+		$this->assertSame( 'lorem', $sofortPayment->getPaymentReferenceCode() );
 		$this->assertNull( $sofortPayment->getConfirmedAt() );
 	}
 

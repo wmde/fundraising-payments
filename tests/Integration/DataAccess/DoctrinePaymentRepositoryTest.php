@@ -234,7 +234,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( 'SUB', $insertedPayment['payment_method'] );
 		$this->assertNotNull( $insertedPayment['valuation_date'] );
 		$this->assertSame( 'imatransID42', $insertedPayment['transaction_id'] );
-		$this->assertSame( 'I00AMavalidbookingcode', $insertedPayment['bank_transfer_code'] );
+		$this->assertSame( 'I00AMavalidbookingcode', $insertedPayment['payment_reference_code'] );
 	}
 
 	public function testFindSofortPayment(): void {
@@ -248,7 +248,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( PaymentInterval::OneTime, $paymentSpy->getInterval() );
 		$this->assertEquals( new \DateTimeImmutable( '2021-06-24 23:00:00' ), $paymentSpy->getValuationDate() );
 		$this->assertSame( 'imatransID42', $paymentSpy->getTransactionId() );
-		$this->assertSame( 'justacode42', $paymentSpy->getBankTransferCode() );
+		$this->assertSame( 'justacode42', $paymentSpy->getPaymentReferenceCode() );
 	}
 
 	public function testFindPaymentThrowsExceptionWhenPaymentIsNotFound(): void {
@@ -386,7 +386,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 				'p.payment_method',
 				'psub.valuation_date',
 				'psub.transaction_id',
-				'psub.bank_transfer_code'
+				'psub.payment_reference_code'
 			)
 			->from( 'payments', 'p' )
 			->join( 'p', 'payments_sofort', 'psub', 'p.id=psub.id' )
@@ -409,7 +409,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			'id' => 42,
 			'valuation_date' => '2021-06-24 23:00:00',
 			'transaction_id' => 'imatransID42',
-			'bank_transfer_code' => 'justacode42'
+			'payment_reference_code' => 'justacode42'
 		] );
 	}
 }
