@@ -12,22 +12,22 @@ class SofortPayment extends Payment implements BookablePayment {
 
 	private const PAYMENT_METHOD = 'SUB';
 
-	private string $bankTransferCode;
+	private string $paymentReferenceCode;
 
 	private ?string $transactionId = null;
 
 	private ?DateTimeImmutable $valuationDate = null;
 
-	public function __construct( int $id, Euro $amount, PaymentInterval $interval, string $bankTransferCode ) {
+	public function __construct( int $id, Euro $amount, PaymentInterval $interval, string $paymentReferenceCode ) {
 		if ( $interval !== PaymentInterval::OneTime ) {
 			throw new \InvalidArgumentException( "Provided payment interval must be 0 (= one time payment) for Sofort payments." );
 		}
 		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
-		$this->bankTransferCode = $bankTransferCode;
+		$this->paymentReferenceCode = $paymentReferenceCode;
 	}
 
-	public function getBankTransferCode(): string {
-		return $this->bankTransferCode;
+	public function getPaymentReferenceCode(): string {
+		return $this->paymentReferenceCode;
 	}
 
 	public function hasExternalProvider(): bool {
