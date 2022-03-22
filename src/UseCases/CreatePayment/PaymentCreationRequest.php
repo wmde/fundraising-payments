@@ -10,6 +10,7 @@ class PaymentCreationRequest {
 		public readonly string $paymentType,
 		public readonly string $iban = '',
 		public readonly string $bic = '',
+		public readonly string $transferCodePrefix = ''
 	) {
 	}
 }
