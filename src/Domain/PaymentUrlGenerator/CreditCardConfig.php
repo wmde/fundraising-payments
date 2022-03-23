@@ -4,10 +4,6 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
 class CreditCardConfig {
 
 	private const CONFIG_KEY_BASE_URL = 'base-url';
@@ -25,9 +21,10 @@ class CreditCardConfig {
 	private string $logo;
 	private string $theme;
 	private bool $testMode;
+	private TranslatableDescription $translatableDescription;
 
 	private function __construct( string $baseUrl, string $projectId, string $locale, string $backgroundColor, string $logo, string $theme,
-		bool $testMode ) {
+		bool $testMode, TranslatableDescription $translatableDescription ) {
 		$this->baseUrl = $baseUrl;
 		$this->projectId = $projectId;
 		$this->locale = $locale;
@@ -35,15 +32,17 @@ class CreditCardConfig {
 		$this->logo = $logo;
 		$this->theme = $theme;
 		$this->testMode = $testMode;
+		$this->translatableDescription = $translatableDescription;
 	}
 
 	/**
 	 * @param array $config
+	 * @param TranslatableDescription $translatableDescription
 	 *
 	 * @return self
 	 * @throws \RuntimeException
 	 */
-	public static function newFromConfig( array $config ): self {
+	public static function newFromConfig( array $config, TranslatableDescription $translatableDescription ): self {
 		return ( new self(
 			$config[self::CONFIG_KEY_BASE_URL],
 			$config[self::CONFIG_KEY_PROJECT_ID],
@@ -51,7 +50,8 @@ class CreditCardConfig {
 			$config[self::CONFIG_KEY_BACKGROUND_COLOR],
 			$config[self::CONFIG_KEY_LOGO],
 			$config[self::CONFIG_KEY_THEME],
-			$config[self::CONFIG_KEY_TESTMODE]
+			$config[self::CONFIG_KEY_TESTMODE],
+			$translatableDescription
 		) )->assertNoEmptyFields();
 	}
 
@@ -91,6 +91,10 @@ class CreditCardConfig {
 
 	public function isTestMode(): bool {
 		return $this->testMode;
+	}
+
+	public function getTranslatableDescription(): TranslatableDescription {
+		return $this->translatableDescription;
 	}
 
 }
