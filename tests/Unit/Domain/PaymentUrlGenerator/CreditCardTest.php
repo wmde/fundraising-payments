@@ -4,21 +4,36 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 
+use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\AdditionalPaymentData;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCard;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\TranslatableDescription;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCard
- *
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class CreditCardTest extends \PHPUnit\Framework\TestCase {
+class CreditCardTest extends TestCase {
 
 	/** @dataProvider donationProvider */
-	public function testUrlGeneration( string $expected, string $firstName, string $lastName, string $payText,
-		int $donationId, string $accessToken, string $updateToken, Euro $amount ): void {
+	public function testUrlGeneration(
+		string $expected,
+		string $firstName,
+		string $lastName,
+		string $description,
+		int $donationId,
+		string $accessToken,
+		string $updateToken,
+		string $paymentReferenceCode,
+		Euro $amount,
+		PaymentInterval $interval
+	): void {
+		$translatableDescriptionMock = $this->createMock( TranslatableDescription::class );
+		$translatableDescriptionMock->method( 'getText' )->willReturn( $description );
+
 		$urlGenerator = new CreditCard(
 			CreditCardConfig::newFromConfig(
 				[
@@ -29,24 +44,28 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 					'logo' => 'wikimedia_black',
 					'theme' => 'wikimedia',
 					'testmode' => false
-				]
-			)
+				],
+				$translatableDescriptionMock
+			),
+			new AdditionalPaymentData( $paymentReferenceCode, $amount, $interval )
+		);
+
+		$requestContext = new RequestContext(
+			itemId: $donationId,
+			updateToken: $updateToken,
+			accessToken: $accessToken,
+			firstName: $firstName,
+			lastName: $lastName,
 		);
 		$this->assertSame(
 			$expected,
-			$urlGenerator->generateUrl(
-				$firstName,
-				$lastName,
-				$payText,
-				$donationId,
-				$accessToken,
-				$updateToken,
-				$amount
-			)
+			$urlGenerator->generateUrl( $requestContext )
 		);
 	}
 
 	public function testWhenTestModeIsEnabled_urlPassesProperParameter(): void {
+		$translatableDescriptionMock = $this->createStub( TranslatableDescription::class );
+		$translatableDescriptionMock->method( 'getText' )->willReturn( 'Ich spende einmalig' );
 		$urlGenerator = new CreditCard(
 			CreditCardConfig::newFromConfig(
 				[
@@ -57,22 +76,24 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 					'logo' => 'wikimedia_black',
 					'theme' => 'wikimedia',
 					'testmode' => true
-				]
-			)
+				],
+				$translatableDescriptionMock
+			),
+			new AdditionalPaymentData( '', Euro::newFromCents( 100 ), PaymentInterval::OneTime )
+		);
+
+		$requestContext = new RequestContext(
+			itemId: 1234567,
+			updateToken: "my_update_token",
+			accessToken: "my_access_token",
+			firstName: "Kai",
+			lastName: "Nissen",
 		);
 		$this->assertSame(
 			'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 			'paytext=Ich+spende+einmalig&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
-			'token=my_access_token&utoken=my_update_token&amount=500&theme=wikimedia&producttype=fee&lang=de&testmode=1',
-			$urlGenerator->generateUrl(
-				'Kai',
-				'Nissen',
-				'Ich spende einmalig',
-				1234567,
-				'my_access_token',
-				'my_update_token',
-				Euro::newFromFloat( 5.00 )
-			)
+			'token=my_access_token&utoken=my_update_token&amount=100&theme=wikimedia&producttype=fee&lang=de&testmode=1',
+			$urlGenerator->generateUrl( $requestContext )
 		);
 	}
 
@@ -88,7 +109,9 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 				1234567,
 				'my_access_token',
 				'my_update_token',
-				Euro::newFromFloat( 5.00 )
+				'iamAReferenceCodeOfThisPayment',
+				Euro::newFromFloat( 5.00 ),
+				PaymentInterval::OneTime
 			],
 			[
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
@@ -100,7 +123,9 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 				1234567,
 				'my_access_token',
 				'my_update_token',
-				Euro::newFromFloat( 1.23 )
+				'iamAReferenceCodeOfThisPayment',
+				Euro::newFromFloat( 1.23 ),
+				PaymentInterval::Monthly
 			],
 			[
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
@@ -113,7 +138,9 @@ class CreditCardTest extends \PHPUnit\Framework\TestCase {
 				1234567,
 				'my_access_token',
 				'my_update_token',
-				Euro::newFromFloat( 12.5 )
+				'iamAReferenceCodeOfThisPayment',
+				Euro::newFromFloat( 12.5 ),
+				PaymentInterval::HalfYearly
 			],
 		];
 	}
