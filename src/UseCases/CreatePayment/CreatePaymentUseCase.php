@@ -21,12 +21,11 @@ class CreatePaymentUseCase {
 	}
 
 	public function createPayment( PaymentCreationRequest $request ): SuccessResponse|FailureResponse {
-		$paymentOrFailure = $this->doCreatePayment( $request );
-
-		if ( $paymentOrFailure instanceof FailureResponse ) {
-			return $paymentOrFailure;
+		try {
+			$payment = $this->tryCreatePayment( $request );
+		} catch ( PaymentCreationException $e ) {
+			return new FailureResponse( $e->getMessage() );
 		}
-		$payment = $paymentOrFailure;
 
 		$this->paymentRepository->storePayment( $payment );
 		return new SuccessResponse( $this->getNextIdOnce() );
@@ -40,17 +39,18 @@ class CreatePaymentUseCase {
 		return $id;
 	}
 
-	private function doCreatePayment( PaymentCreationRequest $request ): Payment|FailureResponse {
-		try {
-			return match ( $request->paymentType ) {
-				'MCP' => $this->createCreditCardPayment( $request ),
-				'PPL' => $this->createPayPalPayment( $request ),
-				'SUB' => $this->createSofortPayment( $request ),
-				default => new FailureResponse( "Invalid payment type: " . $request->paymentType ),
-			};
-		} catch ( PaymentCreationException $e ) {
-			return new FailureResponse( $e->getMessage() );
-		}
+	/**
+	 * @param PaymentCreationRequest $request
+	 * @return Payment
+	 * @throws PaymentCreationException
+	 */
+	private function tryCreatePayment( PaymentCreationRequest $request ): Payment {
+		return match ( $request->paymentType ) {
+			'MCP' => $this->createCreditCardPayment( $request ),
+			'PPL' => $this->createPayPalPayment( $request ),
+			'SUB' => $this->createSofortPayment( $request ),
+			default => throw new PaymentCreationException( 'Invalid payment type: ' . $request->paymentType )
+		};
 	}
 
 	/**
@@ -81,13 +81,13 @@ class CreatePaymentUseCase {
 
 	/**
 	 * @param PaymentCreationRequest $request
-	 * @return SofortPayment|FailureResponse
+	 * @return SofortPayment
 	 * @throws PaymentCreationException
 	 */
-	private function createSofortPayment( PaymentCreationRequest $request ): SofortPayment|FailureResponse {
+	private function createSofortPayment( PaymentCreationRequest $request ): SofortPayment {
 		$paymentInterval = $this->createInterval( $request );
 		if ( $paymentInterval !== PaymentInterval::OneTime ) {
-			return new FailureResponse( "Sofort payment does not support recurring intervals (>0)." );
+			throw new PaymentCreationException( "Sofort payment does not support recurring intervals (>0)." );
 		}
 
 		return new SofortPayment(
