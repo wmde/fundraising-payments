@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   app:
-    build: build/app
+    image: registry.gitlab.com/fun-tech/fundraising-frontend-docker/php-8.1
     volumes:
       - ./:/usr/src/app
     working_dir: /usr/src/app

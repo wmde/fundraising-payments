@@ -2,7 +2,7 @@ current_user  := $(shell id -u)
 current_group := $(shell id -g)
 BUILD_DIR     := $(PWD)
 DOCKER_FLAGS  := --interactive --tty
-DOCKER_IMAGE  := php:8.1-alpine
+DOCKER_IMAGE  := registry.gitlab.com/fun-tech/fundraising-frontend-docker/php-8.1
 COVERAGE_FLAGS := --coverage-html coverage
 WAIT_FOR_IT := build/wait-for-it.sh database:3306 -t 10 --
 
