@@ -4,6 +4,7 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\UseCases\CreatePayment;
 
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
@@ -49,6 +50,7 @@ class CreatePaymentUseCase {
 			'MCP' => $this->createCreditCardPayment( $request ),
 			'PPL' => $this->createPayPalPayment( $request ),
 			'SUB' => $this->createSofortPayment( $request ),
+			'UEB' => $this->createBankTransferPayment( $request ),
 			default => throw new PaymentCreationException( 'Invalid payment type: ' . $request->paymentType )
 		};
 	}
@@ -94,6 +96,20 @@ class CreatePaymentUseCase {
 			$this->getNextIdOnce(),
 			$this->createAmount( $request ),
 			$paymentInterval,
+			$this->paymentReferenceCodeGenerator->generateTransferCode( $request->transferCodePrefix )
+		);
+	}
+
+	/**
+	 * @param PaymentCreationRequest $request
+	 * @return BankTransferPayment
+	 * @throws PaymentCreationException
+	 */
+	private function createBankTransferPayment( PaymentCreationRequest $request ): BankTransferPayment {
+		return new BankTransferPayment(
+			$this->getNextIdOnce(),
+			$this->createAmount( $request ),
+			$this->createInterval( $request ),
 			$this->paymentReferenceCodeGenerator->generateTransferCode( $request->transferCodePrefix )
 		);
 	}
