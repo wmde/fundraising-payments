@@ -2,16 +2,12 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\PaymentContext\Infrastructure;
+namespace WMDE\Fundraising\PaymentContext\Tests\Fixtures;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class CreditCardExpiry {
 
-	private $month;
-	private $year;
+	private int $month;
+	private int $year;
 
 	public function __construct( int $month, int $year ) {
 		if ( $month < 1 || $month > 12 ) {

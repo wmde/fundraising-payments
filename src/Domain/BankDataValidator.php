@@ -66,7 +66,7 @@ class BankDataValidator {
 	}
 
 	private function validateIban( Iban $iban ): void {
-		$ibanValidationResult = $this->ibanValidator->validate( $iban );
+		$ibanValidationResult = $this->ibanValidator->validate( $iban->toString() );
 		if ( $ibanValidationResult->hasViolations() ) {
 			$this->violations = array_merge(
 				$this->violations,
