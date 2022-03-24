@@ -61,16 +61,6 @@ parameters:
 			path: src/Domain/PaymentUrlGenerator/PayPal.php
 
 		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\Infrastructure\\\\CreditCardExpiry\\:\\:\\$month has no type specified\\.$#"
-			count: 1
-			path: src/Infrastructure/CreditCardExpiry.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\Infrastructure\\\\CreditCardExpiry\\:\\:\\$year has no type specified\\.$#"
-			count: 1
-			path: src/Infrastructure/CreditCardExpiry.php
-
-		-
 			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\RequestModel\\\\PayPalPaymentNotificationRequest\\:\\:\\$amountGross has no type specified\\.$#"
 			count: 1
 			path: src/RequestModel/PayPalPaymentNotificationRequest.php
@@ -274,11 +264,6 @@ parameters:
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\ChecksumGeneratorTest\\:\\:getRandomStrings\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: tests/Unit/Domain/ChecksumGeneratorTest.php
-
-		-
-			message: "#^Property WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\IbanBlocklistTest\\:\\:\\$iban has no type specified\\.$#"
-			count: 1
-			path: tests/Unit/Domain/IbanBlocklistTest.php
 
 		-
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\LessSimpleTransferCodeGeneratorTest\\:\\:characterAndCodeProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"

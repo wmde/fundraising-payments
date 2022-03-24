@@ -4,17 +4,12 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain;
 
-use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
-
-/**
- * @license GPL-2.0-or-later
- */
-class IbanBlocklist {
+class IbanBlockList {
 
 	/**
 	 * @var string[]
 	 */
-	private $blockedIbans;
+	private array $blockedIbans;
 
 	/**
 	 * @param string[] $blockedIbans
@@ -23,8 +18,8 @@ class IbanBlocklist {
 		$this->blockedIbans = $blockedIbans;
 	}
 
-	public function isIbanBlocked( Iban $iban ): bool {
-		return in_array( $iban->toString(), $this->blockedIbans );
+	public function isIbanBlocked( string $iban ): bool {
+		return in_array( $iban, $this->blockedIbans );
 	}
 
 }

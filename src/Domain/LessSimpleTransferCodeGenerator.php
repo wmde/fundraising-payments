@@ -8,7 +8,7 @@ use InvalidArgumentException;
 use Iterator;
 
 /**
- * @license GPL-2.0-or-later
+ * @todo Rename to RandomTransferCodeGenerator, use TransferCode class
  */
 class LessSimpleTransferCodeGenerator implements TransferCodeGenerator {
 

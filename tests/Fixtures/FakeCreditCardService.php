@@ -2,7 +2,9 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\PaymentContext\Infrastructure;
+namespace WMDE\Fundraising\PaymentContext\Tests\Fixtures;
+
+use WMDE\Fundraising\PaymentContext\Domain\CreditCardService;
 
 /**
  * @license GPL-2.0-or-later
