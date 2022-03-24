@@ -5,32 +5,31 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData;
 
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\IbanBlocklist;
-use WMDE\Fundraising\PaymentContext\UseCases\IbanResponse;
+use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
 
 class GenerateBankDataFromGermanLegacyBankDataUseCase {
 
 	private BankDataGenerator $bankDataGenerator;
-	private IbanBlocklist $ibanBlocklist;
+	private IbanBlockList $ibanBlockList;
 
-	public function __construct( BankDataGenerator $bankDataGenerator, IbanBlocklist $ibanBlocklist ) {
+	public function __construct( BankDataGenerator $bankDataGenerator, IbanBlockList $ibanBlockList ) {
 		$this->bankDataGenerator = $bankDataGenerator;
-		$this->ibanBlocklist = $ibanBlocklist;
+		$this->ibanBlockList = $ibanBlockList;
 	}
 
-	public function generateIban( string $bankAccount, string $bankCode ): IbanResponse {
+	public function generateIban( string $bankAccount, string $bankCode ): BankDataSuccessResponse|BankDataFailureResponse {
 		try {
 			$bankData = $this->bankDataGenerator->getBankDataFromAccountData( $bankAccount, $bankCode );
 		}
 		catch ( \RuntimeException $ex ) {
-			return IbanResponse::newFailureResponse();
+			return new BankDataFailureResponse( $ex->getMessage() );
 		}
 
-		if ( $this->ibanBlocklist->isIbanBlocked( $bankData->iban ) ) {
-			return IbanResponse::newFailureResponse();
+		if ( $this->ibanBlockList->isIbanBlocked( $bankData->iban->toString() ) ) {
+			return new BankDataFailureResponse( 'IBAN is blocked' );
 		}
 
-		return IbanResponse::newSuccessResponse( $bankData );
+		return new BankDataSuccessResponse( $bankData );
 	}
 
 }

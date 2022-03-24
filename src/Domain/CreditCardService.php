@@ -2,11 +2,13 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\PaymentContext\Infrastructure;
+namespace WMDE\Fundraising\PaymentContext\Domain;
+
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\CreditCardExpiry;
 
 /**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
+ * TODO: This might need to be renamed when the mcp service is
+ *       imported see https://phabricator.wikimedia.org/T300482
  */
 interface CreditCardService {
 
