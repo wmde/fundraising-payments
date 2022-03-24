@@ -5,6 +5,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CreatePayment;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
@@ -81,6 +82,34 @@ class CreatePaymentUseCaseTest extends TestCase {
 			amountInEuroCents: 100,
 			interval: 0,
 			paymentType: 'SUB',
+			transferCodePrefix: 'TestPrefix'
+		) );
+
+		$this->assertInstanceOf( SuccessResponse::class, $result );
+		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+	}
+
+	public function testCreateBankTransferPayment(): void {
+		$idGenerator = $this->makeFixedIdGenerator();
+		$repo = $this->makePaymentRepository(
+			new BankTransferPayment(
+				self::PAYMENT_ID,
+				Euro::newFromCents( 400 ),
+				PaymentInterval::Quarterly,
+				'IamBankTransferCode23'
+			)
+		);
+		$transferCodeGenerator = $this->createMock( TransferCodeGenerator::class );
+		$transferCodeGenerator->expects( $this->once() )
+			->method( 'generateTransferCode' )
+			->with( 'TestPrefix' )
+			->willReturn( 'IamBankTransferCode23' );
+		$useCase = new CreatePaymentUseCase( $idGenerator, $repo, $transferCodeGenerator );
+
+		$result = $useCase->createPayment( new PaymentCreationRequest(
+			amountInEuroCents: 400,
+			interval: 3,
+			paymentType: 'UEB',
 			transferCodePrefix: 'TestPrefix'
 		) );
 
