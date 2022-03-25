@@ -28,10 +28,10 @@ class SofortPaymentInspector
         return $prop->getValue($this->inspectionObject);
     }
 
-    public function getPaymentReferenceCode(): string
+    public function getPaymentReferenceCode(): ?\WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode
     {
         $value = $this->getPrivateValue('paymentReferenceCode');
-        assert(is_string($value));
+        assert($value === null || $value instanceof \WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode);
         return $value;
     }
 

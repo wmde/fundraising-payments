@@ -3,6 +3,6 @@
     <entity name="WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment" table="payments_sofort">
         <field name="valuationDate" type="datetime_immutable" column="valuation_date" nullable="true"/>
         <field name="transactionId" column="transaction_id" nullable="true"/>
-        <field name="paymentReferenceCode" column="payment_reference_code" nullable="false"/>
+        <field name="paymentReferenceCode" column="payment_reference_code" type="PaymentReferenceCode" nullable="true"/>
     </entity>
 </doctrine-mapping>

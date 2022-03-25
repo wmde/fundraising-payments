@@ -51,6 +51,17 @@ class PaymentReferenceCode {
 		}
 	}
 
+	public static function newFromString( string $code ): ?self {
+		if ( $code === '' ) {
+			return null;
+		}
+		$parts = explode( self::READABILITY_DELIMITER, $code );
+		if ( count( $parts ) !== 4 ) {
+			throw new \UnexpectedValueException( 'Code must have 4 parts' );
+		}
+		return new self( $parts[0], $parts[1] . $parts[2], $parts[3] );
+	}
+
 	public function __toString(): string {
 		return $this->getFormattedCode();
 	}

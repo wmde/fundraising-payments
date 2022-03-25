@@ -46,6 +46,7 @@ class TestPaymentContextFactory {
 		$connection = DriverManager::getConnection( $this->config['db'] );
 		$this->contextFactory->registerDoctrineEuroType( $connection );
 		$this->contextFactory->registerDoctrinePaymentIntervalType( $connection );
+		$this->contextFactory->registerDoctrinePaymentReferenceType( $connection );
 		$this->contextFactory->registerDoctrineIbanType( $connection );
 		return $connection;
 	}

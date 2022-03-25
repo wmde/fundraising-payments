@@ -37,6 +37,16 @@ class PaymentContextFactory {
 		$isRegistered = true;
 	}
 
+	public function registerDoctrinePaymentReferenceType( Connection $connection ): void {
+		static $isRegistered = false;
+		if ( $isRegistered ) {
+			return;
+		}
+		Type::addType( 'PaymentReferenceCode', 'WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\PaymentReferenceCode' );
+		$connection->getDatabasePlatform()->registerDoctrineTypeMapping( 'PaymentReferenceCode', 'PaymentReferenceCode' );
+		$isRegistered = true;
+	}
+
 	public function registerDoctrineIbanType( Connection $connection ): void {
 		static $isRegistered = false;
 		if ( $isRegistered ) {
