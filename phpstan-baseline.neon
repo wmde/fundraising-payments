@@ -1,16 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Parameter \\#1 \\$code of method WMDE\\\\Fundraising\\\\PaymentContext\\\\Domain\\\\LessSimpleTransferCodeValidator\\:\\:checksumIsCorrect\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Domain/LessSimpleTransferCodeValidator.php
-
-		-
-			message: "#^Parameter \\#1 \\$code of method WMDE\\\\Fundraising\\\\PaymentContext\\\\Domain\\\\LessSimpleTransferCodeValidator\\:\\:formatIsValid\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Domain/LessSimpleTransferCodeValidator.php
-
-		-
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Domain\\\\Model\\\\Iban\\:\\:sanitizeIban\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Domain/Model/Iban.php
@@ -264,16 +254,6 @@ parameters:
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\ChecksumGeneratorTest\\:\\:getRandomStrings\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: tests/Unit/Domain/ChecksumGeneratorTest.php
-		-
-			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\LessSimpleTransferCodeValidatorTest\\:\\:characterAndCodeProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: tests/Unit/Domain/LessSimpleTransferCodeValidatorTest.php
-
-		-
-			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\LessSimpleTransferCodeValidatorTest\\:\\:invalidCodeProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: tests/Unit/Domain/LessSimpleTransferCodeValidatorTest.php
-
 		-
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\Model\\\\IbanTest\\:\\:getValidIbansWithDisallowedCharacters\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
