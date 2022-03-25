@@ -15,6 +15,8 @@ use WMDE\Fundraising\PaymentContext\Domain\LessSimpleTransferCodeValidator;
  */
 class LessSimpleTransferCodeGeneratorTest extends TestCase {
 
+	private const NUM_RANDOM_SAMPLES = 100;
+
 	/**
 	 * @dataProvider characterAndCodeProvider
 	 */
@@ -26,6 +28,9 @@ class LessSimpleTransferCodeGeneratorTest extends TestCase {
 		$this->assertSame( $expectedCode, $generator->generateTransferCode( $prefix ) );
 	}
 
+	/**
+	 * @return iterable<array{string,string,string}>
+	 */
 	public function characterAndCodeProvider(): iterable {
 		yield [ 'XW-ACD-EFK-4', 'ACDEFKLMNPRSTWXYZ349ACDEF', 'XW' ];
 		yield [ 'XW-AAA-AAA-M', 'AAAAAAAAAAAAAAAAAAAAAAAAA', 'XW' ];
@@ -46,35 +51,9 @@ class LessSimpleTransferCodeGeneratorTest extends TestCase {
 	public function testRandomGeneratorProducesValidCodes(): void {
 		$generator = LessSimpleTransferCodeGenerator::newRandomGenerator();
 		$validator = new LessSimpleTransferCodeValidator();
-		for ( $i = 0; $i < 42; $i++ ) {
+		for ( $i = 0; $i < self::NUM_RANDOM_SAMPLES; $i++ ) {
 			$code = $generator->generateTransferCode( 'XD' );
 			$this->assertTrue( $validator->transferCodeIsValid( $code ) );
 		}
-	}
-
-	/**
-	 * @dataProvider tooShortPrefixProvider
-	 */
-	public function testGenerationWithShortPrefixCausesException( string $prefix ): void {
-		$generator = LessSimpleTransferCodeGenerator::newRandomGenerator();
-
-		$this->expectException( \InvalidArgumentException::class );
-		$this->expectExceptionMessage( 'The prefix must have a set length of 2 characters.' );
-
-		$generator->generateTransferCode( $prefix );
-	}
-
-	public function tooShortPrefixProvider(): iterable {
-		yield [ '' ];
-		yield [ 'X' ];
-	}
-
-	public function testGenerationWithInvalidPrefixCharactersCausesException(): void {
-		$generator = LessSimpleTransferCodeGenerator::newRandomGenerator();
-
-		$this->expectException( \InvalidArgumentException::class );
-		$this->expectExceptionMessage( 'The prefix must only contain characters from the ALLOWED_CHARACTERS set.' );
-
-		$generator->generateTransferCode( '5S' );
 	}
 }
