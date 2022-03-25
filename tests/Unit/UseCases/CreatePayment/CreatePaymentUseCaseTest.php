@@ -13,12 +13,14 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
-use WMDE\Fundraising\PaymentContext\Domain\TransferCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DeterministicPaymentReferenceGenerator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
@@ -36,7 +38,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeFixedIdGenerator(),
 			$this->makePaymentRepository( new CreditCardPayment( self::PAYMENT_ID, Euro::newFromCents( 100 ), PaymentInterval::OneTime ) ),
-			$this->makeTransferCodeGeneratorStub(),
+			$this->makePaymentReferenceGeneratorStub(),
 			$this->makeValidateIbanUseCase()
 		);
 
@@ -56,7 +58,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 			$this->makePaymentRepository(
 				new PayPalPayment( self::PAYMENT_ID, Euro::newFromCents( 100 ), PaymentInterval::OneTime )
 			),
-			$this->makeTransferCodeGeneratorStub(),
+			$this->makePaymentReferenceGeneratorStub(),
 			$this->makeValidateIbanUseCase()
 		);
 
@@ -77,21 +79,17 @@ class CreatePaymentUseCaseTest extends TestCase {
 				self::PAYMENT_ID,
 				Euro::newFromCents( 100 ),
 				PaymentInterval::OneTime,
-				'IamBankTransferCode42'
+				'XW-DAR-E99-X'
 			)
 		);
-		$transferCodeGenerator = $this->createMock( TransferCodeGenerator::class );
-		$transferCodeGenerator->expects( $this->once() )
-			->method( 'generateTransferCode' )
-			->with( 'TestPrefix' )
-			->willReturn( 'IamBankTransferCode42' );
+		$transferCodeGenerator = $this->makePaymentReferenceGenerator();
 		$useCase = new CreatePaymentUseCase( $idGenerator, $repo, $transferCodeGenerator, $this->makeValidateIbanUseCase() );
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 100,
 			interval: 0,
 			paymentType: 'SUB',
-			transferCodePrefix: 'TestPrefix'
+			transferCodePrefix: 'XW'
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
@@ -105,21 +103,17 @@ class CreatePaymentUseCaseTest extends TestCase {
 				self::PAYMENT_ID,
 				Euro::newFromCents( 400 ),
 				PaymentInterval::Quarterly,
-				'IamBankTransferCode23'
+				'XW-DAR-E99-X'
 			)
 		);
-		$transferCodeGenerator = $this->createMock( TransferCodeGenerator::class );
-		$transferCodeGenerator->expects( $this->once() )
-			->method( 'generateTransferCode' )
-			->with( 'TestPrefix' )
-			->willReturn( 'IamBankTransferCode23' );
-		$useCase = new CreatePaymentUseCase( $idGenerator, $repo, $transferCodeGenerator, $this->makeValidateIbanUseCase() );
+		$referenceCodeGenerator = $this->makePaymentReferenceGenerator();
+		$useCase = new CreatePaymentUseCase( $idGenerator, $repo, $referenceCodeGenerator, $this->makeValidateIbanUseCase() );
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 400,
 			interval: 3,
 			paymentType: 'UEB',
-			transferCodePrefix: 'TestPrefix'
+			transferCodePrefix: 'XW'
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
@@ -130,7 +124,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeIdGeneratorStub(),
 			$this->makeRepositoryStub(),
-			$this->makeTransferCodeGeneratorStub(),
+			$this->makePaymentReferenceGeneratorStub(),
 			$this->makeValidateIbanUseCase()
 		);
 
@@ -148,7 +142,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeIdGeneratorStub(),
 			$this->makeRepositoryStub(),
-			$this->makeTransferCodeGeneratorStub(),
+			$this->makePaymentReferenceGeneratorStub(),
 			$this->makeValidateIbanUseCase()
 		);
 
@@ -165,7 +159,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeIdGeneratorStub(),
 			$this->makeRepositoryStub(),
-			$this->makeTransferCodeGeneratorStub(),
+			$this->makePaymentReferenceGeneratorStub(),
 			$this->makeValidateIbanUseCase()
 		);
 
@@ -182,7 +176,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeIdGeneratorStub(),
 			$this->makeRepositoryStub(),
-			$this->makeTransferCodeGeneratorStub(),
+			$this->makePaymentReferenceGeneratorStub(),
 			$this->makeValidateIbanUseCase()
 		);
 
@@ -208,7 +202,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeIdGeneratorStub(),
 			$repo,
-			$this->makeTransferCodeGeneratorStub(),
+			$this->makePaymentReferenceGeneratorStub(),
 			$this->makeValidateIbanUseCase()
 		);
 
@@ -228,7 +222,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeIdGeneratorStub(),
 			$this->makeRepositoryStub(),
-			$this->makeTransferCodeGeneratorStub(),
+			$this->makePaymentReferenceGeneratorStub(),
 			$this->makeValidateIbanUseCase( blockList: [ DirectDebitBankData::IBAN ] )
 		);
 
@@ -256,10 +250,8 @@ class CreatePaymentUseCaseTest extends TestCase {
 		return $repo;
 	}
 
-	private function makeTransferCodeGeneratorStub(): TransferCodeGenerator {
-		$generator = $this->createMock( TransferCodeGenerator::class );
-		$generator->expects( $this->never() )->method( 'generateTransferCode' );
-		return $generator;
+	private function makePaymentReferenceGeneratorStub(): PaymentReferenceCodeGenerator {
+		return new DeterministicPaymentReferenceGenerator( PaymentReferenceCode::ALLOWED_CHARACTERS );
 	}
 
 	private function makeFixedIdGenerator(): PaymentIDRepository {
@@ -284,5 +276,14 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$validator->method( 'validate' )->willReturn( new ValidationResult() );
 
 		return new ValidateIbanUseCase( $validator, new IbanBlockList( $blockList ) );
+	}
+
+	private function makePaymentReferenceGenerator(): PaymentReferenceCodeGenerator {
+		$referenceCodeGenerator = $this->createMock( PaymentReferenceCodeGenerator::class );
+		$referenceCodeGenerator->expects( $this->once() )
+			->method( 'newPaymentReference' )
+			->with( 'XW' )
+			->willReturn( new PaymentReferenceCode( 'XW', 'DARE99', 'X' ) );
+		return $referenceCodeGenerator;
 	}
 }

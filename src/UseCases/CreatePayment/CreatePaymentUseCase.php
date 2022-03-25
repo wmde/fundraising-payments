@@ -12,16 +12,16 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
-use WMDE\Fundraising\PaymentContext\Domain\TransferCodeGenerator;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 
 class CreatePaymentUseCase {
 	public function __construct(
 		private PaymentIDRepository $idGenerator,
 		private PaymentRepository $paymentRepository,
-		private TransferCodeGenerator $paymentReferenceCodeGenerator,
+		private PaymentReferenceCodeGenerator $paymentReferenceCodeGenerator,
 		private ValidateIbanUseCase $validateIbanUseCase
 	) {
 	}
@@ -102,7 +102,7 @@ class CreatePaymentUseCase {
 			$this->getNextIdOnce(),
 			$this->createAmount( $request ),
 			$paymentInterval,
-			$this->paymentReferenceCodeGenerator->generateTransferCode( $request->transferCodePrefix )
+			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )->getFormattedCode()
 		);
 	}
 
@@ -116,7 +116,7 @@ class CreatePaymentUseCase {
 			$this->getNextIdOnce(),
 			$this->createAmount( $request ),
 			$this->createInterval( $request ),
-			$this->paymentReferenceCodeGenerator->generateTransferCode( $request->transferCodePrefix )
+			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )->getFormattedCode()
 		);
 	}
 
