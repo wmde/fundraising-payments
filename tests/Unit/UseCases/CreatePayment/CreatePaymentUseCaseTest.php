@@ -5,8 +5,12 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CreatePayment;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
+use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
@@ -14,10 +18,13 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\Domain\TransferCodeGenerator;
+use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
+use WMDE\FunValidators\ValidationResult;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase
@@ -29,7 +36,8 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeFixedIdGenerator(),
 			$this->makePaymentRepository( new CreditCardPayment( self::PAYMENT_ID, Euro::newFromCents( 100 ), PaymentInterval::OneTime ) ),
-			$this->makeTransferCodeGeneratorStub()
+			$this->makeTransferCodeGeneratorStub(),
+			$this->makeValidateIbanUseCase()
 		);
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
@@ -48,7 +56,8 @@ class CreatePaymentUseCaseTest extends TestCase {
 			$this->makePaymentRepository(
 				new PayPalPayment( self::PAYMENT_ID, Euro::newFromCents( 100 ), PaymentInterval::OneTime )
 			),
-			$this->makeTransferCodeGeneratorStub()
+			$this->makeTransferCodeGeneratorStub(),
+			$this->makeValidateIbanUseCase()
 		);
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
@@ -76,7 +85,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 			->method( 'generateTransferCode' )
 			->with( 'TestPrefix' )
 			->willReturn( 'IamBankTransferCode42' );
-		$useCase = new CreatePaymentUseCase( $idGenerator, $repo, $transferCodeGenerator );
+		$useCase = new CreatePaymentUseCase( $idGenerator, $repo, $transferCodeGenerator, $this->makeValidateIbanUseCase() );
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 100,
@@ -104,7 +113,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 			->method( 'generateTransferCode' )
 			->with( 'TestPrefix' )
 			->willReturn( 'IamBankTransferCode23' );
-		$useCase = new CreatePaymentUseCase( $idGenerator, $repo, $transferCodeGenerator );
+		$useCase = new CreatePaymentUseCase( $idGenerator, $repo, $transferCodeGenerator, $this->makeValidateIbanUseCase() );
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 400,
@@ -121,7 +130,8 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeIdGeneratorStub(),
 			$this->makeRepositoryStub(),
-			$this->makeTransferCodeGeneratorStub()
+			$this->makeTransferCodeGeneratorStub(),
+			$this->makeValidateIbanUseCase()
 		);
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
@@ -138,7 +148,8 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeIdGeneratorStub(),
 			$this->makeRepositoryStub(),
-			$this->makeTransferCodeGeneratorStub()
+			$this->makeTransferCodeGeneratorStub(),
+			$this->makeValidateIbanUseCase()
 		);
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
@@ -154,7 +165,8 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeIdGeneratorStub(),
 			$this->makeRepositoryStub(),
-			$this->makeTransferCodeGeneratorStub()
+			$this->makeTransferCodeGeneratorStub(),
+			$this->makeValidateIbanUseCase()
 		);
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
@@ -170,7 +182,8 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$useCase = new CreatePaymentUseCase(
 			$this->makeIdGeneratorStub(),
 			$this->makeRepositoryStub(),
-			$this->makeTransferCodeGeneratorStub()
+			$this->makeTransferCodeGeneratorStub(),
+			$this->makeValidateIbanUseCase()
 		);
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
@@ -180,6 +193,55 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
+	}
+
+	public function testCreateDirectDebitPayment(): void {
+		$repo = $this->makePaymentRepository(
+			DirectDebitPayment::create(
+				self::PAYMENT_ID,
+				Euro::newFromCents( 400 ),
+				PaymentInterval::Quarterly,
+				new Iban( DirectDebitBankData::IBAN ),
+				DirectDebitBankData::BIC
+			)
+		);
+		$useCase = new CreatePaymentUseCase(
+			$this->makeIdGeneratorStub(),
+			$repo,
+			$this->makeTransferCodeGeneratorStub(),
+			$this->makeValidateIbanUseCase()
+		);
+
+		$result = $useCase->createPayment( new PaymentCreationRequest(
+			amountInEuroCents: 400,
+			interval: 3,
+			paymentType: 'BEZ',
+			iban: DirectDebitBankData::IBAN,
+			bic: DirectDebitBankData::BIC
+		) );
+
+		$this->assertInstanceOf( SuccessResponse::class, $result );
+		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+	}
+
+	public function testCreateDirectDebitPaymentWithInvalidIbanFails(): void {
+		$useCase = new CreatePaymentUseCase(
+			$this->makeIdGeneratorStub(),
+			$this->makeRepositoryStub(),
+			$this->makeTransferCodeGeneratorStub(),
+			$this->makeValidateIbanUseCase( blockList: [ DirectDebitBankData::IBAN ] )
+		);
+
+		$result = $useCase->createPayment( new PaymentCreationRequest(
+			amountInEuroCents: 400,
+			interval: 3,
+			paymentType: 'BEZ',
+			iban: DirectDebitBankData::IBAN,
+			bic: DirectDebitBankData::BIC
+		) );
+
+		$this->assertInstanceOf( FailureResponse::class, $result );
+		$this->assertEquals( "An invalid Iban was provided", $result->errorMessage );
 	}
 
 	private function makeIdGeneratorStub(): PaymentIDRepository {
@@ -210,5 +272,17 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$repo = $this->createMock( PaymentRepository::class );
 		$repo->expects( $this->once() )->method( 'storePayment' )->with( $expectedPayment );
 		return $repo;
+	}
+
+	/**
+	 * @param array<string> $blockList
+	 *
+	 * @return ValidateIbanUseCase
+	 */
+	private function makeValidateIbanUseCase( array $blockList = [] ): ValidateIbanUseCase {
+		$validator = $this->createMock( IbanValidator::class );
+		$validator->method( 'validate' )->willReturn( new ValidationResult() );
+
+		return new ValidateIbanUseCase( $validator, new IbanBlockList( $blockList ) );
 	}
 }
