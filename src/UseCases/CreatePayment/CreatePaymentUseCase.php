@@ -6,6 +6,8 @@ namespace WMDE\Fundraising\PaymentContext\UseCases\CreatePayment;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
@@ -13,12 +15,15 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\Domain\TransferCodeGenerator;
+use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 
 class CreatePaymentUseCase {
 	public function __construct(
 		private PaymentIDRepository $idGenerator,
 		private PaymentRepository $paymentRepository,
-		private TransferCodeGenerator $paymentReferenceCodeGenerator ) {
+		private TransferCodeGenerator $paymentReferenceCodeGenerator,
+		private ValidateIbanUseCase $validateIbanUseCase
+	) {
 	}
 
 	public function createPayment( PaymentCreationRequest $request ): SuccessResponse|FailureResponse {
@@ -51,6 +56,7 @@ class CreatePaymentUseCase {
 			'PPL' => $this->createPayPalPayment( $request ),
 			'SUB' => $this->createSofortPayment( $request ),
 			'UEB' => $this->createBankTransferPayment( $request ),
+			'BEZ' => $this->createDirectDebitPayment( $request ),
 			default => throw new PaymentCreationException( 'Invalid payment type: ' . $request->paymentType )
 		};
 	}
@@ -111,6 +117,25 @@ class CreatePaymentUseCase {
 			$this->createAmount( $request ),
 			$this->createInterval( $request ),
 			$this->paymentReferenceCodeGenerator->generateTransferCode( $request->transferCodePrefix )
+		);
+	}
+
+	/**
+	 * @param PaymentCreationRequest $request
+	 * @return DirectDebitPayment
+	 * @throws PaymentCreationException
+	 */
+	private function createDirectDebitPayment( PaymentCreationRequest $request ): DirectDebitPayment {
+		if ( !$this->validateIbanUseCase->ibanIsValid( $request->iban ) ) {
+			throw new PaymentCreationException( "An invalid Iban was provided" );
+		}
+
+		return DirectDebitPayment::create(
+			$this->getNextIdOnce(),
+			$this->createAmount( $request ),
+			$this->createInterval( $request ),
+			new Iban( $request->iban ),
+			$request->bic
 		);
 	}
 
