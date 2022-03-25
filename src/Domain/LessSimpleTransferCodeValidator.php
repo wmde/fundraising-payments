@@ -4,20 +4,22 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain;
 
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
+
 class LessSimpleTransferCodeValidator {
 
 	private ChecksumGenerator $checksumGenerator;
 
 	public function __construct() {
 		$this->checksumGenerator = new ChecksumGenerator(
-			str_split( LessSimpleTransferCodeGenerator::ALLOWED_CHARACTERS )
+			str_split( PaymentReferenceCode::ALLOWED_CHARACTERS )
 		);
 	}
 
 	public function transferCodeIsValid( string $code ): bool {
 		$code = strtoupper( $code );
 		$code = preg_replace(
-			'/[^' . preg_quote( LessSimpleTransferCodeGenerator::ALLOWED_CHARACTERS ) . ']/',
+			'/[^' . preg_quote( PaymentReferenceCode::ALLOWED_CHARACTERS ) . ']/',
 			'',
 			$code
 		);
@@ -28,16 +30,16 @@ class LessSimpleTransferCodeValidator {
 
 	private function formatIsValid( string $code ): bool {
 		return strlen( $code ) ===
-			LessSimpleTransferCodeGenerator::LENGTH_PREFIX +
-			LessSimpleTransferCodeGenerator::LENGTH_CODE +
-			LessSimpleTransferCodeGenerator::LENGTH_CHECKSUM;
+			PaymentReferenceCode::LENGTH_PREFIX +
+			PaymentReferenceCode::LENGTH_CODE +
+			PaymentReferenceCode::LENGTH_CHECKSUM;
 	}
 
 	private function checksumIsCorrect( string $code ): bool {
 		return $this->checksumGenerator->createChecksum(
-				substr( $code, 0, -LessSimpleTransferCodeGenerator::LENGTH_CHECKSUM )
+				substr( $code, 0, -PaymentReferenceCode::LENGTH_CHECKSUM )
 			)
-			=== substr( $code, -LessSimpleTransferCodeGenerator::LENGTH_CHECKSUM );
+			=== substr( $code, -PaymentReferenceCode::LENGTH_CHECKSUM );
 	}
 
 }

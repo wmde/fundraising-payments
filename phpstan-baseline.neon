@@ -264,17 +264,6 @@ parameters:
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\ChecksumGeneratorTest\\:\\:getRandomStrings\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: tests/Unit/Domain/ChecksumGeneratorTest.php
-
-		-
-			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\LessSimpleTransferCodeGeneratorTest\\:\\:characterAndCodeProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: tests/Unit/Domain/LessSimpleTransferCodeGeneratorTest.php
-
-		-
-			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\LessSimpleTransferCodeGeneratorTest\\:\\:tooShortPrefixProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: tests/Unit/Domain/LessSimpleTransferCodeGeneratorTest.php
-
 		-
 			message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Unit\\\\Domain\\\\LessSimpleTransferCodeValidatorTest\\:\\:characterAndCodeProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
