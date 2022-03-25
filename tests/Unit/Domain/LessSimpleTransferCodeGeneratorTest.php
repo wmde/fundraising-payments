@@ -6,7 +6,6 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\LessSimpleTransferCodeGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\LessSimpleTransferCodeValidator;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\LessSimpleTransferCodeGenerator
@@ -48,12 +47,17 @@ class LessSimpleTransferCodeGeneratorTest extends TestCase {
 		yield from str_split( $characters );
 	}
 
+	/**
+	 * This test creates random codes to assert that they are not invalid (which would throw an exception)
+	 *
+	 * @return void
+	 *
+	 * @doesNotPerformAssertions
+	 */
 	public function testRandomGeneratorProducesValidCodes(): void {
 		$generator = LessSimpleTransferCodeGenerator::newRandomGenerator();
-		$validator = new LessSimpleTransferCodeValidator();
 		for ( $i = 0; $i < self::NUM_RANDOM_SAMPLES; $i++ ) {
-			$code = $generator->generateTransferCode( 'XD' );
-			$this->assertTrue( $validator->transferCodeIsValid( $code ) );
+			$generator->generateTransferCode( 'XD' );
 		}
 	}
 }
