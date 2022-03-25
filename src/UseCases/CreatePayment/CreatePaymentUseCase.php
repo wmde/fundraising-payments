@@ -98,11 +98,11 @@ class CreatePaymentUseCase {
 			throw new PaymentCreationException( "Sofort payment does not support recurring intervals (>0)." );
 		}
 
-		return new SofortPayment(
+		return SofortPayment::create(
 			$this->getNextIdOnce(),
 			$this->createAmount( $request ),
 			$paymentInterval,
-			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )->getFormattedCode()
+			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )
 		);
 	}
 
@@ -112,11 +112,11 @@ class CreatePaymentUseCase {
 	 * @throws PaymentCreationException
 	 */
 	private function createBankTransferPayment( PaymentCreationRequest $request ): BankTransferPayment {
-		return new BankTransferPayment(
+		return BankTransferPayment::create(
 			$this->getNextIdOnce(),
 			$this->createAmount( $request ),
 			$this->createInterval( $request ),
-			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )->getFormattedCode()
+			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )
 		);
 	}
 

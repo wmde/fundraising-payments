@@ -28,10 +28,10 @@ class BankTransferPaymentInspector
         return $prop->getValue($this->inspectionObject);
     }
 
-    public function getBankTransferCode(): string
+    public function getPaymentReferenceCode(): ?\WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode
     {
-        $value = $this->getPrivateValue('bankTransferCode');
-        assert(is_string($value));
+        $value = $this->getPrivateValue('paymentReferenceCode');
+        assert($value === null || $value instanceof \WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode);
         return $value;
     }
 

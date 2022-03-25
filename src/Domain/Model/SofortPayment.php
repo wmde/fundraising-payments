@@ -12,22 +12,34 @@ class SofortPayment extends Payment implements BookablePayment {
 
 	private const PAYMENT_METHOD = 'SUB';
 
-	private string $paymentReferenceCode;
+	/**
+	 * This field is nullable to allow for anonymisation
+	 *
+	 * @var PaymentReferenceCode|null
+	 */
+	private ?PaymentReferenceCode $paymentReferenceCode;
 
 	private ?string $transactionId = null;
 
 	private ?DateTimeImmutable $valuationDate = null;
 
-	public function __construct( int $id, Euro $amount, PaymentInterval $interval, string $paymentReferenceCode ) {
+	private function __construct( int $id, Euro $amount, PaymentInterval $interval, ?PaymentReferenceCode $paymentReference ) {
 		if ( $interval !== PaymentInterval::OneTime ) {
 			throw new \InvalidArgumentException( "Provided payment interval must be 0 (= one time payment) for Sofort payments." );
 		}
 		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
-		$this->paymentReferenceCode = $paymentReferenceCode;
+		$this->paymentReferenceCode = $paymentReference;
+	}
+
+	public static function create( int $id, Euro $amount, PaymentInterval $interval, ?PaymentReferenceCode $paymentReferenceCode ): self {
+		return new self( $id, $amount, $interval, $paymentReferenceCode );
 	}
 
 	public function getPaymentReferenceCode(): string {
-		return $this->paymentReferenceCode;
+		if ( $this->paymentReferenceCode === null ) {
+			return '';
+		}
+		return $this->paymentReferenceCode->getFormattedCode();
 	}
 
 	public function hasExternalProvider(): bool {
@@ -58,5 +70,9 @@ class SofortPayment extends Payment implements BookablePayment {
 
 	public function getLegacyData(): array {
 		return [];
+	}
+
+	public function anonymise(): void {
+		$this->paymentReferenceCode = null;
 	}
 }

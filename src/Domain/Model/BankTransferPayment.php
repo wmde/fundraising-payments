@@ -7,32 +7,36 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 use DateTimeImmutable;
 use WMDE\Euro\Euro;
 
-/**
- * @license GPL-2.0-or-later
- * @author Jeroen De Dauw < jeroendedauw@gmail.com >
- */
 class BankTransferPayment extends Payment {
 
 	private const PAYMENT_METHOD = 'UEB';
 
-	private string $bankTransferCode;
+	/**
+	 * This field is nullable to allow for anonymisation
+	 *
+	 * @var PaymentReferenceCode|null
+	 */
+	private ?PaymentReferenceCode $paymentReferenceCode;
 
-	public function __construct( int $id, Euro $amount, PaymentInterval $interval, string $bankTransferCode ) {
+	private function __construct( int $id, Euro $amount, PaymentInterval $interval, ?PaymentReferenceCode $paymentReference ) {
 		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
 
-		if ( $bankTransferCode === '' ) {
-			throw new \InvalidArgumentException( 'Bank Transfer Code must not be empty' );
-		}
+		$this->paymentReferenceCode = $paymentReference;
+	}
 
-		$this->bankTransferCode = $bankTransferCode;
+	public static function create( int $id, Euro $amount, PaymentInterval $interval, PaymentReferenceCode $paymentReference ): self {
+		return new self( $id, $amount, $interval, $paymentReference );
 	}
 
 	public function getId(): string {
 		return PaymentMethod::BANK_TRANSFER;
 	}
 
-	public function getBankTransferCode(): string {
-		return $this->bankTransferCode;
+	public function getPaymentReferenceCode(): string {
+		if ( $this->paymentReferenceCode === null ) {
+			return '';
+		}
+		return $this->paymentReferenceCode->getFormattedCode();
 	}
 
 	public function hasExternalProvider(): bool {
@@ -49,5 +53,9 @@ class BankTransferPayment extends Payment {
 
 	public function getLegacyData(): array {
 		return [];
+	}
+
+	public function anonymise(): void {
+		$this->paymentReferenceCode = null;
 	}
 }

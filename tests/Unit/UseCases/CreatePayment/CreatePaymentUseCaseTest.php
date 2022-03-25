@@ -75,11 +75,11 @@ class CreatePaymentUseCaseTest extends TestCase {
 	public function testCreateSofortPayment(): void {
 		$idGenerator = $this->makeFixedIdGenerator();
 		$repo = $this->makePaymentRepository(
-			new SofortPayment(
+			SofortPayment::create(
 				self::PAYMENT_ID,
 				Euro::newFromCents( 100 ),
 				PaymentInterval::OneTime,
-				'XW-DAR-E99-X'
+				PaymentReferenceCode::newFromString( 'XW-DAR-E99-X' )
 			)
 		);
 		$transferCodeGenerator = $this->makePaymentReferenceGenerator();
@@ -99,11 +99,11 @@ class CreatePaymentUseCaseTest extends TestCase {
 	public function testCreateBankTransferPayment(): void {
 		$idGenerator = $this->makeFixedIdGenerator();
 		$repo = $this->makePaymentRepository(
-			new BankTransferPayment(
+			BankTransferPayment::create(
 				self::PAYMENT_ID,
 				Euro::newFromCents( 400 ),
 				PaymentInterval::Quarterly,
-				'XW-DAR-E99-X'
+				new PaymentReferenceCode( 'XW', 'DARE99', 'X' )
 			)
 		);
 		$referenceCodeGenerator = $this->makePaymentReferenceGenerator();
