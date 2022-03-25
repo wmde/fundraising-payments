@@ -46,4 +46,35 @@ class PaymentReferenceCodeTest extends TestCase {
 		$this->assertSame( 'XW-DAR-E99-T', (string)$code );
 		$this->assertSame( 'XW-DAR-E99-T', $code->getFormattedCode() );
 	}
+
+	public function testCanBeConvertedFromString(): void {
+		$code = PaymentReferenceCode::newFromString( 'XW-DAR-E99-T' );
+
+		$this->assertNotNull( $code );
+		$this->assertSame( 'XW-DAR-E99-T', $code->getFormattedCode() );
+	}
+
+	public function testWhenStringIsEmptyConversionReturnsNull(): void {
+		$this->assertNull( PaymentReferenceCode::newFromString( '' ) );
+	}
+
+	/**
+	 * @dataProvider invalidCodeProvider
+	 */
+	public function testConversionFromStringFailsOnInvalidCodes( string $code ): void {
+		$this->expectException( \UnexpectedValueException::class );
+
+		PaymentReferenceCode::newFromString( $code );
+	}
+
+	/**
+	 * @return array<string,array{string}>
+	 */
+	public function invalidCodeProvider(): array {
+		return [
+			'checksum missing' => [ 'XW-DAR-E47' ],
+			'extra-parts' => [ 'XW-DAR-E47-X-4' ],
+			'invalid characters' => [ 'XW-BAE-RT3-X' ],
+		];
+	}
 }

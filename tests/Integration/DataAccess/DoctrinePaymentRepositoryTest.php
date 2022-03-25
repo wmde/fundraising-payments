@@ -16,6 +16,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
@@ -30,6 +31,7 @@ use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentRepository
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\Euro
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\PaymentInterval
+ * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\PaymentReferenceCode
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\Iban
  */
 class DoctrinePaymentRepositoryTest extends TestCase {
@@ -190,7 +192,12 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	public function testStoreBankTransferPayment(): void {
-		$payment = new BankTransferPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly, 'T123456789' );
+		$payment = BankTransferPayment::create(
+			1,
+			Euro::newFromInt( 99 ),
+			PaymentInterval::Quarterly,
+			new PaymentReferenceCode( 'XW', 'RAARR4', 'X' )
+		);
 
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 
@@ -200,7 +207,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( 9900, $insertedPayment['amount'] );
 		$this->assertSame( 3, $insertedPayment['payment_interval'] );
 		$this->assertSame( 'UEB', $insertedPayment['payment_method'] );
-		$this->assertSame( 'T123456789', $insertedPayment['bank_transfer_code'] );
+		$this->assertSame( 'XW-RAA-RR4-X', $insertedPayment['payment_reference_code'] );
 	}
 
 	public function testFindBankTransferPayment(): void {
@@ -213,15 +220,27 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$paymentSpy = new BankTransferPaymentInspector( $payment );
 		$this->assertSame( 4223, $paymentSpy->getAmount()->getEuroCents() );
 		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
-		$this->assertSame( 'T123456789', $paymentSpy->getBankTransferCode() );
+		$this->assertNotNull( $paymentSpy->getPaymentReferenceCode() );
+		$this->assertSame( 'XW-RAA-RR4-Y', $paymentSpy->getPaymentReferenceCode()->getFormattedCode() );
+	}
+
+	public function testFindAnonymisedBankTransferPayment(): void {
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$this->insertRawAnonymisedBankTransferData();
+
+		$payment = $repo->getPaymentById( 1 );
+		$this->assertInstanceOf( BankTransferPayment::class, $payment );
+
+		$paymentSpy = new BankTransferPaymentInspector( $payment );
+		$this->assertNull( $paymentSpy->getPaymentReferenceCode() );
 	}
 
 	public function testStoreSofortPayment(): void {
-		$payment = new SofortPayment(
+		$payment = SofortPayment::create(
 			42,
 			Euro::newFromInt( 12 ),
 			PaymentInterval::OneTime,
-			"I00AMavalidbookingcode"
+			new PaymentReferenceCode( 'XW', 'TARARA', 'X' )
 		);
 		$payment->bookPayment( [ 'transactionId' => 'imatransID42', 'valuationDate' => '2021-06-24 23:00:00' ] );
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
@@ -234,7 +253,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( 'SUB', $insertedPayment['payment_method'] );
 		$this->assertNotNull( $insertedPayment['valuation_date'] );
 		$this->assertSame( 'imatransID42', $insertedPayment['transaction_id'] );
-		$this->assertSame( 'I00AMavalidbookingcode', $insertedPayment['payment_reference_code'] );
+		$this->assertSame( 'XW-TAR-ARA-X', $insertedPayment['payment_reference_code'] );
 	}
 
 	public function testFindSofortPayment(): void {
@@ -248,7 +267,18 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( PaymentInterval::OneTime, $paymentSpy->getInterval() );
 		$this->assertEquals( new \DateTimeImmutable( '2021-06-24 23:00:00' ), $paymentSpy->getValuationDate() );
 		$this->assertSame( 'imatransID42', $paymentSpy->getTransactionId() );
-		$this->assertSame( 'justacode42', $paymentSpy->getPaymentReferenceCode() );
+		$this->assertNotNull( $paymentSpy->getPaymentReferenceCode() );
+		$this->assertSame( 'XW-TAR-ARA-Y', $paymentSpy->getPaymentReferenceCode()->getFormattedCode() );
+	}
+
+	public function testFindAnonymisedSofortPayment(): void {
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$this->insertRawAnonymisedSofortData();
+
+		$payment = $repo->getPaymentById( 42 );
+		$this->assertInstanceOf( SofortPayment::class, $payment );
+		$paymentSpy = new SofortPaymentInspector( $payment );
+		$this->assertNull( $paymentSpy->getPaymentReferenceCode() );
 	}
 
 	public function testFindPaymentThrowsExceptionWhenPaymentIsNotFound(): void {
@@ -331,7 +361,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	 */
 	private function fetchRawBankTransferPaymentData(): array {
 		$data = $this->connection->createQueryBuilder()
-			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'pbt.bank_transfer_code' )
+			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'pbt.payment_reference_code' )
 			->from( 'payments', 'p' )
 			->join( 'p', 'payments_bank_transfer', 'pbt', 'p.id=pbt.id' )
 			->where( 'p.id=1' )
@@ -344,7 +374,12 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	private function insertRawBankTransferData(): void {
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'UEB' ] );
-		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'bank_transfer_code' => 'T123456789' ] );
+		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'payment_reference_code' => 'XW-RAA-RR4-Y' ] );
+	}
+
+	private function insertRawAnonymisedBankTransferData(): void {
+		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'UEB' ] );
+		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'payment_reference_code' => null ] );
 	}
 
 	private function insertRawDirectDebitPaymentData(): void {
@@ -409,7 +444,22 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			'id' => 42,
 			'valuation_date' => '2021-06-24 23:00:00',
 			'transaction_id' => 'imatransID42',
-			'payment_reference_code' => 'justacode42'
+			'payment_reference_code' => 'XW-TAR-ARA-Y'
+		] );
+	}
+
+	private function insertRawAnonymisedSofortData(): void {
+		$this->connection->insert( 'payments', [
+			'id' => 42,
+			'amount' => '1233',
+			'payment_interval' => 0,
+			'payment_method' => 'SUB'
+		] );
+		$this->connection->insert( 'payments_sofort', [
+			'id' => 42,
+			'valuation_date' => '2021-06-24 23:00:00',
+			'transaction_id' => 'imatransID42',
+			'payment_reference_code' => null
 		] );
 	}
 }
