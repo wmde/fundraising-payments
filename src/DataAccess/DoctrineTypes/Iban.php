@@ -14,6 +14,10 @@ class Iban extends Type {
 		return 'VARCHAR(255)';
 	}
 
+	/**
+	 * @codeCoverageIgnore
+	 * @return string
+	 */
 	public function getName(): string {
 		return 'Iban';
 	}
