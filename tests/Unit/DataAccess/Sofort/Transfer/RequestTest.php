@@ -34,5 +34,8 @@ class RequestTest extends TestCase {
 
 		$request->setNotificationUrl( 'notify' );
 		$this->assertSame( 'notify', $request->getNotificationUrl() );
+
+		$request->setLocale( 'DE' );
+		$this->assertSame( 'DE', $request->getLocale() );
 	}
 }

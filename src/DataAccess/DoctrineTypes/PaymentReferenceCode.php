@@ -14,6 +14,10 @@ class PaymentReferenceCode extends Type {
 		return 'VARCHAR(16)';
 	}
 
+	/**
+	 * @codeCoverageIgnore
+	 * @return string
+	 */
 	public function getName(): string {
 		return 'PaymentReferenceCode';
 	}

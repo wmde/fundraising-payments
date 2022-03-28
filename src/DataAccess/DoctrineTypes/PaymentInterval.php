@@ -14,6 +14,10 @@ class PaymentInterval extends Type {
 		return 'INT';
 	}
 
+	/**
+	 * @codeCoverageIgnore
+	 * @return string
+	 */
 	public function getName(): string {
 		return 'PaymentInterval';
 	}
