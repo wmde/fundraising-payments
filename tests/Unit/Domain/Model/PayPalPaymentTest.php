@@ -74,4 +74,37 @@ class PayPalPaymentTest extends TestCase {
 		$this->assertArrayNotHasKey( 'address_country_code', $bookingData );
 	}
 
+	public function testCreateFollowupCopiesAmountAndInterval(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+
+		$childPayment = $payment->createFollowUpPayment( 2 );
+
+		$inspectedParentPayment = new PayPalPaymentInspector( $payment );
+		$inspectedChildPayment = new PayPalPaymentInspector( $childPayment );
+		$this->assertSame( 2, $childPayment->getId() );
+		$this->assertEquals( $inspectedParentPayment->getAmount(), $inspectedChildPayment->getAmount() );
+		$this->assertEquals( $inspectedParentPayment->getInterval(), $inspectedChildPayment->getInterval() );
+		$inspector = new PayPalPaymentInspector( $childPayment );
+		$this->assertSame( $payment, $inspector->getParentPayment() );
+	}
+
+	public function testFollowupPaymentIsUnbooked(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
+
+		$childPayment = $payment->createFollowUpPayment( 2 );
+
+		$this->assertFalse( $childPayment->isCompleted() );
+	}
+
+	public function testCreateFollowupDisallowsFollowUpsFromChildPayments(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
+		$childPayment = $payment->createFollowUpPayment( 2 );
+
+		$this->expectException( \RuntimeException::class );
+
+		$childPayment->createFollowUpPayment( 3 );
+	}
+
 }

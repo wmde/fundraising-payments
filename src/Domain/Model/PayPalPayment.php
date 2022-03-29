@@ -10,10 +10,9 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
 
 /**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
+ * @implements AssociablePayment<PayPalPayment>
  */
-class PayPalPayment extends Payment implements BookablePayment {
+class PayPalPayment extends Payment implements BookablePayment, AssociablePayment {
 
 	private const PAYMENT_METHOD = 'PPL';
 
@@ -21,6 +20,8 @@ class PayPalPayment extends Payment implements BookablePayment {
 	 * @var array<string,string>
 	 */
 	private array $bookingData;
+
+	private ?PayPalPayment $parentPayment = null;
 
 	private ?DateTimeImmutable $valuationDate = null;
 
@@ -58,11 +59,18 @@ class PayPalPayment extends Payment implements BookablePayment {
 	}
 
 	/**
-	 * // TODO: What to do with child payments?
-	 *
 	 * @return array<string,mixed>
 	 */
 	public function getLegacyData(): array {
 		return ( new PayPalBookingTransformer( $this->bookingData ) )->getLegacyData();
+	}
+
+	public function createFollowUpPayment( int $followUpPaymentId ): Payment {
+		if ( $this->parentPayment !== null ) {
+			throw new \RuntimeException( 'You can only create follow-up payments from initial, non-follow-ip payments' );
+		}
+		$payment = new PayPalPayment( $followUpPaymentId, $this->amount, $this->interval );
+		$payment->parentPayment = $this;
+		return $payment;
 	}
 }
