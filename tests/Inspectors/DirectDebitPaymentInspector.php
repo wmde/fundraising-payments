@@ -42,6 +42,13 @@ class DirectDebitPaymentInspector
         return $value;
     }
 
+    public function getIsCancelled(): bool
+    {
+        $value = $this->getPrivateValue('isCancelled');
+        assert(is_bool($value));
+        return $value;
+    }
+
     public function getId(): int
     {
         $value = $this->getPrivateValue('id');
