@@ -28,10 +28,6 @@ class BankTransferPayment extends Payment {
 		return new self( $id, $amount, $interval, $paymentReference );
 	}
 
-	public function getId(): string {
-		return PaymentMethod::BANK_TRANSFER;
-	}
-
 	public function getPaymentReferenceCode(): string {
 		if ( $this->paymentReferenceCode === null ) {
 			return '';

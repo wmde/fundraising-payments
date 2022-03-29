@@ -39,6 +39,13 @@ class PayPalPaymentInspector
         return $value;
     }
 
+    public function getParentPayment(): ?PayPalPayment
+    {
+        $value = $this->getPrivateValue('parentPayment');
+        assert($value === null || $value instanceof \WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment);
+        return $value;
+    }
+
     public function getValuationDate(): ?\DateTimeImmutable
     {
         $value = $this->getPrivateValue('valuationDate');
