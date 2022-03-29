@@ -48,7 +48,7 @@ class DirectDebitPayment extends Payment implements CancellablePayment {
 		return null;
 	}
 
-	public function paymentCompleted(): bool {
+	public function isCompleted(): bool {
 		return true;
 	}
 

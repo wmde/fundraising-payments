@@ -19,7 +19,7 @@ class PayPalPaymentTest extends TestCase {
 
 	public function testNewPayPalPaymentsAreUncompleted(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
-		$this->assertFalse( $payment->paymentCompleted() );
+		$this->assertFalse( $payment->isCompleted() );
 	}
 
 	public function testCompletePaymentWithEmptyTransactionDataFails(): void {
@@ -36,7 +36,7 @@ class PayPalPaymentTest extends TestCase {
 
 		$payment->bookPayment( [ 'payer_id' => self::PAYER_ID, 'payment_date' => '2022-01-01 01:01:01' ] );
 
-		$this->assertTrue( $payment->paymentCompleted() );
+		$this->assertTrue( $payment->isCompleted() );
 	}
 
 	public function testBookPaymentSetsValuationDate(): void {
