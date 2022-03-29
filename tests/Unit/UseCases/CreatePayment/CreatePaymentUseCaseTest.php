@@ -32,6 +32,8 @@ use WMDE\FunValidators\ValidationResult;
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationException
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse
  */
 class CreatePaymentUseCaseTest extends TestCase {
 	private const PAYMENT_ID = 2;

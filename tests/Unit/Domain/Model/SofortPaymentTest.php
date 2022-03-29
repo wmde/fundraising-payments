@@ -25,7 +25,7 @@ class SofortPaymentTest extends TestCase {
 	public function testNewSofortPaymentsAreUncompleted(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
-		$this->assertFalse( $sofortPayment->paymentCompleted() );
+		$this->assertFalse( $sofortPayment->isCompleted() );
 	}
 
 	public function testGivenNonOneTimePaymentIntervalThrowsException(): void {
@@ -39,7 +39,7 @@ class SofortPaymentTest extends TestCase {
 
 		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
 
-		$this->assertTrue( $sofortPayment->paymentCompleted() );
+		$this->assertTrue( $sofortPayment->isCompleted() );
 	}
 
 	public function testBookPaymentValidatesDate(): void {
