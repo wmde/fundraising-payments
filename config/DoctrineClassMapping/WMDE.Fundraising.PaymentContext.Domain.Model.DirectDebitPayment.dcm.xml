@@ -3,5 +3,6 @@
     <entity name="WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment" table="payments_direct_debit">
         <field name="iban" type="Iban" column="iban" nullable="true"/>
         <field name="bic" type="string" column="bic" nullable="true"/>
+        <field name="isCancelled" type="boolean" column="is_cancelled"/>
     </entity>
 </doctrine-mapping>

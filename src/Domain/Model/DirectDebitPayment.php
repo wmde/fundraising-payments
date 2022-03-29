@@ -23,6 +23,8 @@ class DirectDebitPayment extends Payment {
 	 */
 	private ?string $bic;
 
+	private bool $isCancelled = false;
+
 	private function __construct( int $id, Euro $amount, PaymentInterval $interval, Iban $iban = null, string $bic = null ) {
 		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
 		$this->iban = $iban;
@@ -60,5 +62,13 @@ class DirectDebitPayment extends Payment {
 
 	public function getBic(): ?string {
 		return $this->bic;
+	}
+
+	public function isCancelled(): bool {
+		return $this->isCancelled;
+	}
+
+	public function cancel(): void {
+		$this->isCancelled = true;
 	}
 }

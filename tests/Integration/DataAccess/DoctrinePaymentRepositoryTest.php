@@ -147,6 +147,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( 'BEZ', $insertedPayment['payment_method'] );
 		$this->assertSame( self::IBAN, $insertedPayment['iban'] );
 		$this->assertSame( self::BIC, $insertedPayment['bic'] );
+		$this->assertSame( 0, $insertedPayment['is_cancelled'] );
 	}
 
 	public function testStoreAnonymisedDirectDebitPayment(): void {
@@ -161,6 +162,17 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( 'BEZ', $updatedPayment['payment_method'] );
 		$this->assertNull( $updatedPayment['iban'] );
 		$this->assertNull( $updatedPayment['bic'] );
+		$this->assertSame( 0, $updatedPayment['is_cancelled'] );
+	}
+
+	public function testStoreCancelledDirectDebitPayment(): void {
+		$payment = DirectDebitPayment::create( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly, new Iban( self::IBAN ), self::BIC );
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$payment->cancel();
+		$repo->storePayment( $payment );
+
+		$updatedPayment = $this->fetchRawDirectDebitPaymentData();
+		$this->assertSame( 1, $updatedPayment['is_cancelled'] );
 	}
 
 	public function testFindDirectDebitPayment(): void {
@@ -175,6 +187,22 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
 		$this->assertSame( self::IBAN, $paymentSpy->getIban()?->toString() );
 		$this->assertSame( self::BIC, $paymentSpy->getBic() );
+		$this->assertFalse( $paymentSpy->getIsCancelled() );
+	}
+
+	public function testFindCancelledDirectDebitPayment(): void {
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$this->insertRawDirectDebitPaymentData( [ 'is_cancelled' => true ] );
+
+		$payment = $repo->getPaymentById( 1 );
+
+		$this->assertInstanceOf( DirectDebitPayment::class, $payment );
+		$paymentSpy = new DirectDebitPaymentInspector( $payment );
+		$this->assertSame( 4223, $paymentSpy->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
+		$this->assertSame( self::IBAN, $paymentSpy->getIban()?->toString() );
+		$this->assertSame( self::BIC, $paymentSpy->getBic() );
+		$this->assertTrue( $paymentSpy->getIsCancelled() );
 	}
 
 	public function testFindAnonymisedDirectDebitPayment(): void {
@@ -382,14 +410,23 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'payment_reference_code' => null ] );
 	}
 
-	private function insertRawDirectDebitPaymentData(): void {
+	/**
+	 * @param array<string,mixed> $extraData
+	 *
+	 * @return void
+	 * @throws \Doctrine\DBAL\Exception
+	 */
+	private function insertRawDirectDebitPaymentData( array $extraData = [] ): void {
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'BEZ' ] );
-		$this->connection->insert( 'payments_direct_debit', [ 'id' => 1, 'iban' => self::IBAN, 'bic' => self::BIC ] );
+		$this->connection->insert( 'payments_direct_debit', array_merge(
+			[ 'id' => 1, 'iban' => self::IBAN, 'bic' => self::BIC, 'is_cancelled' => false ],
+			$extraData
+		) );
 	}
 
 	private function insertRawAnonymisedDirectDebitPaymentData(): void {
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'BEZ' ] );
-		$this->connection->insert( 'payments_direct_debit', [ 'id' => 1, 'iban' => null, 'bic' => null ] );
+		$this->connection->insert( 'payments_direct_debit', [ 'id' => 1, 'iban' => null, 'bic' => null, 'is_cancelled' => false ] );
 	}
 
 	/**
@@ -398,7 +435,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	 */
 	private function fetchRawDirectDebitPaymentData(): array {
 		$data = $this->connection->createQueryBuilder()
-			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'pdd.iban', 'pdd.bic' )
+			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'pdd.iban', 'pdd.bic', 'pdd.is_cancelled' )
 			->from( 'payments', 'p' )
 			->join( 'p', 'payments_direct_debit', 'pdd', 'p.id=pdd.id' )
 			->where( 'p.id=1' )
