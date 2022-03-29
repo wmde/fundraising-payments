@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 use DateTimeImmutable;
 use WMDE\Euro\Euro;
 
-class DirectDebitPayment extends Payment {
+class DirectDebitPayment extends Payment implements CancellablePayment {
 
 	private const PAYMENT_METHOD = 'BEZ';
 
@@ -70,5 +70,9 @@ class DirectDebitPayment extends Payment {
 
 	public function cancel(): void {
 		$this->isCancelled = true;
+	}
+
+	public function isCancellable(): bool {
+		return !$this->isCancelled();
 	}
 }

@@ -22,4 +22,8 @@ abstract class Payment implements LegacyDataTransformer {
 
 	abstract public function paymentCompleted(): bool;
 
+	public function getId(): int {
+		return $this->id;
+	}
+
 }
