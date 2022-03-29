@@ -54,10 +54,6 @@ class PaymentReferenceCodeTest extends TestCase {
 		$this->assertSame( 'XW-DAR-E99-T', $code->getFormattedCode() );
 	}
 
-	public function testWhenStringIsEmptyConversionReturnsNull(): void {
-		$this->assertNull( PaymentReferenceCode::newFromString( '' ) );
-	}
-
 	/**
 	 * @dataProvider invalidCodeProvider
 	 */
