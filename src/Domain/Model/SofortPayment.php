@@ -42,6 +42,11 @@ class SofortPayment extends Payment implements BookablePayment {
 		return $this->paymentReferenceCode->getFormattedCode();
 	}
 
+	/**
+	 * @codeCoverageIgnore
+	 *
+	 * @return bool
+	 */
 	public function hasExternalProvider(): bool {
 		return true;
 	}
@@ -68,6 +73,11 @@ class SofortPayment extends Payment implements BookablePayment {
 		$this->valuationDate = new \DateTimeImmutable( $transactionData['valuationDate'] );
 	}
 
+	/**
+	 * @codeCoverageIgnore
+	 *
+	 * @return array<string,string>
+	 */
 	public function getLegacyData(): array {
 		return [];
 	}

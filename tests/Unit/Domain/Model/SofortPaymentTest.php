@@ -4,81 +4,68 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
-use DateTime;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
+use PHPUnit\Framework\TestCase;
+use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\SofortTransactionData;
+use WMDE\Fundraising\PaymentContext\Tests\Inspectors\SofortPaymentInspector;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment
  */
-class SofortPaymentTest {
+class SofortPaymentTest extends TestCase {
 
-	public function testInitialProperties(): void {
-		$sofortPayment = new SofortPayment( 'lorem' );
-		$this->assertSame( 'SUB', $sofortPayment->getId() );
-		$this->assertSame( 'lorem', $sofortPayment->getPaymentReferenceCode() );
-		$this->assertNull( $sofortPayment->getConfirmedAt() );
+	public function testGetPaymentCode(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$this->assertEquals( 'XW-DAR-E99-X', $sofortPayment->getPaymentReferenceCode() );
 	}
 
-	public function testConfirmedAcceptsDateTime(): void {
-		$sofortPayment = new SofortPayment( 'lorem' );
-		$sofortPayment->setConfirmedAt( new DateTime( '2001-12-24T17:30:00Z' ) );
-		$this->assertEquals( new DateTime( '2001-12-24T17:30:00Z' ), $sofortPayment->getConfirmedAt() );
-	}
+	public function testNewSofortPaymentsAreUncompleted(): void {
+		$sofortPayment = $this->makeSofortPayment();
 
-	public function testIsConfirmedPayment_newPaymentIsNotConfirmed(): void {
-		$sofortPayment = new SofortPayment( 'ipsum' );
-		$this->assertFalse( $sofortPayment->isConfirmedPayment() );
-	}
-
-	public function testIsConfirmedPayment_settingPaymentDateConfirmsPayment(): void {
-		$sofortPayment = new SofortPayment( 'ipsum' );
-		$sofortPayment->setConfirmedAt( new DateTime( 'now' ) );
-		$this->assertTrue( $sofortPayment->isConfirmedPayment() );
-	}
-
-	public function testPaymentWithoutDate_isUncompleted(): void {
-		$sofortPayment = new SofortPayment( 'ipsum' );
 		$this->assertFalse( $sofortPayment->paymentCompleted() );
 	}
 
-	public function testPaymentWithDate_isCompleted(): void {
-		$sofortPayment = new SofortPayment( 'ipsum' );
-		$sofortPayment->setConfirmedAt( new DateTime( 'now' ) );
+	public function testGivenNonOneTimePaymentIntervalThrowsException(): void {
+		$this->expectException( \InvalidArgumentException::class );
+
+		SofortPayment::create( 1, Euro::newFromCents( 1000 ), PaymentInterval::HalfYearly, new PaymentReferenceCode( 'XW', 'DARE99', 'X' ) );
+	}
+
+	public function testBookPaymentSetsCompleted(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
+
 		$this->assertTrue( $sofortPayment->paymentCompleted() );
 	}
 
-	public function testCompletePaymentWithInvalidTransactionObjectFails(): void {
-		$payment = new SofortPayment( 'ipsum' );
-		$wrongPaymentTransaction = new class() implements PaymentTransactionData {
-		};
+	public function testBookPaymentSetsValuationDate(): void {
+		$sofortPayment = $this->makeSofortPayment();
 
-		$this->expectException( \InvalidArgumentException::class );
+		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
 
-		$payment->bookPayment( $wrongPaymentTransaction );
+		$this->assertEquals( new \DateTimeImmutable( '2001-12-24T17:30:00Z' ), $sofortPayment->getValuationDate() );
 	}
 
-	public function testGivenCompletedPayment_completePaymentFails(): void {
-		$payment = new SofortPayment( 'ipsum' );
-		$firstCompletion = new SofortTransactionData( new \DateTimeImmutable() );
-		$secondCompletion = new SofortTransactionData( new \DateTimeImmutable( '2021-12-24 0:00:00' ) );
-		$payment->bookPayment( $firstCompletion );
+	public function testBookPaymentSetsTransactionId(): void {
+		$sofortPayment = $this->makeSofortPayment();
 
-		$this->expectException( \DomainException::class );
+		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
 
-		$payment->bookPayment( $secondCompletion );
+		$sofortPaymentInspector = new SofortPaymentInspector( $sofortPayment );
+
+		$this->assertEquals( 'yellow', $sofortPaymentInspector->getTransactionId() );
 	}
 
-	public function testCompletePaymentWithValidTransactionDataSucceeds(): void {
-		$payment = new SofortPayment( 'ipsum' );
-		$valuationDate = new \DateTimeImmutable();
-		$transactionData = new SofortTransactionData( $valuationDate );
-
-		$payment->bookPayment( $transactionData );
-
-		$this->assertTrue( $payment->paymentCompleted() );
-		$this->assertEquals( $valuationDate, $payment->getValuationDate() );
+	private function makeSofortPayment(): SofortPayment {
+		return SofortPayment::create(
+			1,
+			Euro::newFromCents( 1000 ),
+			PaymentInterval::OneTime,
+			new PaymentReferenceCode( 'XW', 'DARE99', 'X' )
+		);
 	}
-
 }
