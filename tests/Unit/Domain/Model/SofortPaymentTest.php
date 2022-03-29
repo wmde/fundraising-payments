@@ -42,6 +42,24 @@ class SofortPaymentTest extends TestCase {
 		$this->assertTrue( $sofortPayment->paymentCompleted() );
 	}
 
+	public function testBookPaymentValidatesDate(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$this->expectException( \DomainException::class );
+		$this->expectExceptionMessageMatches( '/Error in valuation date/' );
+
+		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24' ] );
+	}
+
+	public function testBookPaymentValidatesTransactionIdNotEmpty(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$this->expectException( \DomainException::class );
+		$this->expectExceptionMessageMatches( '/Transaction ID missing/' );
+
+		$sofortPayment->bookPayment( [ 'transactionId' => '', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
+	}
+
 	public function testBookPaymentSetsValuationDate(): void {
 		$sofortPayment = $this->makeSofortPayment();
 

@@ -242,7 +242,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			PaymentInterval::OneTime,
 			new PaymentReferenceCode( 'XW', 'TARARA', 'X' )
 		);
-		$payment->bookPayment( [ 'transactionId' => 'imatransID42', 'valuationDate' => '2021-06-24 23:00:00' ] );
+		$payment->bookPayment( [ 'transactionId' => 'imatransID42', 'valuationDate' => '2021-06-24T23:00:00Z' ] );
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 
 		$repo->storePayment( $payment );
@@ -265,7 +265,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$paymentSpy = new SofortPaymentInspector( $payment );
 		$this->assertSame( 1233, $paymentSpy->getAmount()->getEuroCents() );
 		$this->assertSame( PaymentInterval::OneTime, $paymentSpy->getInterval() );
-		$this->assertEquals( new \DateTimeImmutable( '2021-06-24 23:00:00' ), $paymentSpy->getValuationDate() );
+		$this->assertEquals( new \DateTimeImmutable( '2021-06-24T23:00:00Z' ), $paymentSpy->getValuationDate() );
 		$this->assertSame( 'imatransID42', $paymentSpy->getTransactionId() );
 		$this->assertNotNull( $paymentSpy->getPaymentReferenceCode() );
 		$this->assertSame( 'XW-TAR-ARA-Y', $paymentSpy->getPaymentReferenceCode()->getFormattedCode() );
@@ -442,7 +442,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		] );
 		$this->connection->insert( 'payments_sofort', [
 			'id' => 42,
-			'valuation_date' => '2021-06-24 23:00:00',
+			'valuation_date' => '2021-06-24T23:00:00Z',
 			'transaction_id' => 'imatransID42',
 			'payment_reference_code' => 'XW-TAR-ARA-Y'
 		] );
