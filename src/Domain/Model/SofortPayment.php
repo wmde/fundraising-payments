@@ -56,7 +56,7 @@ class SofortPayment extends Payment implements BookablePayment {
 		return $this->valuationDate;
 	}
 
-	public function paymentCompleted(): bool {
+	public function isCompleted(): bool {
 		return $this->transactionId !== null;
 	}
 
@@ -67,7 +67,7 @@ class SofortPayment extends Payment implements BookablePayment {
 	 * @throws \DomainException
 	 */
 	public function bookPayment( array $transactionData ): void {
-		if ( $this->paymentCompleted() ) {
+		if ( $this->isCompleted() ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
 		if ( empty( $transactionData['transactionId'] ) ) {

@@ -37,7 +37,7 @@ class PayPalPayment extends Payment implements BookablePayment {
 		return $this->valuationDate;
 	}
 
-	public function paymentCompleted(): bool {
+	public function isCompleted(): bool {
 		return $this->valuationDate !== null && !empty( $this->bookingData );
 	}
 
@@ -50,7 +50,7 @@ class PayPalPayment extends Payment implements BookablePayment {
 	 */
 	public function bookPayment( array $transactionData ): void {
 		$transformer = new PayPalBookingTransformer( $transactionData );
-		if ( $this->paymentCompleted() ) {
+		if ( $this->isCompleted() ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
 		$this->bookingData = $transformer->getBookingData();

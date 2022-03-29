@@ -20,6 +20,6 @@ abstract class Payment implements LegacyDataTransformer {
 
 	abstract public function hasExternalProvider(): bool;
 
-	abstract public function paymentCompleted(): bool;
+	abstract public function isCompleted(): bool;
 
 }

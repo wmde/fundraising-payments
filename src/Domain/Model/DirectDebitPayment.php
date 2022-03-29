@@ -46,7 +46,7 @@ class DirectDebitPayment extends Payment {
 		return null;
 	}
 
-	public function paymentCompleted(): bool {
+	public function isCompleted(): bool {
 		return true;
 	}
 
