@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use DateTimeImmutable;
+use DateTimeInterface;
 use DomainException;
 use WMDE\Euro\Euro;
 
@@ -63,14 +64,26 @@ class SofortPayment extends Payment implements BookablePayment {
 	 * @param array<string,mixed> $transactionData
 	 *
 	 * @return void
-	 * @throws \DomainException|\Exception
+	 * @throws \DomainException
 	 */
 	public function bookPayment( array $transactionData ): void {
 		if ( $this->paymentCompleted() ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
-		$this->transactionId = $transactionData['transactionId'];
-		$this->valuationDate = new \DateTimeImmutable( $transactionData['valuationDate'] );
+		if ( empty( $transactionData['transactionId'] ) ) {
+			throw new DomainException( 'Transaction ID missing' );
+		}
+		$this->transactionId = strval( $transactionData['transactionId'] );
+		$valuationDate = DateTimeImmutable::createFromFormat( DateTimeInterface::ATOM, strval( $transactionData['valuationDate'] ) );
+		if ( $valuationDate === false ) {
+			$msg = 'Error in valuation date.';
+			$errors = DateTimeImmutable::getLastErrors();
+			if ( is_array( $errors ) ) {
+				$msg .= ' ' . var_export( $errors, true );
+			}
+			throw new DomainException( $msg );
+		}
+		$this->valuationDate = $valuationDate;
 	}
 
 	/**
