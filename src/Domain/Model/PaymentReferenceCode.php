@@ -51,10 +51,7 @@ class PaymentReferenceCode {
 		}
 	}
 
-	public static function newFromString( string $code ): ?self {
-		if ( $code === '' ) {
-			return null;
-		}
+	public static function newFromString( string $code ): self {
 		$parts = explode( self::READABILITY_DELIMITER, $code );
 		if ( count( $parts ) !== 4 ) {
 			throw new \UnexpectedValueException( 'Code must have 4 parts' );

@@ -32,7 +32,7 @@ class SofortPayment extends Payment implements BookablePayment {
 		$this->paymentReferenceCode = $paymentReference;
 	}
 
-	public static function create( int $id, Euro $amount, PaymentInterval $interval, ?PaymentReferenceCode $paymentReferenceCode ): self {
+	public static function create( int $id, Euro $amount, PaymentInterval $interval, PaymentReferenceCode $paymentReferenceCode ): self {
 		return new self( $id, $amount, $interval, $paymentReferenceCode );
 	}
 

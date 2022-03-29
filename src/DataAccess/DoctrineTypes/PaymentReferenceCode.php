@@ -23,6 +23,9 @@ class PaymentReferenceCode extends Type {
 	}
 
 	public function convertToPHPValue( mixed $value, AbstractPlatform $platform ): ?WMDEReferenceCode {
+		if ( strval( $value ) === '' ) {
+			return null;
+		}
 		return WMDEReferenceCode::newFromString( strval( $value ) );
 	}
 
