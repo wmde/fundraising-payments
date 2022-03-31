@@ -23,6 +23,9 @@ use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\BookPaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\FollowUpSuccessResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\SuccessResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationService;
+use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationServiceFactory;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\BookPayment\BookPaymentUseCase
@@ -43,7 +46,7 @@ class BookPaymentUseCaseTest extends TestCase {
 			->method( 'storePayment' )
 			->with( $payment );
 
-		$useCase = new BookPaymentUseCase( $repo, $this->makePaymentIdGenerator() );
+		$useCase = $this->makeBookPaymentUseCase( $repo );
 		$response = $useCase->bookPayment( self::PAYMENT_ID, CreditCardPaymentBookingData::newValidBookingData() );
 
 		$this->assertInstanceOf( SuccessResponse::class, $response );
@@ -55,7 +58,7 @@ class BookPaymentUseCaseTest extends TestCase {
 		$repo->method( 'getPaymentById' )->willThrowException(
 			new PaymentNotFoundException( 'Me fail English, that\'s unpossible' )
 		);
-		$useCase = new BookPaymentUseCase( $repo, $this->makePaymentIdGenerator() );
+		$useCase = $this->makeBookPaymentUseCase( $repo );
 
 		$response = $useCase->bookPayment( self::PAYMENT_ID, CreditCardPaymentBookingData::newValidBookingData() );
 
@@ -66,7 +69,7 @@ class BookPaymentUseCaseTest extends TestCase {
 	public function testBookingNonBookablePaymentsWillThrowException(): void {
 		$payment = $this->makeDirectDebitPayment();
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
-		$useCase = new BookPaymentUseCase( $repo, $this->makePaymentIdGenerator() );
+		$useCase = $this->makeBookPaymentUseCase( $repo );
 
 		$this->expectException( \RuntimeException::class );
 
@@ -78,7 +81,7 @@ class BookPaymentUseCaseTest extends TestCase {
 		$payment = $this->makeCreditCardPayment();
 		$payment->bookPayment( [ 'transactionId' => 'deadbeef' ], $idGenerator );
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
-		$useCase = new BookPaymentUseCase( $repo, $idGenerator );
+		$useCase = new BookPaymentUseCase( $repo, $idGenerator, $this->makeSucceedingVerificationServiceFactory() );
 
 		$response = $useCase->bookPayment( self::PAYMENT_ID, CreditCardPaymentBookingData::newValidBookingData() );
 
@@ -89,7 +92,7 @@ class BookPaymentUseCaseTest extends TestCase {
 	public function testBookingWithInvalidPaymentDataWillReturnFailureResponse(): void {
 		$payment = $this->makeCreditCardPayment();
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
-		$useCase = new BookPaymentUseCase( $repo, $this->makePaymentIdGenerator() );
+		$useCase = $this->makeBookPaymentUseCase( $repo );
 
 		$response = $useCase->bookPayment( self::PAYMENT_ID, [ 'faultyKey' => '' ] );
 
@@ -102,14 +105,14 @@ class BookPaymentUseCaseTest extends TestCase {
 		$idGeneratorStub->method( 'getNewID' )->willReturn( self::CHILD_PAYMENT_ID );
 		$payment = $this->makeBookedPayPalPayment( $idGeneratorStub );
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
-		$useCase = new BookPaymentUseCase( $repo, $idGeneratorStub );
+		$useCase = new BookPaymentUseCase( $repo, $idGeneratorStub, $this->makeSucceedingVerificationServiceFactory() );
 
 		$response = $useCase->bookPayment(
 			self::PAYMENT_ID,
 			PayPalPaymentBookingData::newValidBookingData()
 		);
 
-		$childPayment = $repo->payments[ self::CHILD_PAYMENT_ID ];
+		$childPayment = $repo->payments[self::CHILD_PAYMENT_ID];
 		$this->assertInstanceOf( PayPalPayment::class, $childPayment );
 		$this->assertFalse( $childPayment->canBeBooked( PayPalPaymentBookingData::newValidBookingData() ) );
 		$this->assertInstanceOf( FollowUpSuccessResponse::class, $response );
@@ -120,11 +123,50 @@ class BookPaymentUseCaseTest extends TestCase {
 	public function testInvalidBookingDataReturnsFailureResponseForFollowupPayments(): void {
 		$payment = $this->makeBookedPayPalPayment( $this->makePaymentIdGenerator() );
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
-		$useCase = new BookPaymentUseCase( $repo, $this->makePaymentIdGenerator() );
+		$useCase = $this->makeBookPaymentUseCase( $repo );
 
 		$response = $useCase->bookPayment( self::PAYMENT_ID, [] );
 
 		$this->assertInstanceOf( FailureResponse::class, $response );
+	}
+
+	public function testExternalValidationServiceFailureReturnsFailureResponse(): void {
+		$payment = $this->makeCreditCardPayment();
+		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
+		$useCase = new BookPaymentUseCase( $repo, $this->makePaymentIdGenerator(), $this->makeFailingVerificationServiceFactory( 'I failed' ) );
+
+		$response = $useCase->bookPayment( self::PAYMENT_ID, CreditCardPaymentBookingData::newValidBookingData() );
+
+		$this->assertInstanceOf( FailureResponse::class, $response );
+		$this->assertEquals( 'I failed', $response->message );
+	}
+
+	private function makeBookPaymentUseCase( PaymentRepository $repo ): BookPaymentUseCase {
+		return new BookPaymentUseCase(
+			$repo,
+			$this->makePaymentIdGenerator(),
+			$this->makeSucceedingVerificationServiceFactory()
+		);
+	}
+
+	private function makeSucceedingVerificationServiceFactory(): VerificationServiceFactory {
+		$validator = $this->createMock( VerificationService::class );
+		$validator->method( 'validate' )->willReturn( VerificationResponse::newSuccessResponse() );
+
+		$factory = $this->createMock( VerificationServiceFactory::class );
+		$factory->method( 'create' )->willReturn( $validator );
+
+		return $factory;
+	}
+
+	private function makeFailingVerificationServiceFactory( string $failureMessage ): VerificationServiceFactory {
+		$validator = $this->createMock( VerificationService::class );
+		$validator->method( 'validate' )->willReturn( VerificationResponse::newFailureResponse( $failureMessage ) );
+
+		$factory = $this->createMock( VerificationServiceFactory::class );
+		$factory->method( 'create' )->willReturn( $validator );
+
+		return $factory;
 	}
 
 	private function makeBookedPayPalPayment( PaymentIDRepository $idGenerator ): PayPalPayment {
