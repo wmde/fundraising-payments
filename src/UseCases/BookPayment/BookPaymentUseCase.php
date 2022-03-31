@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\UseCases\BookPayment;
 
 use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 
@@ -13,7 +14,8 @@ class BookPaymentUseCase {
 
 	public function __construct(
 		private PaymentRepository $repository,
-		private PaymentIDRepository $idGenerator
+		private PaymentIDRepository $idGenerator,
+		private VerificationServiceFactory $verificationServiceFactory
 	) {
 	}
 
@@ -38,6 +40,11 @@ class BookPaymentUseCase {
 			return new FailureResponse( 'Payment is already completed' );
 		}
 
+		$verificationResponse = $this->validateWithExternalService( $payment, $transactionData );
+		if ( !$verificationResponse->isValid() ) {
+			return new FailureResponse( $verificationResponse->getMessage() );
+		}
+
 		try {
 			$bookedPayment = $payment->bookPayment( $transactionData, $this->idGenerator );
 		} catch ( \InvalidArgumentException $e ) {
@@ -51,5 +58,16 @@ class BookPaymentUseCase {
 		}
 
 		return new SuccessResponse();
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @param array<string,mixed> $transactionData
+	 *
+	 * @return VerificationResponse
+	 */
+	private function validateWithExternalService( Payment $payment, array $transactionData ): VerificationResponse {
+		return $this->verificationServiceFactory->create( $payment )
+			->validate( $transactionData );
 	}
 }
