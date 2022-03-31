@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
+use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
@@ -14,11 +15,8 @@ use WMDE\FunValidators\ValidationResult;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\BankDataValidator
- *
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
+class BankDataValidatorTest extends TestCase {
 
 	/**
 	 * @dataProvider invalidBankDataProvider
@@ -35,6 +33,9 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expectedSource, $validationResult->getViolations()[0]->getSource() );
 	}
 
+	/**
+	 * @return array<array{string,string,string,string,string,string,string}>
+	 */
 	public function invalidBankDataProvider(): array {
 		return [
 			[
@@ -110,7 +111,7 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 		];
 	}
 
-	public function testGivenFailingIbanValidator_validationFails() {
+	public function testGivenFailingIbanValidator_validationFails(): void {
 		$failingIbanValidator = $this->getMockBuilder( IbanValidator::class )->disableOriginalConstructor()->getMock();
 		$failingIbanValidator->method( 'validate' )
 			->willReturn( new ValidationResult( new ConstraintViolation( '', 'IBAN smells funny' ) ) );
@@ -135,6 +136,9 @@ class BankDataValidatorTest extends \PHPUnit\Framework\TestCase {
 		$this->assertTrue( $bankDataValidator->validate( $bankData )->isSuccessful(), $message );
 	}
 
+	/**
+	 * @return array<array{string,string,string,string,string,string}>
+	 */
 	public function validBankDataProvider(): array {
 		return [
 			[

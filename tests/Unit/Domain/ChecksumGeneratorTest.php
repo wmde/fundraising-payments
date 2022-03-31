@@ -47,6 +47,9 @@ class ChecksumGeneratorTest extends TestCase {
 		}
 	}
 
+	/**
+	 * @return iterable<string>
+	 */
 	public function getRandomStrings(): iterable {
 		$characters = str_split( 'ACDEFKLMNPRSTWXYZ349-' );
 		$characterCount = count( $characters );

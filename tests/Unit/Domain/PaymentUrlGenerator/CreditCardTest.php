@@ -97,6 +97,9 @@ class CreditCardTest extends TestCase {
 		);
 	}
 
+	/**
+	 * @return array<mixed[]>
+	 */
 	public function donationProvider(): array {
 		return [
 			[

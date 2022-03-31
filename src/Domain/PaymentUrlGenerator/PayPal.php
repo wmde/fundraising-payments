@@ -35,6 +35,13 @@ class PayPal implements PaymentProviderURLGenerator {
 		return $this->config->getPayPalBaseUrl() . http_build_query( $params );
 	}
 
+	/**
+	 * @param int $itemId
+	 * @param string $invoiceId
+	 * @param string $updateToken
+	 * @param string $accessToken
+	 * @return array<string,mixed>
+	 */
 	private function getIntervalAgnosticParameters( int $itemId, string $invoiceId, string $updateToken, string $accessToken ): array {
 		return [
 			'business' => $this->config->getPayPalAccountAddress(),
@@ -55,6 +62,9 @@ class PayPal implements PaymentProviderURLGenerator {
 		];
 	}
 
+	/**
+	 * @return array<string,mixed>
+	 */
 	private function getPaymentDelayParameters(): array {
 		if ( $this->config->getDelayInDays() > 0 ) {
 			return $this->getDelayedSubscriptionParams( $this->config->getDelayInDays() );
@@ -62,6 +72,11 @@ class PayPal implements PaymentProviderURLGenerator {
 		return [];
 	}
 
+	/**
+	 * @param Euro $amount
+	 * @param int $interval
+	 * @return array<string,mixed>
+	 */
 	private function getIntervalDependentParameters( Euro $amount, int $interval ): array {
 		if ( $interval > 0 ) {
 			return $this->getSubscriptionParams( $amount, $interval );
@@ -77,7 +92,7 @@ class PayPal implements PaymentProviderURLGenerator {
 	 * @param Euro $amount
 	 * @param int $interval
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	private function getSubscriptionParams( Euro $amount, int $interval ): array {
 		return [
@@ -100,7 +115,7 @@ class PayPal implements PaymentProviderURLGenerator {
 	 *
 	 * @param int $delayInDays
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	private function getDelayedSubscriptionParams( int $delayInDays ): array {
 		return [
@@ -117,7 +132,7 @@ class PayPal implements PaymentProviderURLGenerator {
 	 *
 	 * @param Euro $amount
 	 *
-	 * @return array
+	 * @return array<string,string>
 	 */
 	private function getSinglePaymentParams( Euro $amount ): array {
 		return [
