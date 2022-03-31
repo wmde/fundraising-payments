@@ -10,7 +10,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
  */
 class CreditCard implements PaymentProviderURLGenerator {
 
-	private $config;
+	private CreditCardConfig $config;
 	private AdditionalPaymentData $additionalPaymentData;
 
 	public function __construct( CreditCardConfig $config, AdditionalPaymentData $additionalPaymentData ) {

@@ -36,7 +36,7 @@ class CreditCardConfig {
 	}
 
 	/**
-	 * @param array $config
+	 * @param array{base-url:string,project-id:string,locale:string,background-color:string,logo:string,theme:string,testmode:boolean} $config
 	 * @param TranslatableDescription $translatableDescription
 	 *
 	 * @return self
