@@ -36,9 +36,22 @@ class BookPaymentUseCase {
 			throw new \RuntimeException( 'Tried to book an non-bookable payment' );
 		}
 
+		// Completed payments that implement AssociablePayment are follow ups
 		if ( $payment->isCompleted() && $payment instanceof AssociablePayment ) {
 			return $this->createFollowupPayment( $payment, $transactionData );
-		} elseif ( $payment->isCompleted() ) {
+		} else {
+			return $this->completePayment( $payment, $transactionData );
+		}
+	}
+
+	/**
+	 * @param Payment&BookablePayment $payment
+	 * @param array<string,mixed> $transactionData
+	 *
+	 * @return SuccessResponse|FailureResponse
+	 */
+	private function completePayment( Payment & BookablePayment $payment, array $transactionData ): SuccessResponse|FailureResponse {
+		if ( $payment->isCompleted() ) {
 			return new FailureResponse( 'Payment is already completed' );
 		}
 
@@ -53,10 +66,8 @@ class BookPaymentUseCase {
 	private function createFollowupPayment( Payment & AssociablePayment & BookablePayment $parentPayment, array $transactionData ): SuccessResponse|FailureResponse {
 		$childPayment = $parentPayment->createFollowUpPayment( $this->idGenerator->getNewID() );
 		$result = $this->bookAndStorePayment( $childPayment, $transactionData );
-		if ( $result instanceof FailureResponse ) {
-			return $result;
-		}
-		return new FollowUpSuccessResponse( $parentPayment->getId(), $childPayment->getId() );
+
+		return $this->createFollowUpResponse( $result, $parentPayment->getId(), $childPayment->getId() );
 	}
 
 	/**
@@ -74,6 +85,13 @@ class BookPaymentUseCase {
 		$this->repository->storePayment( $payment );
 
 		return new SuccessResponse();
+	}
+
+	private function createFollowUpResponse( SuccessResponse|FailureResponse $result, int $parentPaymentId, int $childPaymentId ): FollowUpSuccessResponse|FailureResponse {
+		if ( $result instanceof FailureResponse ) {
+			return $result;
+		}
+		return new FollowUpSuccessResponse( $parentPaymentId, $childPaymentId );
 	}
 
 }
