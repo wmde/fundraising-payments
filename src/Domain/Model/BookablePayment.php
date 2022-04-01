@@ -20,4 +20,10 @@ interface BookablePayment {
 	public function bookPayment( array $transactionData ): void;
 
 	public function getValuationDate(): ?DateTimeImmutable;
+
+	/**
+	 * @param array<string,mixed> $transactionData
+	 * @return bool
+	 */
+	public function canBeBooked( array $transactionData ): bool;
 }

@@ -45,8 +45,8 @@ class BookPaymentUseCaseTest extends TestCase {
 		$useCase = new BookPaymentUseCase( $repo, $this->makePaymentIdGenerator() );
 		$response = $useCase->bookPayment( self::PAYMENT_ID, CreditCardPaymentBookingData::newValidBookingData() );
 
-		$this->assertTrue( $payment->isCompleted() );
 		$this->assertInstanceOf( SuccessResponse::class, $response );
+		$this->assertFalse( $payment->canBeBooked( CreditCardPaymentBookingData::newValidBookingData() ) );
 	}
 
 	public function testBookingMissingPaymentWillReturnFailureResult(): void {
@@ -109,7 +109,7 @@ class BookPaymentUseCaseTest extends TestCase {
 
 		$childPayment = $repo->payments[ self::CHILD_PAYMENT_ID ];
 		$this->assertInstanceOf( PayPalPayment::class, $childPayment );
-		$this->assertTrue( $childPayment->isCompleted() );
+		$this->assertFalse( $childPayment->canBeBooked( PayPalPaymentBookingData::newValidBookingData() ) );
 		$this->assertInstanceOf( FollowUpSuccessResponse::class, $response );
 		$this->assertSame( self::PAYMENT_ID, $response->parentPaymentId );
 		$this->assertSame( self::CHILD_PAYMENT_ID, $response->childPaymentId );

@@ -22,10 +22,10 @@ class SofortPaymentTest extends TestCase {
 		$this->assertEquals( 'XW-DAR-E99-X', $sofortPayment->getPaymentReferenceCode() );
 	}
 
-	public function testNewSofortPaymentsAreUncompleted(): void {
+	public function testNewSofortPaymentsAreUnbooked(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
-		$this->assertFalse( $sofortPayment->isCompleted() );
+		$this->assertTrue( $sofortPayment->canBeBooked( $this->makeValidTransactionData() ) );
 	}
 
 	public function testGivenNonOneTimePaymentIntervalThrowsException(): void {
@@ -37,9 +37,9 @@ class SofortPaymentTest extends TestCase {
 	public function testBookPaymentSetsCompleted(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
-		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
+		$sofortPayment->bookPayment( $this->makeValidTransactionData() );
 
-		$this->assertTrue( $sofortPayment->isCompleted() );
+		$this->assertFalse( $sofortPayment->canBeBooked( $this->makeValidTransactionData() ) );
 	}
 
 	public function testBookPaymentValidatesDate(): void {
@@ -63,7 +63,7 @@ class SofortPaymentTest extends TestCase {
 	public function testBookPaymentSetsValuationDate(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
-		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
+		$sofortPayment->bookPayment( $this->makeValidTransactionData() );
 
 		$this->assertEquals( new \DateTimeImmutable( '2001-12-24T17:30:00Z' ), $sofortPayment->getValuationDate() );
 	}
@@ -71,7 +71,7 @@ class SofortPaymentTest extends TestCase {
 	public function testBookPaymentSetsTransactionId(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
-		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
+		$sofortPayment->bookPayment( $this->makeValidTransactionData() );
 
 		$sofortPaymentInspector = new SofortPaymentInspector( $sofortPayment );
 
@@ -85,5 +85,12 @@ class SofortPaymentTest extends TestCase {
 			PaymentInterval::OneTime,
 			new PaymentReferenceCode( 'XW', 'DARE99', 'X' )
 		);
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function makeValidTransactionData(): array {
+		return [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ];
 	}
 }

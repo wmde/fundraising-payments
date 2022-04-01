@@ -17,9 +17,9 @@ class PayPalPaymentTest extends TestCase {
 
 	private const PAYER_ID = '42';
 
-	public function testNewPayPalPaymentsAreUncompleted(): void {
+	public function testNewPayPalPaymentsAreUnbooked(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
-		$this->assertFalse( $payment->isCompleted() );
+		$this->assertTrue( $payment->canBeBooked( PayPalPaymentBookingData::newValidBookingData() ) );
 	}
 
 	public function testCompletePaymentWithEmptyTransactionDataFails(): void {
@@ -34,9 +34,9 @@ class PayPalPaymentTest extends TestCase {
 	public function testBookPaymentWithValidTransactionMarksItCompleted(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
 
-		$payment->bookPayment( [ 'payer_id' => self::PAYER_ID, 'payment_date' => '2022-01-01 01:01:01' ] );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
 
-		$this->assertTrue( $payment->isCompleted() );
+		$this->assertFalse( $payment->canBeBooked( PayPalPaymentBookingData::newValidBookingData() ) );
 	}
 
 	public function testBookPaymentSetsValuationDate(): void {
@@ -94,7 +94,7 @@ class PayPalPaymentTest extends TestCase {
 
 		$childPayment = $payment->createFollowUpPayment( 2 );
 
-		$this->assertFalse( $childPayment->isCompleted() );
+		$this->assertTrue( $childPayment->canBeBooked( PayPalPaymentBookingData::newValidBookingData() ) );
 	}
 
 	public function testCreateFollowupDisallowsFollowUpsFromChildPayments(): void {

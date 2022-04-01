@@ -17,9 +17,9 @@ class CreditCardPaymentTest extends TestCase {
 
 	private const OTHER_TRANSACTION_ID = '3388998877';
 
-	public function testNewCreditCardPaymentsAreUncompleted(): void {
+	public function testNewCreditCardPaymentsAreNotBooked(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
-		$this->assertFalse( $creditCardPayment->isCompleted() );
+		$this->assertTrue( $creditCardPayment->canBeBooked( [] ) );
 	}
 
 	public function testCompletePaymentWithOutTransactionIdFails(): void {
@@ -50,12 +50,12 @@ class CreditCardPaymentTest extends TestCase {
 		] );
 	}
 
-	public function testBookPaymentWithValidTransactionMarksItCompleted(): void {
+	public function testBookPaymentWithValidTransactionMarksItBooked(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
 		$creditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData() );
 
-		$this->assertTrue( $creditCardPayment->isCompleted() );
+		$this->assertFalse( $creditCardPayment->canBeBooked( CreditCardPaymentBookingData::newValidBookingData() ) );
 		// Credit cards get their valuation date from current time instead of transaction data
 		$this->assertNotNull( $creditCardPayment->getValuationDate() );
 		$this->assertEqualsWithDelta( time(), $creditCardPayment->getValuationDate()->getTimestamp(), 5 );
