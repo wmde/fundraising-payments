@@ -35,6 +35,16 @@ class PayPalPaymentBookingData {
 		];
 	}
 
+	/**
+	 * @return array<string,mixed>
+	 */
+	public static function newValidFollowupBookingData(): array {
+		return [
+			...self::newValidBookingData(),
+			'txn_id' => '4243'
+		];
+	}
+
 	public static function newEncodedValidBookingData(): string {
 		return '{"item_number":"1","mc_currency":"EUR","mc_fee":"2.70","mc_gross":"2.70","payer_email":"foerderpp@wikimedia.de","payer_id":"42","payer_status":"verified","payment_date":"2022-01-01 01:01:01","payment_status":"processed","payment_type":"instant","settle_amount":"2.70","subscr_id":"8RHHUM3W3PRH7QY6B59","txn_id":"4242"}';
 	}

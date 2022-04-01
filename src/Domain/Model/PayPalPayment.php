@@ -8,11 +8,9 @@ use DateTimeImmutable;
 use DomainException;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
+use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 
-/**
- * @implements AssociablePayment<PayPalPayment>
- */
-class PayPalPayment extends Payment implements BookablePayment, AssociablePayment {
+class PayPalPayment extends Payment implements BookablePayment {
 
 	private const PAYMENT_METHOD = 'PPL';
 
@@ -34,29 +32,38 @@ class PayPalPayment extends Payment implements BookablePayment, AssociablePaymen
 		return $this->valuationDate;
 	}
 
-	private function isBooked(): bool {
+	public function isBooked(): bool {
 		return $this->valuationDate !== null && !empty( $this->bookingData );
 	}
 
 	public function canBeBooked( array $transactionData ): bool {
-		// TODO check for followup
-		return !$this->isBooked();
+		// Unbooked payments can always be booked
+		if ( !$this->isBooked() ) {
+			return true;
+		}
+		// Booked "parent" payments (where "parentPayment" is null) can be booked as followup payments
+		return $this->parentPayment === null && $this->isRecurringPayment();
 	}
 
 	/**
-	 * @param array<string,mixed> $transactionData
+	 * @param array<string,mixed> $transactionData Payment information from PayPal
+	 * @param PaymentIDRepository $idGenerator Used for creating followup payments
+	 * @return PayPalPayment
 	 *
-	 * @return void
-	 *
-	 * @throws DomainException
 	 */
-	public function bookPayment( array $transactionData ): void {
+	public function bookPayment( array $transactionData, PaymentIDRepository $idGenerator ): PayPalPayment {
 		$transformer = new PayPalBookingTransformer( $transactionData );
-		if ( $this->isBooked() ) {
+		if ( !$this->canBeBooked( $transactionData ) ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
+
+		if ( $this->isFollowupBooking() ) {
+			return $this->createFollowUpPayment( $transactionData, $idGenerator );
+		}
+
 		$this->bookingData = $transformer->getBookingData();
 		$this->valuationDate = $transformer->getValuationDate();
+		return $this;
 	}
 
 	/**
@@ -67,12 +74,28 @@ class PayPalPayment extends Payment implements BookablePayment, AssociablePaymen
 		return ( new PayPalBookingTransformer( $this->bookingData ) )->getLegacyData();
 	}
 
-	public function createFollowUpPayment( int $followUpPaymentId ): Payment {
-		if ( $this->parentPayment !== null ) {
-			throw new \RuntimeException( 'You can only create follow-up payments from initial, non-follow-ip payments' );
-		}
-		$payment = new PayPalPayment( $followUpPaymentId, $this->amount, $this->interval );
-		$payment->parentPayment = $this;
-		return $payment;
+	/**
+	 * Create a booked followup payment
+	 *
+	 * @param array<string,mixed> $transactionData
+	 * @param PaymentIDRepository $idGenerator
+	 * @return PayPalPayment
+	 */
+	private function createFollowUpPayment( array $transactionData, PaymentIDRepository $idGenerator ): PayPalPayment {
+		$followupPayment = new PayPalPayment( $idGenerator->getNewID(), $this->amount, $this->interval );
+		$followupPayment->parentPayment = $this;
+		return $followupPayment->bookPayment( $transactionData, $idGenerator );
+	}
+
+	private function isFollowupBooking(): bool {
+		// In the future, we might pass the new transaction data to this function, comparing
+		// `txn_id` of this payment with the booking data, to distinguish between double booking (should return false)
+		// and followup booking
+		// Tracked in https://phabricator.wikimedia.org/T305257
+		return $this->isBooked() && $this->parentPayment === null && $this->isRecurringPayment();
+	}
+
+	private function isRecurringPayment(): bool {
+		return $this->interval !== PaymentInterval::OneTime;
 	}
 }

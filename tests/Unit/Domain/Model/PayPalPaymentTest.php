@@ -7,7 +7,9 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\PayPalPaymentInspector;
 
 /**
@@ -16,6 +18,7 @@ use WMDE\Fundraising\PaymentContext\Tests\Inspectors\PayPalPaymentInspector;
 class PayPalPaymentTest extends TestCase {
 
 	private const PAYER_ID = '42';
+	private const FOLLOWUP_PAYMENT_ID = 99;
 
 	public function testNewPayPalPaymentsAreUnbooked(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
@@ -28,40 +31,36 @@ class PayPalPaymentTest extends TestCase {
 		$this->expectException( \InvalidArgumentException::class );
 		$this->expectExceptionMessage( 'Transaction data must have payer ID' );
 
-		$payment->bookPayment( [] );
+		$payment->bookPayment( [], new DummyPaymentIdRepository() );
 	}
 
 	public function testBookPaymentWithValidTransactionMarksItCompleted(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
 
-		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
-		$this->assertFalse( $payment->canBeBooked( PayPalPaymentBookingData::newValidBookingData() ) );
+		$this->assertTrue( $payment->isBooked() );
 	}
 
 	public function testBookPaymentSetsValuationDate(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
 
-		$payment->bookPayment( [ 'payer_id' => self::PAYER_ID, 'payment_date' => '2022-01-01 01:01:01' ] );
+		$payment->bookPayment( [ 'payer_id' => self::PAYER_ID, 'payment_date' => '2022-01-01 01:01:01' ], new DummyPaymentIdRepository() );
 
 		$this->assertEquals( new \DateTimeImmutable( '2022-01-01 01:01:01' ), $payment->getValuationDate() );
 	}
 
-	public function testPaymentCannotBeBookedMultipleTimes(): void {
-		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+	public function testInitialPaymentCanBeBookedAsFollowupPayment(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::Monthly );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
-		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
-
-		$this->expectException( \DomainException::class );
-		$this->expectExceptionMessage( 'Payment is already completed' );
-
-		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
+		$this->assertTrue( $payment->canBeBooked( PayPalPaymentBookingData::newValidFollowupBookingData() ) );
 	}
 
 	public function testBookPaymentAnonymisesPersonalData(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
 
-		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
 		$bookingData = ( new PayPalPaymentInspector( $payment ) )->getBookingData();
 		$this->assertArrayNotHasKey( 'first_name', $bookingData );
@@ -74,37 +73,57 @@ class PayPalPaymentTest extends TestCase {
 		$this->assertArrayNotHasKey( 'address_country_code', $bookingData );
 	}
 
-	public function testCreateFollowupCopiesAmountAndInterval(): void {
-		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+	public function testBookingABookedParentPaymentCreatesABookedChildPayment(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::Monthly );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
-		$childPayment = $payment->createFollowUpPayment( 2 );
+		$childPayment = $payment->bookPayment(
+			PayPalPaymentBookingData::newValidFollowupBookingData(),
+			$this->makeIdGeneratorForFollowupPayments()
+		);
 
+		$this->assertNotSame( $childPayment, $payment, 'Parent and followup payment should be different instances' );
+		$this->assertSame( self::FOLLOWUP_PAYMENT_ID, $childPayment->getId() );
+		$this->assertFalse( $childPayment->canBeBooked( PayPalPaymentBookingData::newValidBookingData() ) );
 		$inspectedParentPayment = new PayPalPaymentInspector( $payment );
 		$inspectedChildPayment = new PayPalPaymentInspector( $childPayment );
-		$this->assertSame( 2, $childPayment->getId() );
+		$this->assertSame( self::FOLLOWUP_PAYMENT_ID, $childPayment->getId() );
 		$this->assertEquals( $inspectedParentPayment->getAmount(), $inspectedChildPayment->getAmount() );
 		$this->assertEquals( $inspectedParentPayment->getInterval(), $inspectedChildPayment->getInterval() );
-		$inspector = new PayPalPaymentInspector( $childPayment );
-		$this->assertSame( $payment, $inspector->getParentPayment() );
-	}
-
-	public function testFollowupPaymentIsUnbooked(): void {
-		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
-		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
-
-		$childPayment = $payment->createFollowUpPayment( 2 );
-
-		$this->assertTrue( $childPayment->canBeBooked( PayPalPaymentBookingData::newValidBookingData() ) );
+		$this->assertSame( $payment, $inspectedChildPayment->getParentPayment() );
 	}
 
 	public function testCreateFollowupDisallowsFollowUpsFromChildPayments(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::Monthly );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+		$childPayment = $payment->bookPayment(
+			PayPalPaymentBookingData::newValidFollowupBookingData(),
+			$this->makeIdGeneratorForFollowupPayments()
+		);
+
+		$this->assertFalse( $childPayment->canBeBooked( PayPalPaymentBookingData::newValidFollowupBookingData() ) );
+		$this->expectException( \DomainException::class );
+
+		$childPayment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+	}
+
+	public function testCreateFollowupDisallowsFollowUpsFromNonRecurringPayments(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
-		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
-		$childPayment = $payment->createFollowUpPayment( 2 );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
-		$this->expectException( \RuntimeException::class );
+		$this->assertFalse( $payment->canBeBooked( PayPalPaymentBookingData::newValidFollowupBookingData() ) );
+		$this->expectException( \DomainException::class );
 
-		$childPayment->createFollowUpPayment( 3 );
+		$payment->bookPayment(
+			PayPalPaymentBookingData::newValidFollowupBookingData(),
+			$this->makeIdGeneratorForFollowupPayments()
+		);
+	}
+
+	private function makeIdGeneratorForFollowupPayments(): PaymentIDRepository {
+		$idGeneratorStub = $this->createStub( PaymentIDRepository::class );
+		$idGeneratorStub->method( 'getNewID' )->willReturn( self::FOLLOWUP_PAYMENT_ID );
+		return $idGeneratorStub;
 	}
 
 }

@@ -5,9 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\UseCases\BookPayment;
 
 use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
-use WMDE\Fundraising\PaymentContext\Domain\Model\AssociablePayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 
@@ -36,44 +34,22 @@ class BookPaymentUseCase {
 			throw new \RuntimeException( 'Tried to book an non-bookable payment' );
 		}
 
-		if ( !$payment->canBeBooked( $transactionData ) && $payment instanceof AssociablePayment ) {
-			return $this->createFollowupPayment( $payment, $transactionData );
-		} elseif ( !$payment->canBeBooked( $transactionData ) ) {
+		if ( !$payment->canBeBooked( $transactionData ) ) {
 			return new FailureResponse( 'Payment is already completed' );
 		}
 
-		return $this->bookAndStorePayment( $payment, $transactionData );
-	}
-
-	/**
-	 * @param AssociablePayment<Payment&BookablePayment>&Payment&BookablePayment $parentPayment
-	 * @param array<string,mixed> $transactionData
-	 * @return SuccessResponse|FailureResponse
-	 */
-	private function createFollowupPayment( Payment & AssociablePayment & BookablePayment $parentPayment, array $transactionData ): SuccessResponse|FailureResponse {
-		$childPayment = $parentPayment->createFollowUpPayment( $this->idGenerator->getNewID() );
-		$result = $this->bookAndStorePayment( $childPayment, $transactionData );
-		if ( $result instanceof FailureResponse ) {
-			return $result;
-		}
-		return new FollowUpSuccessResponse( $parentPayment->getId(), $childPayment->getId() );
-	}
-
-	/**
-	 * @param Payment&BookablePayment $payment
-	 * @param array<string,mixed> $transactionData
-	 * @return SuccessResponse|FailureResponse
-	 */
-	private function bookAndStorePayment( Payment & BookablePayment $payment, array $transactionData ): SuccessResponse|FailureResponse {
 		try {
-			$payment->bookPayment( $transactionData );
+			$bookedPayment = $payment->bookPayment( $transactionData, $this->idGenerator );
 		} catch ( \InvalidArgumentException $e ) {
 			return new FailureResponse( $e->getMessage() );
 		}
 
-		$this->repository->storePayment( $payment );
+		$this->repository->storePayment( $bookedPayment );
+
+		if ( $bookedPayment !== $payment ) {
+			return new FollowUpSuccessResponse( $payment->getId(), $bookedPayment->getId() );
+		}
 
 		return new SuccessResponse();
 	}
-
 }

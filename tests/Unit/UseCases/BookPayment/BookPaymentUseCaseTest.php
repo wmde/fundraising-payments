@@ -17,6 +17,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Data\CreditCardPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\BookPaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\FailureResponse;
@@ -73,10 +74,11 @@ class BookPaymentUseCaseTest extends TestCase {
 	}
 
 	public function testBookingBookedPaymentsWillReturnFailureResponse(): void {
+		$idGenerator = $this->makePaymentIdGenerator();
 		$payment = $this->makeCreditCardPayment();
-		$payment->bookPayment( [ 'transactionId' => 'deadbeef' ] );
+		$payment->bookPayment( [ 'transactionId' => 'deadbeef' ], $idGenerator );
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
-		$useCase = new BookPaymentUseCase( $repo, $this->makePaymentIdGenerator() );
+		$useCase = new BookPaymentUseCase( $repo, $idGenerator );
 
 		$response = $useCase->bookPayment( self::PAYMENT_ID, CreditCardPaymentBookingData::newValidBookingData() );
 
@@ -96,10 +98,10 @@ class BookPaymentUseCaseTest extends TestCase {
 	}
 
 	public function testBookedPaymentsThatAllowFollowups_CreateFollowUpPaymentsWhenTheyAreBooked(): void {
-		$payment = $this->makeBookedPayPalPayment();
-		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
 		$idGeneratorStub = $this->createStub( PaymentIDRepository::class );
 		$idGeneratorStub->method( 'getNewID' )->willReturn( self::CHILD_PAYMENT_ID );
+		$payment = $this->makeBookedPayPalPayment( $idGeneratorStub );
+		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
 		$useCase = new BookPaymentUseCase( $repo, $idGeneratorStub );
 
 		$response = $useCase->bookPayment(
@@ -116,7 +118,7 @@ class BookPaymentUseCaseTest extends TestCase {
 	}
 
 	public function testInvalidBookingDataReturnsFailureResponseForFollowupPayments(): void {
-		$payment = $this->makeBookedPayPalPayment();
+		$payment = $this->makeBookedPayPalPayment( $this->makePaymentIdGenerator() );
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
 		$useCase = new BookPaymentUseCase( $repo, $this->makePaymentIdGenerator() );
 
@@ -125,13 +127,13 @@ class BookPaymentUseCaseTest extends TestCase {
 		$this->assertInstanceOf( FailureResponse::class, $response );
 	}
 
-	private function makeBookedPayPalPayment(): PayPalPayment {
+	private function makeBookedPayPalPayment( PaymentIDRepository $idGenerator ): PayPalPayment {
 		$payment = new PayPalPayment(
 			self::PAYMENT_ID,
 			Euro::newFromCents( 1122 ),
 			PaymentInterval::Quarterly
 		);
-		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData() );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), $idGenerator );
 		return $payment;
 	}
 
@@ -144,7 +146,7 @@ class BookPaymentUseCaseTest extends TestCase {
 	}
 
 	private function makePaymentIdGenerator(): PaymentIDRepository {
-		return $this->createStub( PaymentIDRepository::class );
+		return new DummyPaymentIdRepository();
 	}
 
 	private function makeDirectDebitPayment(): DirectDebitPayment {
