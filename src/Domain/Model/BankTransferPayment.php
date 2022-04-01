@@ -35,16 +35,8 @@ class BankTransferPayment extends Payment {
 		return $this->paymentReferenceCode->getFormattedCode();
 	}
 
-	public function hasExternalProvider(): bool {
-		return false;
-	}
-
 	public function getValuationDate(): ?DateTimeImmutable {
 		return null;
-	}
-
-	public function isCompleted(): bool {
-		return true;
 	}
 
 	public function getLegacyData(): array {

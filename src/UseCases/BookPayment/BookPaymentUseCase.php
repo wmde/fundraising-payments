@@ -36,9 +36,9 @@ class BookPaymentUseCase {
 			throw new \RuntimeException( 'Tried to book an non-bookable payment' );
 		}
 
-		if ( $payment->isCompleted() && $payment instanceof AssociablePayment ) {
+		if ( !$payment->canBeBooked( $transactionData ) && $payment instanceof AssociablePayment ) {
 			return $this->createFollowupPayment( $payment, $transactionData );
-		} elseif ( $payment->isCompleted() ) {
+		} elseif ( !$payment->canBeBooked( $transactionData ) ) {
 			return new FailureResponse( 'Payment is already completed' );
 		}
 

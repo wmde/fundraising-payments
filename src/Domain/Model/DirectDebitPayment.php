@@ -40,16 +40,8 @@ class DirectDebitPayment extends Payment implements CancellablePayment {
 		$this->bic = null;
 	}
 
-	public function hasExternalProvider(): bool {
-		return false;
-	}
-
 	public function getValuationDate(): ?DateTimeImmutable {
 		return null;
-	}
-
-	public function isCompleted(): bool {
-		return true;
 	}
 
 	public function getLegacyData(): array {

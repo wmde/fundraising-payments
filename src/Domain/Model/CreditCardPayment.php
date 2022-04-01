@@ -29,21 +29,21 @@ class CreditCardPayment extends Payment implements BookablePayment {
 		$this->bookingData = [];
 	}
 
-	public function hasExternalProvider(): bool {
-		return true;
-	}
-
 	public function getValuationDate(): ?DateTimeImmutable {
 		return $this->valuationDate;
 	}
 
-	public function isCompleted(): bool {
+	private function isBooked(): bool {
 		return $this->valuationDate !== null && !empty( $this->bookingData );
+	}
+
+	public function canBeBooked( array $transactionData ): bool {
+		return $this->valuationDate === null && empty( $this->bookingData );
 	}
 
 	public function bookPayment( array $transactionData ): void {
 		$transformer = new CreditCardBookingTransformer( $transactionData );
-		if ( $this->isCompleted() ) {
+		if ( $this->isBooked() ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
 		$this->bookingData = $transformer->getBookingData();
@@ -51,7 +51,7 @@ class CreditCardPayment extends Payment implements BookablePayment {
 	}
 
 	public function getLegacyData(): array {
-		if ( $this->isCompleted() ) {
+		if ( $this->isBooked() ) {
 			return ( new CreditCardBookingTransformer( $this->bookingData ) )->getLegacyData();
 		}
 		return [];

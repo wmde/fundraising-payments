@@ -30,16 +30,17 @@ class PayPalPayment extends Payment implements BookablePayment, AssociablePaymen
 		$this->bookingData = [];
 	}
 
-	public function hasExternalProvider(): bool {
-		return true;
-	}
-
 	public function getValuationDate(): ?DateTimeImmutable {
 		return $this->valuationDate;
 	}
 
-	public function isCompleted(): bool {
+	private function isBooked(): bool {
 		return $this->valuationDate !== null && !empty( $this->bookingData );
+	}
+
+	public function canBeBooked( array $transactionData ): bool {
+		// TODO check for followup
+		return !$this->isBooked();
 	}
 
 	/**
@@ -51,7 +52,7 @@ class PayPalPayment extends Payment implements BookablePayment, AssociablePaymen
 	 */
 	public function bookPayment( array $transactionData ): void {
 		$transformer = new PayPalBookingTransformer( $transactionData );
-		if ( $this->isCompleted() ) {
+		if ( $this->isBooked() ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
 		$this->bookingData = $transformer->getBookingData();
@@ -62,6 +63,7 @@ class PayPalPayment extends Payment implements BookablePayment, AssociablePaymen
 	 * @return array<string,mixed>
 	 */
 	public function getLegacyData(): array {
+		// TODO checked for booked status
 		return ( new PayPalBookingTransformer( $this->bookingData ) )->getLegacyData();
 	}
 
