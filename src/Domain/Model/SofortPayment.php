@@ -43,21 +43,12 @@ class SofortPayment extends Payment implements BookablePayment {
 		return $this->paymentReferenceCode->getFormattedCode();
 	}
 
-	/**
-	 * @codeCoverageIgnore
-	 *
-	 * @return bool
-	 */
-	public function hasExternalProvider(): bool {
-		return true;
-	}
-
 	public function getValuationDate(): ?DateTimeImmutable {
 		return $this->valuationDate;
 	}
 
-	public function isCompleted(): bool {
-		return $this->transactionId !== null;
+	public function canBeBooked( array $transactionData ): bool {
+		return $this->transactionId === null;
 	}
 
 	/**
@@ -67,7 +58,7 @@ class SofortPayment extends Payment implements BookablePayment {
 	 * @throws \DomainException
 	 */
 	public function bookPayment( array $transactionData ): void {
-		if ( $this->isCompleted() ) {
+		if ( !$this->canBeBooked( $transactionData ) ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
 		if ( empty( $transactionData['transactionId'] ) ) {
