@@ -4,15 +4,14 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 
+use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\TranslatableDescription;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig
- *
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class PayPalConfigTest extends \PHPUnit\Framework\TestCase {
+class PayPalConfigTest extends TestCase {
 
 	public function testGivenIncompletePayPalUrlConfig_exceptionIsThrown(): void {
 		$this->expectException( \RuntimeException::class );
@@ -27,8 +26,9 @@ class PayPalConfigTest extends \PHPUnit\Framework\TestCase {
 				PayPalConfig::CONFIG_KEY_ACCOUNT_ADDRESS => 'some@email-adress.com',
 				PayPalConfig::CONFIG_KEY_NOTIFY_URL => 'http://my.donation.app/handler/paypal/',
 				PayPalConfig::CONFIG_KEY_RETURN_URL => 'http://my.donation.app/donation/confirm/',
-				PayPalConfig::CONFIG_KEY_CANCEL_URL => ''
-			]
+				PayPalConfig::CONFIG_KEY_CANCEL_URL => '',
+			],
+			$this->createMock( TranslatableDescription::class )
 		);
 	}
 
@@ -44,8 +44,9 @@ class PayPalConfigTest extends \PHPUnit\Framework\TestCase {
 				PayPalConfig::CONFIG_KEY_ACCOUNT_ADDRESS => 'some@email-adress.com',
 				PayPalConfig::CONFIG_KEY_NOTIFY_URL => 'http://my.donation.app/handler/paypal/',
 				PayPalConfig::CONFIG_KEY_RETURN_URL => 'http://my.donation.app/donation/confirm/',
-				PayPalConfig::CONFIG_KEY_CANCEL_URL => 'http://my.donation.app/donation/cancel/'
-			]
+				PayPalConfig::CONFIG_KEY_CANCEL_URL => 'http://my.donation.app/donation/cancel/',
+			],
+			$this->createMock( TranslatableDescription::class )
 		);
 	}
 

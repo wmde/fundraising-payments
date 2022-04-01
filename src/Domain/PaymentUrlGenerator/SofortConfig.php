@@ -11,13 +11,16 @@ class SofortConfig {
 	private string $returnUrl;
 	private string $cancelUrl;
 	private string $notificationUrl;
+	private TranslatableDescription $translatableDescription;
 
-	public function __construct( string $reasonText, string $locale, string $returnUrl, string $cancelUrl, string $notificationUrl ) {
+	public function __construct( string $reasonText, string $locale, string $returnUrl, string $cancelUrl, string $notificationUrl,
+		TranslatableDescription $translatableDescription ) {
 		$this->reasonText = $reasonText;
 		$this->locale = $locale;
 		$this->returnUrl = $returnUrl;
 		$this->cancelUrl = $cancelUrl;
 		$this->notificationUrl = $notificationUrl;
+		$this->translatableDescription = $translatableDescription;
 	}
 
 	public function getReasonText(): string {
@@ -38,5 +41,9 @@ class SofortConfig {
 
 	public function getNotificationUrl(): string {
 		return $this->notificationUrl;
+	}
+
+	public function getTranslatableDescription(): TranslatableDescription {
+		return $this->translatableDescription;
 	}
 }

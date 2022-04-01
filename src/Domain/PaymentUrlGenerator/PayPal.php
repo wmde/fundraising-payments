@@ -6,11 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
 use WMDE\Euro\Euro;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
-class PayPal {
+class PayPal implements PaymentProviderURLGenerator {
 
 	private const PAYMENT_RECUR = '1';
 	private const PAYMENT_REATTEMPT = '1';
@@ -18,18 +14,21 @@ class PayPal {
 	private const PAYMENT_CYCLE_MONTHLY = 'M';
 
 	private PayPalConfig $config;
-	private string $itemName;
+	private AdditionalPaymentData $additionalPaymentData;
 
-	public function __construct( PayPalConfig $config, string $itemName ) {
+	public function __construct( PayPalConfig $config, AdditionalPaymentData $additionalPaymentData ) {
 		$this->config = $config;
-		$this->itemName = $itemName;
+		$this->additionalPaymentData = $additionalPaymentData;
 	}
 
-	public function generateUrl( int $itemId, string $invoiceId, Euro $amount, int $interval,
-		string $updateToken, string $accessToken ): string {
+	public function generateUrl( RequestContext $requestContext ): string {
 		$params = array_merge(
-			$this->getIntervalDependentParameters( $amount, $interval ),
-			$this->getIntervalAgnosticParameters( $itemId, $invoiceId, $updateToken, $accessToken ),
+			$this->getIntervalDependentParameters( $this->additionalPaymentData->amount, $this->additionalPaymentData->interval->value ),
+			$this->getIntervalAgnosticParameters(
+				$requestContext->itemId,
+				$requestContext->invoiceId,
+				$requestContext->updateToken,
+				$requestContext->accessToken ),
 			$this->getPaymentDelayParameters()
 		);
 
@@ -41,7 +40,7 @@ class PayPal {
 			'business' => $this->config->getPayPalAccountAddress(),
 			'currency_code' => 'EUR',
 			'lc' => $this->config->getLocale(),
-			'item_name' => $this->itemName,
+			'item_name' => $this->config->getTranslatableDescription()->getText( $this->additionalPaymentData ),
 			'item_number' => $itemId,
 			'invoice' => $invoiceId,
 			'notify_url' => $this->config->getNotifyUrl(),

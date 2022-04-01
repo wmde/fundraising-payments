@@ -4,34 +4,33 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
-use WMDE\Euro\Euro;
-
 /**
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class CreditCard {
+class CreditCard implements PaymentProviderURLGenerator {
 
 	private $config;
+	private AdditionalPaymentData $additionalPaymentData;
 
-	public function __construct( CreditCardConfig $config ) {
+	public function __construct( CreditCardConfig $config, AdditionalPaymentData $additionalPaymentData ) {
 		$this->config = $config;
+		$this->additionalPaymentData = $additionalPaymentData;
 	}
 
-	public function generateUrl( string $firstName, string $lastName, string $payText, int $donationId,
-		string $accessToken, string $updateToken, Euro $amount ): string {
+	public function generateUrl( RequestContext $requestContext ): string {
 		$baseUrl = $this->config->getBaseUrl();
 		$params = [
 			'project' => $this->config->getProjectId(),
 			'bgcolor' => $this->config->getBackgroundColor(),
-			'paytext' => $payText,
-			'mp_user_firstname' => $firstName,
-			'mp_user_surname' => $lastName,
-			'sid' => $donationId,
+			'paytext' => $this->config->getTranslatableDescription()->getText( $this->additionalPaymentData ),
+			'mp_user_firstname' => $requestContext->firstName,
+			'mp_user_surname' => $requestContext->lastName,
+			'sid' => $requestContext->itemId,
 			'gfx' => $this->config->getLogo(),
-			'token' => $accessToken,
-			'utoken' => $updateToken,
-			'amount' => $amount->getEuroCents(),
+			'token' => $requestContext->accessToken,
+			'utoken' => $requestContext->updateToken,
+			'amount' => $this->additionalPaymentData->amount->getEuroCents(),
 			'theme' => $this->config->getTheme(),
 			'producttype' => 'fee',
 			'lang' => $this->config->getLocale(),
