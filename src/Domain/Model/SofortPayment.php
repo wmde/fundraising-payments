@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DomainException;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 
 class SofortPayment extends Payment implements BookablePayment {
 
@@ -52,12 +53,11 @@ class SofortPayment extends Payment implements BookablePayment {
 	}
 
 	/**
-	 * @param array<string,mixed> $transactionData
-	 *
-	 * @return void
-	 * @throws \DomainException
+	 * @param array<string,mixed> $transactionData Data from the payment provider
+	 * @param PaymentIDRepository $idGenerator Not used here since we don't have followup payments
+	 * @return Payment
 	 */
-	public function bookPayment( array $transactionData ): void {
+	public function bookPayment( array $transactionData, PaymentIDRepository $idGenerator ): Payment {
 		if ( !$this->canBeBooked( $transactionData ) ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
@@ -75,6 +75,7 @@ class SofortPayment extends Payment implements BookablePayment {
 			throw new DomainException( $msg );
 		}
 		$this->valuationDate = $valuationDate;
+		return $this;
 	}
 
 	/**
