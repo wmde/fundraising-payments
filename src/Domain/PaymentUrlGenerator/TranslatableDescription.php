@@ -7,10 +7,10 @@ namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 interface TranslatableDescription {
 
 	/**
-	 * @param AdditionalPaymentData $textParameters contains values like amount, interval ...
+	 * @param Payment $payment contains values like amount, interval ...
 	 *
 	 * @return string
 	 */
-	public function getText( AdditionalPaymentData $textParameters ): string;
+	public function getText( Payment $payment ): string;
 
 }

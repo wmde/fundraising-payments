@@ -10,6 +10,7 @@ class PaymentCreationRequest {
 		public readonly string $paymentType,
 		public readonly string $iban = '',
 		public readonly string $bic = '',
+		// TODO should this be of type PaymentTransferCode instead of a prefix string?
 		public readonly string $transferCodePrefix = ''
 	) {
 	}
