@@ -9,14 +9,7 @@
     <file>tests/</file>
     <arg value="s"/>
     <arg value="p"/>
-	<rule ref="vendor/wmde/fundraising-phpcs/WMDE/Fundraising" >
-		<!--
-			Sniffs are not ready for PHP 8.1 intersection types using "&"
-			See https://github.com/squizlabs/PHP_CodeSniffer/issues/3479
-		--> 
-		<exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingAfterReference" />
-		<exclude name="MediaWiki.Commenting.FunctionComment.ParamPassByReference" />
-	</rule>
+	<rule ref="vendor/wmde/fundraising-phpcs/WMDE/Fundraising" />
     <exclude-pattern>/tests/Inspectors/*</exclude-pattern>
 
 </ruleset>
