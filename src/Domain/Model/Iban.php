@@ -29,6 +29,8 @@ class Iban {
 	}
 
 	private function sanitizeIban( string $iban ): string {
+		// There is no way our simple regex can return null, so let's appease PHPStan
+		// @phpstan-ignore-next-line
 		return preg_replace( '/[^0-9A-Z]/u', '', strtoupper( $iban ) );
 	}
 }

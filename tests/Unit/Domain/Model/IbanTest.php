@@ -27,6 +27,9 @@ class IbanTest extends TestCase {
 		$this->assertSame( $expected, $iban->toString() );
 	}
 
+	/**
+	 * @return array<array{string, string}>
+	 */
 	public function getValidIbansWithDisallowedCharacters(): array {
 		return [
 			[ "AT\xc2\xa7022050302101023600", 'AT022050302101023600' ],
