@@ -22,6 +22,6 @@ class PaymentRepositorySpy implements PaymentRepository {
 	}
 
 	public function getPaymentById( int $id ): Payment {
-		return $this->payments[$id];
+		return $this->payments[ $id ];
 	}
 }

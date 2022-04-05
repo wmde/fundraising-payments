@@ -20,6 +20,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\BankTransferPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\CreditCardPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\DirectDebitPaymentInspector;
@@ -50,7 +51,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	public function testStoreCreditCardPayment(): void {
 		$payment = new CreditCardPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
-		$payment->bookPayment( [ 'transactionId' => 'badcaffee' ] );
+		$payment->bookPayment( [ 'transactionId' => 'badcaffee' ], new DummyPaymentIdRepository() );
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 
 		$repo->storePayment( $payment );
@@ -65,7 +66,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	public function testRepositoryPreventsOverridingPaymentsWithTheSameId(): void {
 		$firstPayment = new CreditCardPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
-		$firstPayment->bookPayment( [ 'transactionId' => 'badcaffee' ] );
+		$firstPayment->bookPayment( [ 'transactionId' => 'badcaffee' ], new DummyPaymentIdRepository() );
 		$secondPayment = new CreditCardPayment( 1, Euro::newFromInt( 42 ), PaymentInterval::Monthly );
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 		$repo->storePayment( $firstPayment );
@@ -93,7 +94,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$payment = new PayPalPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
 		$bookingData = PayPalPaymentBookingData::newValidBookingData();
 
-		$payment->bookPayment( $bookingData );
+		$payment->bookPayment( $bookingData, new DummyPaymentIdRepository() );
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 
 		$repo->storePayment( $payment );
@@ -270,7 +271,10 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			PaymentInterval::OneTime,
 			new PaymentReferenceCode( 'XW', 'TARARA', 'X' )
 		);
-		$payment->bookPayment( [ 'transactionId' => 'imatransID42', 'valuationDate' => '2021-06-24T23:00:00Z' ] );
+		$payment->bookPayment(
+			[ 'transactionId' => 'imatransID42', 'valuationDate' => '2021-06-24T23:00:00Z' ],
+			new DummyPaymentIdRepository()
+		);
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 
 		$repo->storePayment( $payment );
@@ -326,7 +330,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		// the real test is that we avoid the PaymentOverrideException when storing again
 		$this->assertInstanceOf( CreditCardPayment::class, $payment );
 
-		$payment->bookPayment( [ 'transactionId' => 'badcaffee' ] );
+		$payment->bookPayment( [ 'transactionId' => 'badcaffee' ], new DummyPaymentIdRepository() );
 		$repo->storePayment( $payment );
 	}
 

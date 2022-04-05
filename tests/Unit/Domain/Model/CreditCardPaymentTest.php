@@ -8,18 +8,19 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Tests\Data\CreditCardPaymentBookingData;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment
  */
 class CreditCardPaymentTest extends TestCase {
 
-	private const TRANSACTION_ID = '7788998877';
 	private const OTHER_TRANSACTION_ID = '3388998877';
 
-	public function testNewCreditCardPaymentsAreUncompleted(): void {
+	public function testNewCreditCardPaymentsAreNotBooked(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
-		$this->assertFalse( $creditCardPayment->paymentCompleted() );
+		$this->assertTrue( $creditCardPayment->canBeBooked( [] ) );
 	}
 
 	public function testCompletePaymentWithOutTransactionIdFails(): void {
@@ -27,7 +28,7 @@ class CreditCardPaymentTest extends TestCase {
 
 		$this->expectException( \InvalidArgumentException::class );
 
-		$creditCardPayment->bookPayment( [] );
+		$creditCardPayment->bookPayment( [], new DummyPaymentIdRepository() );
 	}
 
 	public function testCompletePaymentWithEmptyTransactionDataFails(): void {
@@ -35,24 +36,30 @@ class CreditCardPaymentTest extends TestCase {
 
 		$this->expectException( \InvalidArgumentException::class );
 
-		$creditCardPayment->bookPayment( [ 'transactionId' => '' ] );
+		$creditCardPayment->bookPayment( [ 'transactionId' => '' ], new DummyPaymentIdRepository() );
 	}
 
 	public function testPaymentCannotBeBookedMultipleTimes(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
-		$creditCardPayment->bookPayment( [ 'transactionId' => self::TRANSACTION_ID ] );
+		$creditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
 		$this->expectException( \DomainException::class );
 
-		$creditCardPayment->bookPayment( [ 'transactionId' => self::OTHER_TRANSACTION_ID ] );
+		$creditCardPayment->bookPayment(
+			[
+				...CreditCardPaymentBookingData::newValidBookingData(),
+				'transactionId' => self::OTHER_TRANSACTION_ID
+			],
+			new DummyPaymentIdRepository()
+		);
 	}
 
-	public function testBookPaymentWithValidTransactionMarksItCompleted(): void {
+	public function testBookPaymentWithValidTransactionMarksItBooked(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
-		$creditCardPayment->bookPayment( [ 'transactionId' => self::TRANSACTION_ID ] );
+		$creditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
-		$this->assertTrue( $creditCardPayment->paymentCompleted() );
+		$this->assertFalse( $creditCardPayment->canBeBooked( CreditCardPaymentBookingData::newValidBookingData() ) );
 		// Credit cards get their valuation date from current time instead of transaction data
 		$this->assertNotNull( $creditCardPayment->getValuationDate() );
 		$this->assertEqualsWithDelta( time(), $creditCardPayment->getValuationDate()->getTimestamp(), 5 );
@@ -60,7 +67,7 @@ class CreditCardPaymentTest extends TestCase {
 
 	public function testGivenBookedPaymentGetLegacyDataReturnsNonEmptyArray(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
-		$creditCardPayment->bookPayment( [ 'transactionId' => self::TRANSACTION_ID ] );
+		$creditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
 		$this->assertNotEmpty( $creditCardPayment->getLegacyData() );
 	}

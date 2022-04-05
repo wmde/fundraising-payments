@@ -18,10 +18,6 @@ abstract class Payment implements LegacyDataTransformer {
 		$this->paymentMethod = $paymentMethod;
 	}
 
-	abstract public function hasExternalProvider(): bool;
-
-	abstract public function paymentCompleted(): bool;
-
 	public function getId(): int {
 		return $this->id;
 	}

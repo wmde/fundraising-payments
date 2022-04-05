@@ -9,6 +9,7 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\SofortPaymentInspector;
 
 /**
@@ -22,10 +23,10 @@ class SofortPaymentTest extends TestCase {
 		$this->assertEquals( 'XW-DAR-E99-X', $sofortPayment->getPaymentReferenceCode() );
 	}
 
-	public function testNewSofortPaymentsAreUncompleted(): void {
+	public function testNewSofortPaymentsAreUnbooked(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
-		$this->assertFalse( $sofortPayment->paymentCompleted() );
+		$this->assertTrue( $sofortPayment->canBeBooked( $this->makeValidTransactionData() ) );
 	}
 
 	public function testGivenNonOneTimePaymentIntervalThrowsException(): void {
@@ -37,9 +38,9 @@ class SofortPaymentTest extends TestCase {
 	public function testBookPaymentSetsCompleted(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
-		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 
-		$this->assertTrue( $sofortPayment->paymentCompleted() );
+		$this->assertFalse( $sofortPayment->canBeBooked( $this->makeValidTransactionData() ) );
 	}
 
 	public function testBookPaymentValidatesDate(): void {
@@ -48,7 +49,7 @@ class SofortPaymentTest extends TestCase {
 		$this->expectException( \DomainException::class );
 		$this->expectExceptionMessageMatches( '/Error in valuation date/' );
 
-		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24' ] );
+		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24' ], new DummyPaymentIdRepository() );
 	}
 
 	public function testBookPaymentValidatesTransactionIdNotEmpty(): void {
@@ -57,13 +58,13 @@ class SofortPaymentTest extends TestCase {
 		$this->expectException( \DomainException::class );
 		$this->expectExceptionMessageMatches( '/Transaction ID missing/' );
 
-		$sofortPayment->bookPayment( [ 'transactionId' => '', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
+		$sofortPayment->bookPayment( [ 'transactionId' => '', 'valuationDate' => '2001-12-24T17:30:00Z' ], new DummyPaymentIdRepository() );
 	}
 
 	public function testBookPaymentSetsValuationDate(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
-		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 
 		$this->assertEquals( new \DateTimeImmutable( '2001-12-24T17:30:00Z' ), $sofortPayment->getValuationDate() );
 	}
@@ -71,7 +72,7 @@ class SofortPaymentTest extends TestCase {
 	public function testBookPaymentSetsTransactionId(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
-		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ] );
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 
 		$sofortPaymentInspector = new SofortPaymentInspector( $sofortPayment );
 
@@ -85,5 +86,12 @@ class SofortPaymentTest extends TestCase {
 			PaymentInterval::OneTime,
 			new PaymentReferenceCode( 'XW', 'DARE99', 'X' )
 		);
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function makeValidTransactionData(): array {
+		return [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ];
 	}
 }
