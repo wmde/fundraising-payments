@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
-use DateTimeImmutable;
 use WMDE\Euro\Euro;
 
 class DirectDebitPayment extends Payment implements CancellablePayment {
@@ -40,12 +39,15 @@ class DirectDebitPayment extends Payment implements CancellablePayment {
 		$this->bic = null;
 	}
 
-	public function getValuationDate(): ?DateTimeImmutable {
-		return null;
+	protected function getPaymentName(): string {
+		return self::PAYMENT_METHOD;
 	}
 
-	public function getLegacyData(): array {
-		return [];
+	protected function getPaymentSpecificLegacyData(): array {
+		return [
+			'iban' => $this->iban ? $this->iban->toString() : '',
+			'bic' => $this->bic ?? ''
+		];
 	}
 
 	public function getIban(): ?Iban {

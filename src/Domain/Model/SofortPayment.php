@@ -78,13 +78,18 @@ class SofortPayment extends Payment implements BookablePayment {
 		return $this;
 	}
 
-	/**
-	 * @codeCoverageIgnore
-	 *
-	 * @return array<string,string>
-	 */
-	public function getLegacyData(): array {
-		return [];
+	protected function getPaymentName(): string {
+		return self::PAYMENT_METHOD;
+	}
+
+	protected function getPaymentSpecificLegacyData(): array {
+		$data = array_filter( [
+			'transaction_id' => $this->transactionId ?: '',
+			'valuation_date' => $this->valuationDate ? $this->valuationDate->format( 'Y-m-d H:i:s' ) : '',
+		] );
+		// always have the payment reference code in here, to enable override of existing code, just in case.
+		$data['ueb_code'] = $this->paymentReferenceCode ? $this->paymentReferenceCode->getFormattedCode() : '';
+		return $data;
 	}
 
 	public function anonymise(): void {

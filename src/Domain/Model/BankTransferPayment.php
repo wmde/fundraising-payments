@@ -39,11 +39,19 @@ class BankTransferPayment extends Payment {
 		return null;
 	}
 
-	public function getLegacyData(): array {
-		return [];
-	}
-
 	public function anonymise(): void {
 		$this->paymentReferenceCode = null;
 	}
+
+	protected function getPaymentName(): string {
+		return self::PAYMENT_METHOD;
+	}
+
+	protected function getPaymentSpecificLegacyData(): array {
+		// "ueb_code" is a column name in the legacy "spenden" (donations) database table.
+		// the donation repository code will have to put it there instead of the data blob
+		$paymentReferenceCode = $this->getPaymentReferenceCode();
+		return $paymentReferenceCode ? [ 'ueb_code' => $paymentReferenceCode ] : [];
+	}
+
 }

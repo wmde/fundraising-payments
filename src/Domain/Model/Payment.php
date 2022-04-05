@@ -22,4 +22,25 @@ abstract class Payment implements LegacyDataTransformer {
 		return $this->id;
 	}
 
+	public function getLegacyData(): LegacyPaymentData {
+		return new LegacyPaymentData(
+			$this->amount->getEuroCents(),
+			$this->interval->value,
+			$this->getPaymentName(),
+			$this->getPaymentSpecificLegacyData()
+		);
+	}
+
+	/**
+	 * This is just for providing payment name for LegacyPaymentData
+	 *
+	 * @return string
+	 */
+	abstract protected function getPaymentName(): string;
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	abstract protected function getPaymentSpecificLegacyData(): array;
+
 }

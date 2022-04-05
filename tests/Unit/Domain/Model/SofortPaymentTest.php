@@ -79,6 +79,37 @@ class SofortPaymentTest extends TestCase {
 		$this->assertEquals( 'yellow', $sofortPaymentInspector->getTransactionId() );
 	}
 
+	public function testNewPaymentHasFormattedReferenceCodeInLegacyData(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$legacyData = $sofortPayment->getLegacyData();
+
+		$this->assertSame( [ 'ueb_code' => 'XW-DAR-E99-X' ], $legacyData->paymentSpecificValues );
+	}
+
+	public function testAnonymisedPaymentHasEmptyReferenceCodeInLegacyData(): void {
+		$sofortPayment = $this->makeSofortPayment();
+		$sofortPayment->anonymise();
+
+		$legacyData = $sofortPayment->getLegacyData();
+
+		$this->assertSame( [ 'ueb_code' => '' ], $legacyData->paymentSpecificValues );
+	}
+
+	public function testBookedPaymentHasTransactionDataInLegacyData(): void {
+		$sofortPayment = $this->makeSofortPayment();
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
+		$expectedLegacyData = [
+			'ueb_code' => 'XW-DAR-E99-X',
+			'transaction_id' => 'yellow',
+			'valuation_date' => '2001-12-24 17:30:00'
+		];
+
+		$legacyData = $sofortPayment->getLegacyData();
+
+		$this->assertEquals( $expectedLegacyData, $legacyData->paymentSpecificValues );
+	}
+
 	private function makeSofortPayment(): SofortPayment {
 		return SofortPayment::create(
 			1,
