@@ -52,7 +52,11 @@ class CreditCardPayment extends Payment implements BookablePayment {
 		return $this;
 	}
 
-	public function getLegacyData(): array {
+	protected function getPaymentName(): string {
+		return self::PAYMENT_METHOD;
+	}
+
+	protected function getPaymentSpecificLegacyData(): array {
 		if ( $this->isBooked() ) {
 			return ( new CreditCardBookingTransformer( $this->bookingData ) )->getLegacyData();
 		}
