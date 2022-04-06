@@ -23,6 +23,13 @@ class SofortPaymentTest extends TestCase {
 		$this->assertEquals( 'XW-DAR-E99-X', $sofortPayment->getPaymentReferenceCode() );
 	}
 
+	public function testGetPaymentCodeOfAnonymisedPaymentsReturnsEmptyString(): void {
+		$sofortPayment = $this->makeSofortPayment();
+		$sofortPayment->anonymise();
+
+		$this->assertSame( '', $sofortPayment->getPaymentReferenceCode() );
+	}
+
 	public function testNewSofortPaymentsAreUnbooked(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
@@ -77,6 +84,15 @@ class SofortPaymentTest extends TestCase {
 		$sofortPaymentInspector = new SofortPaymentInspector( $sofortPayment );
 
 		$this->assertEquals( 'yellow', $sofortPaymentInspector->getTransactionId() );
+	}
+
+	public function testPaymentCannotBeBookedTwice(): void {
+		$sofortPayment = $this->makeSofortPayment();
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
+
+		$this->expectException( \DomainException::class );
+
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 	}
 
 	public function testNewPaymentHasFormattedReferenceCodeInLegacyData(): void {
