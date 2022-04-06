@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Data;
 
-use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 
 class DirectDebitBankData {
@@ -15,8 +15,8 @@ class DirectDebitBankData {
 	public const BANK_CODE = '12345678';
 	public const ACCOUNT = '1234567890';
 
-	public static function validBankData(): BankData {
-		return new BankData(
+	public static function validBankData(): ExtendedBankData {
+		return new ExtendedBankData(
 			new Iban( self::IBAN ),
 			self::BIC,
 			self::ACCOUNT,
