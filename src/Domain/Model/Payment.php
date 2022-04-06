@@ -43,4 +43,17 @@ abstract class Payment implements LegacyDataTransformer {
 	 */
 	abstract protected function getPaymentSpecificLegacyData(): array;
 
+	/**
+	 * @return Euro
+	 */
+	public function getAmount(): Euro {
+		return $this->amount;
+	}
+
+	/**
+	 * @return PaymentInterval
+	 */
+	public function getInterval(): PaymentInterval {
+		return $this->interval;
+	}
 }
