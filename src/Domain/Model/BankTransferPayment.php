@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
-use DateTimeImmutable;
 use WMDE\Euro\Euro;
 
 class BankTransferPayment extends Payment {
@@ -33,10 +32,6 @@ class BankTransferPayment extends Payment {
 			return '';
 		}
 		return $this->paymentReferenceCode->getFormattedCode();
-	}
-
-	public function getValuationDate(): ?DateTimeImmutable {
-		return null;
 	}
 
 	public function anonymise(): void {

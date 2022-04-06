@@ -6,6 +6,8 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Data;
 
 class PayPalPaymentBookingData {
 
+	public const PAYMENT_DATE = '2022-01-01 01:01:01';
+
 	/**
 	 * @return array<string,mixed>
 	 */
@@ -26,7 +28,7 @@ class PayPalPaymentBookingData {
 			'payer_email' => 'foerderpp@wikimedia.de',
 			'payer_id' => '42',
 			'payer_status' => 'verified',
-			'payment_date' => '2022-01-01 01:01:01',
+			'payment_date' => self::PAYMENT_DATE,
 			'payment_status' => 'processed',
 			'payment_type' => 'instant',
 			'settle_amount' => '2.70',

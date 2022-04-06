@@ -33,6 +33,12 @@ class PayPalBookingTransformerTest extends TestCase {
 		new PayPalBookingTransformer( [ 'payer_id' => 72 ] );
 	}
 
+	public function testGivenEmptyPayerId_ItThrowsException(): void {
+		$this->expectException( \InvalidArgumentException::class );
+
+		new PayPalBookingTransformer( [ 'payment_date' => PayPalPaymentBookingData::PAYMENT_DATE ] );
+	}
+
 	/** @dataProvider invalidValuationDateProvider */
 	public function testGivenInvalidValuationDate_ItThrowsException( mixed $invalidValuationDate ): void {
 		$this->expectException( \InvalidArgumentException::class );
@@ -48,6 +54,12 @@ class PayPalBookingTransformerTest extends TestCase {
 		yield [ '' ];
 		yield [ 'Not a date' ];
 		yield [ -1 ];
+	}
+
+	public function testGetValuationDate(): void {
+		$transformer = new PayPalBookingTransformer( PayPalPaymentBookingData::newValidBookingData() );
+
+		$this->assertEquals( new \DateTimeImmutable( PayPalPaymentBookingData::PAYMENT_DATE ), $transformer->getValuationDate() );
 	}
 
 	public function testLegacyFieldsGetTransformed(): void {
