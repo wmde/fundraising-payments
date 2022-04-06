@@ -5,6 +5,8 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
 class PayPal implements PaymentProviderURLGenerator {
 
@@ -14,16 +16,19 @@ class PayPal implements PaymentProviderURLGenerator {
 	private const PAYMENT_CYCLE_MONTHLY = 'M';
 
 	private PayPalConfig $config;
-	private AdditionalPaymentData $additionalPaymentData;
+	private PayPalPayment $payment;
 
-	public function __construct( PayPalConfig $config, AdditionalPaymentData $additionalPaymentData ) {
+	public function __construct( PayPalConfig $config, Payment|PayPalPayment $payment ) {
+		if ( !$payment instanceof PayPalPayment ) {
+			throw new \LogicException( "Must be of type PayPalPayment, you provided: " . get_class( $payment ) );
+		}
 		$this->config = $config;
-		$this->additionalPaymentData = $additionalPaymentData;
+		$this->payment = $payment;
 	}
 
 	public function generateUrl( RequestContext $requestContext ): string {
 		$params = array_merge(
-			$this->getIntervalDependentParameters( $this->additionalPaymentData->amount, $this->additionalPaymentData->interval->value ),
+			$this->getIntervalDependentParameters( $this->payment->getAmount(), $this->payment->getInterval()->value ),
 			$this->getIntervalAgnosticParameters(
 				$requestContext->itemId,
 				$requestContext->invoiceId,
@@ -47,7 +52,7 @@ class PayPal implements PaymentProviderURLGenerator {
 			'business' => $this->config->getPayPalAccountAddress(),
 			'currency_code' => 'EUR',
 			'lc' => $this->config->getLocale(),
-			'item_name' => $this->config->getTranslatableDescription()->getText( $this->additionalPaymentData ),
+			'item_name' => $this->config->getTranslatableDescription()->getText( $this->payment->getAmount(), $this->payment->getInterval() ),
 			'item_number' => $itemId,
 			'invoice' => $invoiceId,
 			'notify_url' => $this->config->getNotifyUrl(),

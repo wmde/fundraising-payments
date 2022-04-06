@@ -4,6 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
+use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
+
 /**
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
@@ -11,11 +14,14 @@ namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 class CreditCard implements PaymentProviderURLGenerator {
 
 	private CreditCardConfig $config;
-	private AdditionalPaymentData $additionalPaymentData;
+	private CreditCardPayment $payment;
 
-	public function __construct( CreditCardConfig $config, AdditionalPaymentData $additionalPaymentData ) {
+	public function __construct( CreditCardConfig $config, Payment|CreditCardPayment $payment ) {
+		if ( !$payment instanceof CreditCardPayment ) {
+			throw new \LogicException( "Must be of type CreditCardPayment, you provided: " . get_class( $payment ) );
+		}
 		$this->config = $config;
-		$this->additionalPaymentData = $additionalPaymentData;
+		$this->payment = $payment;
 	}
 
 	public function generateUrl( RequestContext $requestContext ): string {
@@ -23,14 +29,14 @@ class CreditCard implements PaymentProviderURLGenerator {
 		$params = [
 			'project' => $this->config->getProjectId(),
 			'bgcolor' => $this->config->getBackgroundColor(),
-			'paytext' => $this->config->getTranslatableDescription()->getText( $this->additionalPaymentData ),
+			'paytext' => $this->config->getTranslatableDescription()->getText( $this->payment->getAmount(), $this->payment->getInterval() ),
 			'mp_user_firstname' => $requestContext->firstName,
 			'mp_user_surname' => $requestContext->lastName,
 			'sid' => $requestContext->itemId,
 			'gfx' => $this->config->getLogo(),
 			'token' => $requestContext->accessToken,
 			'utoken' => $requestContext->updateToken,
-			'amount' => $this->additionalPaymentData->amount->getEuroCents(),
+			'amount' => $this->payment->getAmount()->getEuroCents(),
 			'theme' => $this->config->getTheme(),
 			'producttype' => 'fee',
 			'lang' => $this->config->getLocale(),

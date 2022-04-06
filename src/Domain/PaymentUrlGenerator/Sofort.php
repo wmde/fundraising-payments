@@ -7,6 +7,8 @@ namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 use RuntimeException;
 use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\Request;
 use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\SofortClient;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 
 class Sofort implements PaymentProviderURLGenerator {
 
@@ -14,22 +16,26 @@ class Sofort implements PaymentProviderURLGenerator {
 
 	private SofortConfig $config;
 	private SofortClient $client;
-	private AdditionalPaymentData $additionalPaymentData;
+	private SofortPayment $payment;
 
 	public function __construct(
 			SofortConfig $config,
 			SofortClient $client,
-			AdditionalPaymentData $additionalPaymentData ) {
+			Payment|SofortPayment $payment ) {
+		if ( !$payment instanceof SofortPayment ) {
+			throw new \LogicException( "Must be of type SofortPayment, you provided: " . get_class( $payment ) );
+		}
+
 		$this->config = $config;
 		$this->client = $client;
-		$this->additionalPaymentData = $additionalPaymentData;
+		$this->payment = $payment;
 	}
 
 	public function generateUrl( RequestContext $requestContext ): string {
 		$request = new Request();
-		$request->setAmount( $this->additionalPaymentData->amount );
+		$request->setAmount( $this->payment->getAmount() );
 		$request->setCurrencyCode( self::CURRENCY );
-		$request->setReasons( [ $this->config->getReasonText(), $this->additionalPaymentData->paymentReferenceCode ] );
+		$request->setReasons( [ $this->config->getReasonText(), $this->payment->getPaymentReferenceCode() ] );
 		$request->setSuccessUrl(
 			$this->config->getReturnUrl() . '?' . http_build_query(
 				[
