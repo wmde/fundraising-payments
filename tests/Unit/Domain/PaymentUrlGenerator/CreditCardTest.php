@@ -6,8 +6,8 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\AdditionalPaymentData;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCard;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
@@ -47,7 +47,7 @@ class CreditCardTest extends TestCase {
 				],
 				$translatableDescriptionMock
 			),
-			new AdditionalPaymentData( $paymentReferenceCode, $amount, $interval )
+			new CreditCardPayment( 42, $amount, $interval )
 		);
 
 		$requestContext = new RequestContext(
@@ -79,7 +79,7 @@ class CreditCardTest extends TestCase {
 				],
 				$translatableDescriptionMock
 			),
-			new AdditionalPaymentData( '', Euro::newFromCents( 100 ), PaymentInterval::OneTime )
+			new CreditCardPayment( 32, Euro::newFromCents( 100 ), PaymentInterval::OneTime )
 		);
 
 		$requestContext = new RequestContext(
