@@ -8,7 +8,8 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\AdditionalPaymentData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
+use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort as SofortUrlGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\SofortConfig as SofortUrlConfig;
@@ -39,12 +40,13 @@ class SofortTest extends TestCase {
 			$translatableDescription
 		);
 		$client = new SofortSofortClientSpy( 'https://dn.ht/picklecat/' );
-		$additionalPaymentData = new AdditionalPaymentData(
-			'somepaymentReferenceCode',
+		$payment = SofortPayment::create(
+			$internalItemId,
 			$amount,
-			PaymentInterval::OneTime
-		);
-		$urlGenerator = new SofortUrlGenerator( $config, $client, $additionalPaymentData );
+			PaymentInterval::OneTime,
+			$this->createMock( PaymentReferenceCode::class ) );
+
+		$urlGenerator = new SofortUrlGenerator( $config, $client, $payment );
 
 		$requestContext = new RequestContext(
 			$internalItemId,
@@ -75,12 +77,13 @@ class SofortTest extends TestCase {
 		);
 		$client = new SofortSofortClientSpy( $expectedUrl );
 
-		$additionalPaymentData = new AdditionalPaymentData(
-			'somepaymentReferenceCode',
+		$payment = SofortPayment::create(
+			23,
 			Euro::newFromCents( 600 ),
-			PaymentInterval::OneTime
-		);
-		$urlGenerator = new SofortUrlGenerator( $config, $client, $additionalPaymentData );
+			PaymentInterval::OneTime,
+			$this->createMock( PaymentReferenceCode::class ) );
+
+		$urlGenerator = new SofortUrlGenerator( $config, $client, $payment );
 
 		$requestContext = new RequestContext(
 			44,
@@ -103,12 +106,13 @@ class SofortTest extends TestCase {
 			$translatableDescriptionStub
 		);
 		$client = new ExceptionThrowingSofortSofortClient( 'boo boo' );
-		$additionalPaymentData = new AdditionalPaymentData(
-			'somepaymentReferenceCode',
+		$payment = SofortPayment::create(
+			23,
 			Euro::newFromCents( 600 ),
-			PaymentInterval::OneTime
-		);
-		$urlGenerator = new SofortUrlGenerator( $config, $client, $additionalPaymentData );
+			PaymentInterval::OneTime,
+			$this->createMock( PaymentReferenceCode::class ) );
+
+		$urlGenerator = new SofortUrlGenerator( $config, $client, $payment );
 
 		$this->expectException( RuntimeException::class );
 		$this->expectExceptionMessage( 'Could not generate Sofort URL: boo boo' );

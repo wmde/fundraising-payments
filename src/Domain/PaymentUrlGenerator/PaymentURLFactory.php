@@ -5,6 +5,10 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
 use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\SofortClient;
+use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 
 class PaymentURLFactory {
 
@@ -15,11 +19,11 @@ class PaymentURLFactory {
 		private SofortClient $sofortClient ) {
 	}
 
-	public function createURLGenerator( string $paymentType, AdditionalPaymentData $additionalPaymentData ): PaymentProviderURLGenerator {
-		return match ( $paymentType ) {
-			'SUB' => new Sofort( $this->sofortConfig, $this->sofortClient, $additionalPaymentData ),
-			'MCP' => new CreditCard( $this->creditCardConfig, $additionalPaymentData ),
-			'PPL' => new PayPal( $this->payPalConfig, $additionalPaymentData ),
+	public function createURLGenerator( Payment $payment ): PaymentProviderURLGenerator {
+		return match ( true ) {
+			$payment instanceof SofortPayment => new Sofort( $this->sofortConfig, $this->sofortClient, $payment ),
+			$payment instanceof CreditCardPayment => new CreditCard( $this->creditCardConfig, $payment ),
+			$payment instanceof PayPalPayment => new PayPal( $this->payPalConfig, $payment ),
 			default => new NullGenerator(),
 		};
 	}
