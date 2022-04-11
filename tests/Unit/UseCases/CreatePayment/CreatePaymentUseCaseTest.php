@@ -5,8 +5,6 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CreatePayment;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
-use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
@@ -17,18 +15,13 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentURLFactory;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DeterministicPaymentReferenceGenerator;
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\StaticPaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
-use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
-use WMDE\FunValidators\ValidationResult;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase
@@ -36,22 +29,19 @@ use WMDE\FunValidators\ValidationResult;
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationException
  */
 class CreatePaymentUseCaseTest extends TestCase {
-	private const PAYMENT_ID = 2;
+
+	private CreatePaymentUseCaseBuilder $useCaseBuilder;
+
+	protected function setUp(): void {
+		parent::setUp();
+		$this->useCaseBuilder = new CreatePaymentUseCaseBuilder();
+	}
 
 	public function testCreateCreditCardPayment(): void {
-		$useCase = new CreatePaymentUseCase(
-			$this->makeFixedIdGenerator(),
-			$this->makePaymentRepository(
-				new CreditCardPayment(
-					self::PAYMENT_ID,
-					Euro::newFromCents( 100 ),
-					PaymentInterval::OneTime
-				)
-			),
-			$this->makePaymentReferenceGeneratorStub(),
-			$this->makeValidateIbanUseCase(),
-			$this->makePaymentProviderURLFactoryDummy()
-		);
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withPaymentRepositorySpy()
+			->build();
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 100,
@@ -60,19 +50,21 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+		$this->assertSame( StaticPaymentIDRepository::STATIC_ID, $result->paymentId );
+		$this->assertPaymentWasStored(
+			new CreditCardPayment(
+				StaticPaymentIDRepository::STATIC_ID,
+				Euro::newFromCents( 100 ),
+				PaymentInterval::OneTime
+			)
+		);
 	}
 
 	public function testCreatePayPalPayment(): void {
-		$useCase = new CreatePaymentUseCase(
-			$this->makeFixedIdGenerator(),
-			$this->makePaymentRepository(
-				new PayPalPayment( self::PAYMENT_ID, Euro::newFromCents( 100 ), PaymentInterval::OneTime )
-			),
-			$this->makePaymentReferenceGeneratorStub(),
-			$this->makeValidateIbanUseCase(),
-			$this->makePaymentProviderURLFactoryDummy()
-		);
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withPaymentRepositorySpy()
+			->build();
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 100,
@@ -81,27 +73,22 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+		$this->assertSame( StaticPaymentIDRepository::STATIC_ID, $result->paymentId );
+		$this->assertPaymentWasStored(
+			new PayPalPayment(
+				StaticPaymentIDRepository::STATIC_ID,
+				Euro::newFromCents( 100 ),
+				PaymentInterval::OneTime
+			)
+		);
 	}
 
 	public function testCreateSofortPayment(): void {
-		$idGenerator = $this->makeFixedIdGenerator();
-		$repo = $this->makePaymentRepository(
-			SofortPayment::create(
-				self::PAYMENT_ID,
-				Euro::newFromCents( 100 ),
-				PaymentInterval::OneTime,
-				PaymentReferenceCode::newFromString( 'XW-DAR-E99-X' )
-			)
-		);
-		$transferCodeGenerator = $this->makePaymentReferenceGenerator();
-		$useCase = new CreatePaymentUseCase(
-			$idGenerator,
-			$repo,
-			$transferCodeGenerator,
-			$this->makeValidateIbanUseCase(),
-			$this->makePaymentProviderURLFactoryDummy()
-		);
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withPaymentRepositorySpy()
+			->withPaymentReferenceGenerator( $this->makePaymentReferenceGenerator() )
+			->build();
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 100,
@@ -111,27 +98,21 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+		$this->assertSame( StaticPaymentIDRepository::STATIC_ID, $result->paymentId );
+		$this->assertPaymentWasStored( SofortPayment::create(
+			StaticPaymentIDRepository::STATIC_ID,
+			Euro::newFromCents( 100 ),
+			PaymentInterval::OneTime,
+			PaymentReferenceCode::newFromString( 'XW-DAR-E99-X' )
+		) );
 	}
 
 	public function testCreateBankTransferPayment(): void {
-		$idGenerator = $this->makeFixedIdGenerator();
-		$repo = $this->makePaymentRepository(
-			BankTransferPayment::create(
-				self::PAYMENT_ID,
-				Euro::newFromCents( 400 ),
-				PaymentInterval::Quarterly,
-				new PaymentReferenceCode( 'XW', 'DARE99', 'X' )
-			)
-		);
-		$referenceCodeGenerator = $this->makePaymentReferenceGenerator();
-		$useCase = new CreatePaymentUseCase(
-			$idGenerator,
-			$repo,
-			$referenceCodeGenerator,
-			$this->makeValidateIbanUseCase(),
-			$this->makePaymentProviderURLFactoryDummy()
-		);
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withPaymentRepositorySpy()
+			->withPaymentReferenceGenerator( $this->makePaymentReferenceGenerator() )
+			->build();
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 400,
@@ -141,17 +122,17 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+		$this->assertSame( StaticPaymentIDRepository::STATIC_ID, $result->paymentId );
+		$this->assertPaymentWasStored( BankTransferPayment::create(
+			StaticPaymentIDRepository::STATIC_ID,
+			Euro::newFromCents( 400 ),
+			PaymentInterval::Quarterly,
+			new PaymentReferenceCode( 'XW', 'DARE99', 'X' )
+		) );
 	}
 
 	public function testCreateSofortPaymentFailsOnUnsupportedInterval(): void {
-		$useCase = new CreatePaymentUseCase(
-			$this->makeIdGeneratorStub(),
-			$this->makeRepositoryStub(),
-			$this->makePaymentReferenceGeneratorStub(),
-			$this->makeValidateIbanUseCase(),
-			$this->makePaymentProviderURLFactoryDummy()
-		);
+		$useCase = $this->useCaseBuilder->build();
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 100,
@@ -164,13 +145,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 	}
 
 	public function testCreatePaymentWithInvalidIntervalFails(): void {
-		$useCase = new CreatePaymentUseCase(
-			$this->makeIdGeneratorStub(),
-			$this->makeRepositoryStub(),
-			$this->makePaymentReferenceGeneratorStub(),
-			$this->makeValidateIbanUseCase(),
-			$this->makePaymentProviderURLFactoryDummy()
-		);
+		$useCase = $this->useCaseBuilder->build();
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 100,
@@ -182,13 +157,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 	}
 
 	public function testCreatePaymentWithInvalidAmountFails(): void {
-		$useCase = new CreatePaymentUseCase(
-			$this->makeIdGeneratorStub(),
-			$this->makeRepositoryStub(),
-			$this->makePaymentReferenceGeneratorStub(),
-			$this->makeValidateIbanUseCase(),
-			$this->makePaymentProviderURLFactoryDummy()
-		);
+		$useCase = $this->useCaseBuilder->build();
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: -500,
@@ -200,13 +169,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 	}
 
 	public function testCreatePaymentWithInvalidPaymentTypeFails(): void {
-		$useCase = new CreatePaymentUseCase(
-			$this->makeIdGeneratorStub(),
-			$this->makeRepositoryStub(),
-			$this->makePaymentReferenceGeneratorStub(),
-			$this->makeValidateIbanUseCase(),
-			$this->makePaymentProviderURLFactoryDummy()
-		);
+		$useCase = $this->useCaseBuilder->build();
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 500,
@@ -218,22 +181,11 @@ class CreatePaymentUseCaseTest extends TestCase {
 	}
 
 	public function testCreateDirectDebitPayment(): void {
-		$repo = $this->makePaymentRepository(
-			DirectDebitPayment::create(
-				self::PAYMENT_ID,
-				Euro::newFromCents( 400 ),
-				PaymentInterval::Quarterly,
-				new Iban( DirectDebitBankData::IBAN ),
-				DirectDebitBankData::BIC
-			)
-		);
-		$useCase = new CreatePaymentUseCase(
-			$this->makeIdGeneratorStub(),
-			$repo,
-			$this->makePaymentReferenceGeneratorStub(),
-			$this->makeValidateIbanUseCase(),
-			$this->makePaymentProviderURLFactoryDummy()
-		);
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withPaymentRepositorySpy()
+			->withSucceedingIbanValidationUseCase()
+			->build();
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 400,
@@ -244,17 +196,20 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+		$this->assertSame( StaticPaymentIDRepository::STATIC_ID, $result->paymentId );
+		$this->assertPaymentWasStored( DirectDebitPayment::create(
+			StaticPaymentIDRepository::STATIC_ID,
+			Euro::newFromCents( 400 ),
+			PaymentInterval::Quarterly,
+			new Iban( DirectDebitBankData::IBAN ),
+			DirectDebitBankData::BIC
+		) );
 	}
 
 	public function testCreateDirectDebitPaymentWithInvalidIbanFails(): void {
-		$useCase = new CreatePaymentUseCase(
-			$this->makeIdGeneratorStub(),
-			$this->makeRepositoryStub(),
-			$this->makePaymentReferenceGeneratorStub(),
-			$this->makeValidateIbanUseCase( blockList: [ DirectDebitBankData::IBAN ] ),
-			$this->makePaymentProviderURLFactoryDummy()
-		);
+		$useCase = $this->useCaseBuilder
+			->withFailingIbanValidationUseCase()
+			->build();
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 400,
@@ -268,97 +223,24 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$this->assertEquals( "An invalid Iban was provided", $result->errorMessage );
 	}
 
-	public function testPaymentResponseContainsRequestedURLGenerator(): void {
-		$urlGeneratorMock = $this->createMock( Sofort::class );
-		// $paymentReferenceCode = new PaymentReferenceCode( 'XR', 'CRZK4C', 'T');
-		$paymentReferenceCode = PaymentReferenceCode::newFromString( 'XR-CRZ-K4C-T' );
-
-		$amount = Euro::newFromCents( 100 );
-		$interval = PaymentInterval::OneTime;
-		$paymentReferenceStub = $this->createStub( PaymentReferenceCodeGenerator::class );
-		$paymentReferenceStub->method( 'newPaymentReference' )->willReturn( $paymentReferenceCode );
-
-		$payment = SofortPayment::create(
-			self::PAYMENT_ID,
-			$amount,
-			$interval,
-			$paymentReferenceCode
-		);
-
-		$urlFactoryMock = $this->createMock( PaymentURLFactory::class );
-
-		$urlFactoryMock
-			->method( 'createURLGenerator' )
-			->with( $payment )
-			->willReturn( $urlGeneratorMock );
-
-		$useCase = new CreatePaymentUseCase(
-			$this->makeFixedIdGenerator(),
-			$this->makePaymentRepository(
-				SofortPayment::create( self::PAYMENT_ID,
-					$amount,
-					$interval,
-					$paymentReferenceCode
-				)
-			),
-			$paymentReferenceStub,
-			$this->makeValidateIbanUseCase(),
-			$urlFactoryMock
-		);
+	public function testPaymentResponseContainsURLGeneratorFromFactory(): void {
+		$urlGenerator = $this->createStub( PaymentProviderURLGenerator::class );
+		$urlGeneratorFactory = $this->createStub( UrlGeneratorFactory::class );
+		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( $urlGenerator );
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withPaymentRepositorySpy()
+			->withUrlGeneratorFactory( $urlGeneratorFactory )
+			->build();
 
 		$result = $useCase->createPayment( new PaymentCreationRequest(
 			amountInEuroCents: 100,
 			interval: 0,
-			paymentType: 'SUB',
-			transferCodePrefix: 'XR'
+			paymentType: 'PPL',
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertInstanceOf( Sofort::class, $result->paymentProviderURLGenerator );
-	}
-
-	private function makeIdGeneratorStub(): PaymentIDRepository {
-		$idGenerator = $this->createMock( PaymentIDRepository::class );
-		$idGenerator->expects( $this->never() )->method( 'getNewID' );
-		return $idGenerator;
-	}
-
-	private function makeRepositoryStub(): PaymentRepository {
-		$repo = $this->createMock( PaymentRepository::class );
-		$repo->expects( $this->never() )->method( 'storePayment' );
-		return $repo;
-	}
-
-	private function makePaymentReferenceGeneratorStub(): PaymentReferenceCodeGenerator {
-		return new DeterministicPaymentReferenceGenerator( PaymentReferenceCode::ALLOWED_CHARACTERS );
-	}
-
-	private function makeFixedIdGenerator(): PaymentIDRepository {
-		$idGenerator = $this->createMock( PaymentIDRepository::class );
-		$idGenerator->method( 'getNewID' )->willReturn( self::PAYMENT_ID );
-		return $idGenerator;
-	}
-
-	private function makePaymentRepository( Payment $expectedPayment ): PaymentRepository {
-		$repo = $this->createMock( PaymentRepository::class );
-		$repo->expects( $this->once() )->method( 'storePayment' )->with( $expectedPayment );
-		return $repo;
-	}
-
-	private function makePaymentProviderURLFactoryDummy(): PaymentURLFactory {
-		return $this->createMock( PaymentURLFactory::class );
-	}
-
-	/**
-	 * @param array<string> $blockList
-	 *
-	 * @return ValidateIbanUseCase
-	 */
-	private function makeValidateIbanUseCase( array $blockList = [] ): ValidateIbanUseCase {
-		$validator = $this->createMock( IbanValidator::class );
-		$validator->method( 'validate' )->willReturn( new ValidationResult() );
-
-		return new ValidateIbanUseCase( $validator, new IbanBlockList( $blockList ) );
+		$this->assertSame( $urlGenerator, $result->paymentProviderURLGenerator );
 	}
 
 	private function makePaymentReferenceGenerator(): PaymentReferenceCodeGenerator {
@@ -368,5 +250,10 @@ class CreatePaymentUseCaseTest extends TestCase {
 			->with( 'XW' )
 			->willReturn( new PaymentReferenceCode( 'XW', 'DARE99', 'X' ) );
 		return $referenceCodeGenerator;
+	}
+
+	private function assertPaymentWasStored( Payment $expectedPayment ): void {
+		$actualPayment = $this->useCaseBuilder->getPaymentRepository()->getPaymentById( StaticPaymentIDRepository::STATIC_ID );
+		$this->assertEquals( $expectedPayment, $actualPayment );
 	}
 }
