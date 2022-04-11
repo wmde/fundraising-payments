@@ -16,7 +16,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentTypes;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentURLFactory;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 
@@ -26,7 +26,7 @@ class CreatePaymentUseCase {
 		private PaymentRepository $paymentRepository,
 		private PaymentReferenceCodeGenerator $paymentReferenceCodeGenerator,
 		private ValidateIbanUseCase $validateIbanUseCase,
-		private PaymentURLFactory $paymentURLFactory
+		private UrlGeneratorFactory $paymentURLFactory
 	) {
 	}
 
