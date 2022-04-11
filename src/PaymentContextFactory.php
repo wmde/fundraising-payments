@@ -17,6 +17,13 @@ class PaymentContextFactory {
 		return new XmlDriver( self::DOCTRINE_CLASS_MAPPING_DIRECTORY );
 	}
 
+	public function registerCustomTypes( Connection $connection ): void {
+		$this->registerDoctrineEuroType( $connection );
+		$this->registerDoctrineIbanType( $connection );
+		$this->registerDoctrinePaymentIntervalType( $connection );
+		$this->registerDoctrinePaymentReferenceCodeType( $connection );
+	}
+
 	public function registerDoctrineEuroType( Connection $connection ): void {
 		static $isRegistered = false;
 		if ( $isRegistered ) {
@@ -37,7 +44,7 @@ class PaymentContextFactory {
 		$isRegistered = true;
 	}
 
-	public function registerDoctrinePaymentReferenceType( Connection $connection ): void {
+	public function registerDoctrinePaymentReferenceCodeType( Connection $connection ): void {
 		static $isRegistered = false;
 		if ( $isRegistered ) {
 			return;
