@@ -49,4 +49,12 @@ class BankTransferPayment extends Payment {
 		return $paymentReferenceCode ? [ 'ueb_code' => $paymentReferenceCode ] : [];
 	}
 
+	public function getDisplayValues(): array {
+		$parentValues = parent::getDisplayValues();
+		$subtypeValues = $this->getPaymentSpecificLegacyData();
+		return array_merge(
+			$parentValues,
+			$subtypeValues
+		);
+	}
 }

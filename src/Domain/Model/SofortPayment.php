@@ -95,4 +95,13 @@ class SofortPayment extends Payment implements BookablePayment {
 	public function anonymise(): void {
 		$this->paymentReferenceCode = null;
 	}
+
+	public function getDisplayValues(): array {
+		$parentValues = parent::getDisplayValues();
+		$subtypeValues = $this->getPaymentSpecificLegacyData();
+		return array_merge(
+			$parentValues,
+			$subtypeValues
+		);
+	}
 }

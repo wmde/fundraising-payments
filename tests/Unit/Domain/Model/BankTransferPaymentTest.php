@@ -53,4 +53,22 @@ class BankTransferPaymentTest extends TestCase {
 
 		$this->assertEquals( $expectedLegacyData, $payment->getLegacyData() );
 	}
+
+	public function testGetDisplayDataReturnsAllFieldsToDisplay(): void {
+		$payment = BankTransferPayment::create(
+			1,
+			Euro::newFromCents( 7821 ),
+			PaymentInterval::Monthly,
+			new PaymentReferenceCode( 'XW', 'TARARA', 'X' )
+		);
+
+		$expectedOutput = [
+			'amount' => 7821,
+			'interval' => 1,
+			'paymentType' => 'UEB',
+			'ueb_code' => 'XW-TAR-ARA-X'
+		];
+
+		$this->assertEquals( $expectedOutput, $payment->getDisplayValues() );
+	}
 }

@@ -56,4 +56,15 @@ abstract class Payment implements LegacyDataTransformer {
 	public function getInterval(): PaymentInterval {
 		return $this->interval;
 	}
+
+	/**
+	 * @return array<string,mixed> Array containing all relevant payment values to display in user frontends
+	 */
+	public function getDisplayValues(): array {
+		return [
+			"amount" => $this->getAmount()->getEuroCents(),
+			"interval" => $this->getInterval()->value,
+			"paymentType" => $this->getPaymentName()
+		];
+	}
 }
