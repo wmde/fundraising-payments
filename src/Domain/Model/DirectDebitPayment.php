@@ -69,4 +69,13 @@ class DirectDebitPayment extends Payment implements CancellablePayment {
 	public function isCancellable(): bool {
 		return !$this->isCancelled();
 	}
+
+	public function getDisplayValues(): array {
+		$parentValues = parent::getDisplayValues();
+		$subtypeValues = $this->getPaymentSpecificLegacyData();
+		return array_merge(
+			$parentValues,
+			$subtypeValues
+		);
+	}
 }

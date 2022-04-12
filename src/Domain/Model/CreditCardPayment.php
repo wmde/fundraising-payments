@@ -63,4 +63,13 @@ class CreditCardPayment extends Payment implements BookablePayment {
 		return [];
 	}
 
+	public function getDisplayValues(): array {
+		$parentValues = parent::getDisplayValues();
+		$subtypeValues = $this->getPaymentSpecificLegacyData();
+		return array_merge(
+			$parentValues,
+			$subtypeValues
+		);
+	}
+
 }
