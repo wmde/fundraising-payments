@@ -10,10 +10,13 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\NullGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DeterministicPaymentReferenceGenerator;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingIbanValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingIbanValidator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
@@ -24,6 +27,7 @@ class CreatePaymentUseCaseBuilder {
 	private PaymentReferenceCodeGenerator $paymentReferenceCodeGenerator;
 	private UrlGeneratorFactory $urlGeneratorFactory;
 	private ValidateIbanUseCase $validateIbanUseCase;
+	private PaymentValidator $paymentValidator;
 
 	public function __construct() {
 		$this->idGenerator = $this->makeIdGeneratorStub();
@@ -31,6 +35,7 @@ class CreatePaymentUseCaseBuilder {
 		$this->paymentReferenceCodeGenerator = $this->makePaymentReferenceGeneratorStub();
 		$this->urlGeneratorFactory = $this->makePaymentURLFactoryStub();
 		$this->validateIbanUseCase = $this->makeFailingIbanUseCase();
+		$this->paymentValidator = $this->makePaymentValidator();
 	}
 
 	public function build(): CreatePaymentUseCase {
@@ -38,6 +43,7 @@ class CreatePaymentUseCaseBuilder {
 			$this->idGenerator,
 			$this->repository,
 			$this->paymentReferenceCodeGenerator,
+			$this->paymentValidator,
 			$this->validateIbanUseCase,
 			$this->urlGeneratorFactory
 		);
@@ -112,4 +118,14 @@ class CreatePaymentUseCaseBuilder {
 		$this->urlGeneratorFactory = $factory;
 		return $this;
 	}
+
+	private function makePaymentValidator(): PaymentValidator {
+		return new PaymentValidator( new SucceedingDomainSpecificValidator() );
+	}
+
+	public function withFailingDomainValidator(): self {
+		$this->paymentValidator = new PaymentValidator( new FailingDomainSpecificValidator() );
+		return $this;
+	}
+
 }
