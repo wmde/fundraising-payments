@@ -76,6 +76,20 @@ class DirectDebitPaymentTest extends TestCase {
 		$this->assertSame( [ 'iban' => '', 'bic' => '' ], $legacyData->paymentSpecificValues );
 	}
 
+	public function testGetDisplayDataReturnsAllFieldsToDisplay(): void {
+		$payment = $this->makeDirectDebitPayment();
+
+		$expectedOutput = [
+			'amount' => 4999,
+			'interval' => 3,
+			'paymentType' => 'BEZ',
+			'iban' => 'DE00123456789012345678',
+			'bic' => 'SCROUSDBXXX'
+		];
+
+		$this->assertEquals( $expectedOutput, $payment->getDisplayValues() );
+	}
+
 	private function makeDirectDebitPayment(): DirectDebitPayment {
 		return DirectDebitPayment::create(
 			self::PAYMENT_ID,
