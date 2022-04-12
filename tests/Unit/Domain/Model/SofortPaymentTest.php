@@ -126,6 +126,24 @@ class SofortPaymentTest extends TestCase {
 		$this->assertEquals( $expectedLegacyData, $legacyData->paymentSpecificValues );
 	}
 
+	public function testGetDisplayDataReturnsAllFieldsToDisplay(): void {
+		$payment = $this->makeSofortPayment();
+		$payment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
+
+		$expectedOutput = [
+			'amount' => 1000,
+			'interval' => 0,
+			'paymentType' => 'SUB',
+			'ueb_code' => 'XW-DAR-E99-X',
+			'transaction_id' => 'yellow',
+			'valuation_date' => '2001-12-24 17:30:00'
+		];
+
+		$this->assertNotNull( $payment->getValuationDate() );
+		$this->assertFalse( $payment->canBeBooked( [] ) );
+		$this->assertEquals( $expectedOutput, $payment->getDisplayValues() );
+	}
+
 	private function makeSofortPayment(): SofortPayment {
 		return SofortPayment::create(
 			1,

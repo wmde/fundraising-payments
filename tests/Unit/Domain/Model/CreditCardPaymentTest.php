@@ -83,4 +83,32 @@ class CreditCardPaymentTest extends TestCase {
 
 		$this->assertSame( [],  $creditCardPayment->getLegacyData()->paymentSpecificValues );
 	}
+
+	public function testGetDisplayDataReturnsAllFieldsToDisplayForBookedPayment(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$creditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+
+		$expectedValues = [
+			'amount' => 100000,
+			'interval' => 1,
+			'paymentType' => 'MCP',
+			'ext_payment_id' => 'customer.prefix-ID2tbnag4a9u',
+			'mcp_amount' => '1337',
+			'ext_payment_account' => 'e20fb9d5281c1bca1901c19f6e46213191bb4c17',
+			'mcp_sessionid' => 'CC13064b2620f4028b7d340e3449676213336a4d',
+			'mcp_auth' => 'd1d6fae40cf96af52477a9e521558ab7',
+			'mcp_title' => 'Your generous donation',
+			'mcp_country' => 'DE',
+			'mcp_currency' => 'EUR',
+			'mcp_cc_expiry_date' => '',
+			'ext_payment_status' => 'processed'
+		];
+
+		$actualDisplayData = $creditCardPayment->getDisplayValues();
+
+		$this->assertNotNull( $creditCardPayment->getValuationDate() );
+		$this->assertFalse( $creditCardPayment->canBeBooked( [] ) );
+		unset( $actualDisplayData['ext_payment_timestamp'] );
+		$this->assertEquals( $expectedValues, $actualDisplayData );
+	}
 }

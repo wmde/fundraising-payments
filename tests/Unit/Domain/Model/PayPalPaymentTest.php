@@ -142,6 +142,36 @@ class PayPalPaymentTest extends TestCase {
 		$this->assertSame( '2022-01-01 01:01:01', $legacyData->paymentSpecificValues['ext_payment_timestamp'] );
 	}
 
+	public function testGetDisplayDataReturnsAllFieldsToDisplayForBookedPayment(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+
+		$expectedOutput = [
+			'amount' => 1000,
+			'interval' => 0,
+			'paymentType' => 'PPL',
+			'paypal_payer_id' => '42',
+			'paypal_subscr_id' => '8RHHUM3W3PRH7QY6B59',
+			'paypal_payer_status' => 'verified',
+			'paypal_mc_gross' => '2.70',
+			'paypal_mc_currency' => 'EUR',
+			'paypal_mc_fee' => '2.70',
+			'paypal_settle_amount' => '2.70',
+			'ext_payment_id' => '4242',
+			'ext_subscr_id' => '8RHHUM3W3PRH7QY6B59',
+			'ext_payment_type' => 'instant',
+			'ext_payment_status' => 'processed',
+			'ext_payment_account' => '42',
+			'ext_payment_timestamp' => '2022-01-01 01:01:01'
+		];
+
+		$actualDisplayData = $payment->getDisplayValues();
+
+		$this->assertNotNull( $payment->getValuationDate() );
+		$this->assertFalse( $payment->canBeBooked( [] ) );
+		$this->assertEquals( $expectedOutput, $actualDisplayData );
+	}
+
 	private function makeIdGeneratorForFollowupPayments(): PaymentIDRepository {
 		$idGeneratorStub = $this->createStub( PaymentIDRepository::class );
 		$idGeneratorStub->method( 'getNewID' )->willReturn( self::FOLLOWUP_PAYMENT_ID );
