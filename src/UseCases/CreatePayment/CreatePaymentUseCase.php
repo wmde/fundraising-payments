@@ -47,15 +47,7 @@ class CreatePaymentUseCase {
 		$paymentProviderURLGenerator = $this->createPaymentProviderURLGenerator( $payment );
 
 		$this->paymentRepository->storePayment( $payment );
-		return new SuccessResponse( $this->getNextIdOnce(), $paymentProviderURLGenerator );
-	}
-
-	private function getNextIdOnce(): int {
-		static $id = null;
-		if ( $id === null ) {
-			$id = $this->idGenerator->getNewID();
-		}
-		return $id;
+		return new SuccessResponse( $payment->getId(), $paymentProviderURLGenerator );
 	}
 
 	/**
@@ -79,11 +71,10 @@ class CreatePaymentUseCase {
 	/**
 	 * @param PaymentCreationRequest $request
 	 * @return CreditCardPayment
-	 * @throws PaymentCreationException
 	 */
 	private function createCreditCardPayment( PaymentCreationRequest $request ): CreditCardPayment {
 		return new CreditCardPayment(
-			$this->getNextIdOnce(),
+			$this->idGenerator->getNewID(),
 			Euro::newFromCents( $request->amountInEuroCents ),
 			PaymentInterval::from( $request->interval )
 		);
@@ -92,11 +83,10 @@ class CreatePaymentUseCase {
 	/**
 	 * @param PaymentCreationRequest $request
 	 * @return PayPalPayment
-	 * @throws PaymentCreationException
 	 */
 	private function createPayPalPayment( PaymentCreationRequest $request ): PayPalPayment {
 		return new PayPalPayment(
-			$this->getNextIdOnce(),
+			$this->idGenerator->getNewID(),
 			Euro::newFromCents( $request->amountInEuroCents ),
 			PaymentInterval::from( $request->interval )
 		);
@@ -114,7 +104,7 @@ class CreatePaymentUseCase {
 		}
 
 		return SofortPayment::create(
-			$this->getNextIdOnce(),
+			$this->idGenerator->getNewID(),
 			Euro::newFromCents( $request->amountInEuroCents ),
 			$paymentInterval,
 			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )
@@ -124,11 +114,10 @@ class CreatePaymentUseCase {
 	/**
 	 * @param PaymentCreationRequest $request
 	 * @return BankTransferPayment
-	 * @throws PaymentCreationException
 	 */
 	private function createBankTransferPayment( PaymentCreationRequest $request ): BankTransferPayment {
 		return BankTransferPayment::create(
-			$this->getNextIdOnce(),
+			$this->idGenerator->getNewID(),
 			Euro::newFromCents( $request->amountInEuroCents ),
 			PaymentInterval::from( $request->interval ),
 			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )
@@ -146,7 +135,7 @@ class CreatePaymentUseCase {
 		}
 
 		return DirectDebitPayment::create(
-			$this->getNextIdOnce(),
+			$this->idGenerator->getNewID(),
 			Euro::newFromCents( $request->amountInEuroCents ),
 			PaymentInterval::from( $request->interval ),
 			new Iban( $request->iban ),

@@ -18,7 +18,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\StaticPaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
@@ -30,6 +30,8 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
  */
 class CreatePaymentUseCaseTest extends TestCase {
 
+	private const PAYMENT_ID = 1;
+
 	private CreatePaymentUseCaseBuilder $useCaseBuilder;
 
 	protected function setUp(): void {
@@ -39,7 +41,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 	public function testCreateCreditCardPayment(): void {
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->build();
 
@@ -50,10 +52,10 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( StaticPaymentIDRepository::STATIC_ID, $result->paymentId );
+		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
 		$this->assertPaymentWasStored(
 			new CreditCardPayment(
-				StaticPaymentIDRepository::STATIC_ID,
+				self::PAYMENT_ID,
 				Euro::newFromCents( 100 ),
 				PaymentInterval::OneTime
 			)
@@ -62,7 +64,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 	public function testCreatePayPalPayment(): void {
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->build();
 
@@ -73,10 +75,10 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( StaticPaymentIDRepository::STATIC_ID, $result->paymentId );
+		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
 		$this->assertPaymentWasStored(
 			new PayPalPayment(
-				StaticPaymentIDRepository::STATIC_ID,
+				self::PAYMENT_ID,
 				Euro::newFromCents( 100 ),
 				PaymentInterval::OneTime
 			)
@@ -85,7 +87,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 	public function testCreateSofortPayment(): void {
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->withPaymentReferenceGenerator( $this->makePaymentReferenceGenerator() )
 			->build();
@@ -98,9 +100,9 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( StaticPaymentIDRepository::STATIC_ID, $result->paymentId );
+		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
 		$this->assertPaymentWasStored( SofortPayment::create(
-			StaticPaymentIDRepository::STATIC_ID,
+			self::PAYMENT_ID,
 			Euro::newFromCents( 100 ),
 			PaymentInterval::OneTime,
 			PaymentReferenceCode::newFromString( 'XW-DAR-E99-X' )
@@ -109,7 +111,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 	public function testCreateBankTransferPayment(): void {
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->withPaymentReferenceGenerator( $this->makePaymentReferenceGenerator() )
 			->build();
@@ -122,9 +124,9 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( StaticPaymentIDRepository::STATIC_ID, $result->paymentId );
+		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
 		$this->assertPaymentWasStored( BankTransferPayment::create(
-			StaticPaymentIDRepository::STATIC_ID,
+			self::PAYMENT_ID,
 			Euro::newFromCents( 400 ),
 			PaymentInterval::Quarterly,
 			new PaymentReferenceCode( 'XW', 'DARE99', 'X' )
@@ -201,7 +203,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 	public function testCreateDirectDebitPayment(): void {
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->withSucceedingIbanValidationUseCase()
 			->build();
@@ -215,9 +217,9 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( StaticPaymentIDRepository::STATIC_ID, $result->paymentId );
+		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
 		$this->assertPaymentWasStored( DirectDebitPayment::create(
-			StaticPaymentIDRepository::STATIC_ID,
+			self::PAYMENT_ID,
 			Euro::newFromCents( 400 ),
 			PaymentInterval::Quarterly,
 			new Iban( DirectDebitBankData::IBAN ),
@@ -247,7 +249,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$urlGeneratorFactory = $this->createStub( UrlGeneratorFactory::class );
 		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( $urlGenerator );
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new StaticPaymentIDRepository() )
+			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->withUrlGeneratorFactory( $urlGeneratorFactory )
 			->build();
@@ -272,7 +274,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 	}
 
 	private function assertPaymentWasStored( Payment $expectedPayment ): void {
-		$actualPayment = $this->useCaseBuilder->getPaymentRepository()->getPaymentById( StaticPaymentIDRepository::STATIC_ID );
+		$actualPayment = $this->useCaseBuilder->getPaymentRepository()->getPaymentById( self::PAYMENT_ID );
 		$this->assertEquals( $expectedPayment, $actualPayment );
 	}
 }
