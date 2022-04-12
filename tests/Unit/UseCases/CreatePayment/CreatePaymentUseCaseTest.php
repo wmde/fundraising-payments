@@ -142,6 +142,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
+		$this->assertMatchesRegularExpression( '/Sofort.*interval/', $result->errorMessage );
 	}
 
 	public function testCreatePaymentWithInvalidIntervalFails(): void {
@@ -154,6 +155,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
+		$this->assertStringContainsString( 'Interval', $result->errorMessage );
 	}
 
 	public function testCreatePaymentWithInvalidAmountFails(): void {
@@ -166,6 +168,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
+		$this->assertStringContainsString( 'Amount', $result->errorMessage );
 	}
 
 	public function testCreatePaymentWithInvalidPaymentTypeFails(): void {
@@ -178,6 +181,22 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
+		$this->assertStringContainsString( 'payment type', $result->errorMessage );
+	}
+
+	public function testCreatePaymentWithFailingDomainValidationFails(): void {
+		$useCase = $this->useCaseBuilder
+			->withFailingDomainValidator()
+			->build();
+
+		$result = $useCase->createPayment( new PaymentCreationRequest(
+			amountInEuroCents: 500,
+			interval: 0,
+			paymentType: 'PPL',
+		) );
+
+		$this->assertInstanceOf( FailureResponse::class, $result );
+		$this->assertStringContainsString( 'domain check', $result->errorMessage );
 	}
 
 	public function testCreateDirectDebitPayment(): void {
