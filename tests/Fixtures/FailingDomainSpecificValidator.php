@@ -14,7 +14,7 @@ class FailingDomainSpecificValidator implements DomainSpecificPaymentValidator {
 		return ValidationResponse::newFailureResponse( [
 			new ConstraintViolation(
 				$amount->getEuroString(),
-				'The Euro amount failed on purpose in test',
+				'The Euro amount failed the domain check on purpose in test',
 				'amount'
 			)
 		] );
