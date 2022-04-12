@@ -120,6 +120,28 @@ class PayPalPaymentTest extends TestCase {
 		);
 	}
 
+	public function testGetLegacyDataIsEmptyForUnbookedPayments(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+
+		$legacyData = $payment->getLegacyData();
+
+		$this->assertSame( [], $legacyData->paymentSpecificValues );
+		$this->assertSame( 'PPL', $legacyData->paymentName );
+	}
+
+	public function testGetLegacyDataHasDataForBookedPayments(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+
+		$legacyData = $payment->getLegacyData();
+
+		$this->assertNotEmpty( $legacyData->paymentSpecificValues );
+		// spot-check some values to see if we have the right field names
+		$this->assertSame( '42', $legacyData->paymentSpecificValues['paypal_payer_id'] );
+		$this->assertSame( '8RHHUM3W3PRH7QY6B59', $legacyData->paymentSpecificValues['ext_subscr_id'] );
+		$this->assertSame( '2022-01-01 01:01:01', $legacyData->paymentSpecificValues['ext_payment_timestamp'] );
+	}
+
 	private function makeIdGeneratorForFollowupPayments(): PaymentIDRepository {
 		$idGeneratorStub = $this->createStub( PaymentIDRepository::class );
 		$idGeneratorStub->method( 'getNewID' )->willReturn( self::FOLLOWUP_PAYMENT_ID );

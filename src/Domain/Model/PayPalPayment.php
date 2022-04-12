@@ -66,12 +66,15 @@ class PayPalPayment extends Payment implements BookablePayment {
 		return $this;
 	}
 
-	/**
-	 * @return array<string,mixed>
-	 */
-	public function getLegacyData(): array {
-		// TODO checked for booked status
-		return ( new PayPalBookingTransformer( $this->bookingData ) )->getLegacyData();
+	protected function getPaymentName(): string {
+		return self::PAYMENT_METHOD;
+	}
+
+	protected function getPaymentSpecificLegacyData(): array {
+		if ( $this->isBooked() ) {
+			return ( new PayPalBookingTransformer( $this->bookingData ) )->getLegacyData();
+		}
+		return [];
 	}
 
 	/**

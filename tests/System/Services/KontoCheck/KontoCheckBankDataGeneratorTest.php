@@ -8,13 +8,14 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckBankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckIbanValidator;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckBankDataGenerator
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData
  * @requires extension konto_check
  */
 class KontoCheckBankDataGeneratorTest extends TestCase {
@@ -49,7 +50,7 @@ class KontoCheckBankDataGeneratorTest extends TestCase {
 	public function testWhenGivenValidIban_converterReturnsBankData(): void {
 		$bankConverter = $this->newBankDataConverter();
 
-		$bankData = new BankData(
+		$bankData = new ExtendedBankData(
 			new Iban( iban: 'DE12500105170648489890' ),
 			bic: 'INGDDEFFXXX',
 			account: '0648489890',
@@ -66,7 +67,7 @@ class KontoCheckBankDataGeneratorTest extends TestCase {
 	public function testWhenGivenValidNonDEIban_converterReturnsIBAN(): void {
 		$bankConverter = $this->newBankDataConverter();
 
-		$bankData = new BankData(
+		$bankData = new ExtendedBankData(
 			new Iban( iban:'BE68844010370034' ),
 			bic:'',
 			account: '',
@@ -107,7 +108,7 @@ class KontoCheckBankDataGeneratorTest extends TestCase {
 	public function testWhenGivenValidAccountData_converterReturnsBankData(): void {
 		$bankConverter = $this->newBankDataConverter();
 
-		$bankData = new BankData(
+		$bankData = new ExtendedBankData(
 			iban: new Iban( 'DE12500105170648489890' ),
 			bic: 'INGDDEFFXXX',
 			account: '0648489890',

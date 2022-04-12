@@ -14,6 +14,8 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentURLFactory;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 
@@ -22,7 +24,8 @@ class CreatePaymentUseCase {
 		private PaymentIDRepository $idGenerator,
 		private PaymentRepository $paymentRepository,
 		private PaymentReferenceCodeGenerator $paymentReferenceCodeGenerator,
-		private ValidateIbanUseCase $validateIbanUseCase
+		private ValidateIbanUseCase $validateIbanUseCase,
+		private PaymentURLFactory $paymentURLFactory
 	) {
 	}
 
@@ -33,8 +36,10 @@ class CreatePaymentUseCase {
 			return new FailureResponse( $e->getMessage() );
 		}
 
+		$paymentProviderURLGenerator = $this->createPaymentProviderURLGenerator( $payment );
+
 		$this->paymentRepository->storePayment( $payment );
-		return new SuccessResponse( $this->getNextIdOnce() );
+		return new SuccessResponse( $this->getNextIdOnce(), $paymentProviderURLGenerator );
 	}
 
 	private function getNextIdOnce(): int {
@@ -169,6 +174,10 @@ class CreatePaymentUseCase {
 				$e
 			);
 		}
+	}
+
+	private function createPaymentProviderURLGenerator( Payment $payment ): PaymentProviderURLGenerator {
+		return $this->paymentURLFactory->createURLGenerator( $payment );
 	}
 
 }

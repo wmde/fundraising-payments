@@ -65,16 +65,22 @@ class CreditCardPaymentTest extends TestCase {
 		$this->assertEqualsWithDelta( time(), $creditCardPayment->getValuationDate()->getTimestamp(), 5 );
 	}
 
-	public function testGivenBookedPaymentGetLegacyDataReturnsNonEmptyArray(): void {
+	public function testGivenBookedPayment_paymentLegacyDataIsNonEmptyArray(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 		$creditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
-		$this->assertNotEmpty( $creditCardPayment->getLegacyData() );
+		$legacyData = $creditCardPayment->getLegacyData();
+		$this->assertNotEmpty( $legacyData->paymentSpecificValues );
+		// spot-check some values to see if we have the right field names
+		$this->assertSame( '1337', $legacyData->paymentSpecificValues['mcp_amount'] );
+		$this->assertSame( 'customer.prefix-ID2tbnag4a9u', $legacyData->paymentSpecificValues['ext_payment_id'] );
+		$this->assertSame( 'e20fb9d5281c1bca1901c19f6e46213191bb4c17', $legacyData->paymentSpecificValues['ext_payment_account'] );
+		$this->assertNotEmpty( $legacyData->paymentSpecificValues['ext_payment_timestamp'] );
 	}
 
-	public function testGivenNewPaymentGetLegacyDataReturnsEmptyArray(): void {
+	public function testGivenNewPayment_paymentLegacyDataIsEmptyArray(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
-		$this->assertSame( [],  $creditCardPayment->getLegacyData() );
+		$this->assertSame( [],  $creditCardPayment->getLegacyData()->paymentSpecificValues );
 	}
 }

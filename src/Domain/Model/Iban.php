@@ -16,14 +16,6 @@ class Iban {
 		return $this->iban;
 	}
 
-	public function accountNrFromDeIban(): string {
-		return substr( $this->iban, 12 );
-	}
-
-	public function bankCodeFromDeIban(): string {
-		return substr( $this->iban, 4, 8 );
-	}
-
 	public function getCountryCode(): string {
 		return substr( $this->iban, 0, 2 );
 	}

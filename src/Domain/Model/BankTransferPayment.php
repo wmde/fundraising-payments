@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
-use DateTimeImmutable;
 use WMDE\Euro\Euro;
 
 class BankTransferPayment extends Payment {
@@ -35,15 +34,19 @@ class BankTransferPayment extends Payment {
 		return $this->paymentReferenceCode->getFormattedCode();
 	}
 
-	public function getValuationDate(): ?DateTimeImmutable {
-		return null;
-	}
-
-	public function getLegacyData(): array {
-		return [];
-	}
-
 	public function anonymise(): void {
 		$this->paymentReferenceCode = null;
 	}
+
+	protected function getPaymentName(): string {
+		return self::PAYMENT_METHOD;
+	}
+
+	protected function getPaymentSpecificLegacyData(): array {
+		// "ueb_code" is a column name in the legacy "spenden" (donations) database table.
+		// the donation repository code will have to put it there instead of the data blob
+		$paymentReferenceCode = $this->getPaymentReferenceCode();
+		return $paymentReferenceCode ? [ 'ueb_code' => $paymentReferenceCode ] : [];
+	}
+
 }

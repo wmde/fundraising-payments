@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResult;
@@ -192,8 +192,8 @@ class BankDataValidatorTest extends TestCase {
 		];
 	}
 
-	private function newBankData( string $iban, string $bic, string $bankName, string $bankCode, string $account ): BankData {
-		return new BankData( new Iban( $iban ), $bic, $account, $bankCode, $bankName );
+	private function newBankData( string $iban, string $bic, string $bankName, string $bankCode, string $account ): ExtendedBankData {
+		return new ExtendedBankData( new Iban( $iban ), $bic, $account, $bankCode, $bankName );
 	}
 
 	private function newBankDataValidator(): BankDataValidator {

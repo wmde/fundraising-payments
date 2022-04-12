@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\AdditionalPaymentData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPal as PaypalUrlGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
@@ -38,12 +38,12 @@ class PayPalTest extends TestCase {
 	}
 
 	public function testSubscriptions(): void {
-		$additionalPaymentData = new AdditionalPaymentData(
-			"somePaymentReference32",
+		$payment = new PayPalPayment(
+			1234,
 			Euro::newFromString( '12.34' ),
 			PaymentInterval::Quarterly
 		);
-		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), $additionalPaymentData );
+		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), $payment );
 
 		$this->assertUrlValidForSubscriptions(
 			$generator->generateUrl( $this->testRequestContext )
@@ -56,12 +56,12 @@ class PayPalTest extends TestCase {
 	}
 
 	public function testSinglePayments(): void {
-		$additionalPaymentData = new AdditionalPaymentData(
-			'PayMeMoney32',
+		$payment = new PayPalPayment(
+			1234,
 			Euro::newFromString( '12.34' ),
 			PaymentInterval::OneTime
 		);
-		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), $additionalPaymentData );
+		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), $payment );
 
 		$this->assertUrlValidForSinglePayments(
 			$generator->generateUrl( $this->testRequestContext )
@@ -110,12 +110,13 @@ class PayPalTest extends TestCase {
 	}
 
 	public function testDelayedSubscriptions(): void {
-		$additionalPaymentData = new AdditionalPaymentData(
-			'PayPayPayHooray',
+		$payment = new PayPalPayment(
+			1234,
 			Euro::newFromString( '12.34' ),
 			PaymentInterval::Quarterly
 		);
-		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfigWithDelayedPayment(), $additionalPaymentData );
+
+		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfigWithDelayedPayment(), $payment );
 
 		$this->assertUrlValidForDelayedSubscriptions(
 			$generator->generateUrl( $this->testRequestContext )

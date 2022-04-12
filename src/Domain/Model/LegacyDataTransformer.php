@@ -12,9 +12,5 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
  * For bookable payment types (Sofort, Credit Card, PayPal), this should return an empty array when the payment is not booked.
  */
 interface LegacyDataTransformer {
-
-	/**
-	 * @return array<string, mixed>
-	 */
-	public function getLegacyData(): array;
+	public function getLegacyData(): LegacyPaymentData;
 }

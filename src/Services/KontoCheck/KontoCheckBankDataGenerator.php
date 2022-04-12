@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Services\KontoCheck;
 use RuntimeException;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 
 class KontoCheckBankDataGenerator implements BankDataGenerator {
@@ -36,17 +36,17 @@ class KontoCheckBankDataGenerator implements BankDataGenerator {
 	/**
 	 * @param string $account
 	 * @param string $bankCode
-	 * @return BankData
+	 * @return ExtendedBankData
 	 * @throws RuntimeException
 	 */
-	public function getBankDataFromAccountData( string $account, string $bankCode ): BankData {
+	public function getBankDataFromAccountData( string $account, string $bankCode ): ExtendedBankData {
 		$iban = \iban_gen( $bankCode, $account );
 
 		if ( !$iban ) {
 			throw new RuntimeException( 'Could not get IBAN' );
 		}
 
-		return new BankData(
+		return new ExtendedBankData(
 			new Iban( $iban ),
 			\iban2bic( $iban ),
 			$account,
@@ -57,10 +57,10 @@ class KontoCheckBankDataGenerator implements BankDataGenerator {
 
 	/**
 	 * @param Iban $iban
-	 * @return BankData
+	 * @return ExtendedBankData
 	 * @throws \InvalidArgumentException
 	 */
-	public function getBankDataFromIban( Iban $iban ): BankData {
+	public function getBankDataFromIban( Iban $iban ): ExtendedBankData {
 		if ( $this->ibanValidator->validate( $iban->toString() )->hasViolations() ) {
 			throw new \InvalidArgumentException( 'Provided IBAN should be valid' );
 		}
@@ -72,16 +72,27 @@ class KontoCheckBankDataGenerator implements BankDataGenerator {
 
 		if ( $iban->getCountryCode() === 'DE' ) {
 			$bic = \iban2bic( $iban->toString() );
-			$account = $iban->accountNrFromDeIban();
-			$bankCode = $iban->bankCodeFromDeIban();
+			[ $account, $bankCode ] = $this->splitGermanIban( $iban );
 			$bankName = $this->bankNameFromBankCode( $bankCode );
 		}
 
-		return new BankData( $iban, $bic, $account, $bankCode, $bankName );
+		return new ExtendedBankData( $iban, $bic, $account, $bankCode, $bankName );
 	}
 
 	private function bankNameFromBankCode( string $bankCode ): string {
 		return utf8_encode( \lut_name( $bankCode ) );
+	}
+
+	/**
+	 * @param Iban $iban
+	 * @return array{string,string}
+	 */
+	private function splitGermanIban( Iban $iban ): array {
+		$ibanStr = $iban->toString();
+		return [
+			substr( $ibanStr, 12 ),
+			substr( $ibanStr, 4, 8 )
+		];
 	}
 
 }

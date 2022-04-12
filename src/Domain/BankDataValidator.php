@@ -5,7 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Domain;
 
 use WMDE\Fundraising\PaymentContext\Domain\BankDataValidationResult as Result;
-use WMDE\Fundraising\PaymentContext\Domain\Model\BankData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResult;
@@ -28,7 +28,7 @@ class BankDataValidator {
 		$this->ibanValidator = $ibanValidator;
 	}
 
-	public function validate( BankData $bankData ): ValidationResult {
+	public function validate( ExtendedBankData $bankData ): ValidationResult {
 		$this->violations = [];
 
 		if ( $bankData->iban->toString() === '' ) {
