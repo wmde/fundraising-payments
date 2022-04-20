@@ -10,7 +10,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 
-class PaymentURLFactory {
+class PaymentURLFactory implements UrlGeneratorFactory {
 
 	public function __construct(
 		private CreditCardConfig $creditCardConfig,
