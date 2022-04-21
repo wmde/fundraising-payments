@@ -15,23 +15,13 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
  */
 class BankTransferPaymentTest extends TestCase {
 	public function testGivenNewPayment_itReturnsFormattedReferenceCode(): void {
-		$payment = BankTransferPayment::create(
-			1,
-			Euro::newFromCents( 1000 ),
-			PaymentInterval::Monthly,
-			new PaymentReferenceCode( 'XW', 'TARARA', 'X' )
-		);
+		$payment = $this->makeBankTransferPayment();
 
 		$this->assertSame( 'XW-TAR-ARA-X', $payment->getPaymentReferenceCode() );
 	}
 
 	public function testGivenAnonymisedPayment_itReturnsFormattedString(): void {
-		$payment = BankTransferPayment::create(
-			1,
-			Euro::newFromCents( 1000 ),
-			PaymentInterval::Monthly,
-			new PaymentReferenceCode( 'XW', 'TARARA', 'X' )
-		);
+		$payment = $this->makeBankTransferPayment();
 		$payment->anonymise();
 
 		$this->assertSame( '', $payment->getPaymentReferenceCode() );
@@ -52,5 +42,30 @@ class BankTransferPaymentTest extends TestCase {
 		);
 
 		$this->assertEquals( $expectedLegacyData, $payment->getLegacyData() );
+	}
+
+	public function testNewPaymentIsNotCancelled(): void {
+		$payment = $this->makeBankTransferPayment();
+
+		$this->assertFalse( $payment->isCancelled() );
+		$this->assertTrue( $payment->isCancellable() );
+	}
+
+	public function testCancelPayment(): void {
+		$payment = $this->makeBankTransferPayment();
+
+		$payment->cancel();
+
+		$this->assertTrue( $payment->isCancelled() );
+		$this->assertFalse( $payment->isCancellable() );
+	}
+
+	private function makeBankTransferPayment(): BankTransferPayment {
+		return BankTransferPayment::create(
+			1,
+			Euro::newFromCents( 1000 ),
+			PaymentInterval::Monthly,
+			new PaymentReferenceCode( 'XW', 'TARARA', 'X' )
+		);
 	}
 }

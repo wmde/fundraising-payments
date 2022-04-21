@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use WMDE\Euro\Euro;
 
-class BankTransferPayment extends Payment {
+class BankTransferPayment extends Payment implements CancellablePayment {
 
 	private const PAYMENT_METHOD = 'UEB';
 
@@ -16,6 +16,8 @@ class BankTransferPayment extends Payment {
 	 * @var PaymentReferenceCode|null
 	 */
 	private ?PaymentReferenceCode $paymentReferenceCode;
+
+	private bool $isCancelled = false;
 
 	private function __construct( int $id, Euro $amount, PaymentInterval $interval, ?PaymentReferenceCode $paymentReference ) {
 		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
@@ -47,6 +49,18 @@ class BankTransferPayment extends Payment {
 		// the donation repository code will have to put it there instead of the data blob
 		$paymentReferenceCode = $this->getPaymentReferenceCode();
 		return $paymentReferenceCode ? [ 'ueb_code' => $paymentReferenceCode ] : [];
+	}
+
+	public function isCancelled(): bool {
+		return $this->isCancelled;
+	}
+
+	public function cancel(): void {
+		$this->isCancelled = true;
+	}
+
+	public function isCancellable(): bool {
+		return !$this->isCancelled();
 	}
 
 }
