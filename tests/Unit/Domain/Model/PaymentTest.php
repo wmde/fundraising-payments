@@ -34,6 +34,29 @@ class PaymentTest extends TestCase {
 		$this->assertEquals( $expectedLegacyData, $payment->getLegacyData() );
 	}
 
+	public function testGetAmount(): void {
+		$payment = $this->createPayment();
+
+		$this->assertEquals( Euro::newFromCents( 1199 ), $payment->getAmount() );
+	}
+
+	public function testGetInterval(): void {
+		$payment = $this->createPayment();
+
+		$this->assertEquals( PaymentInterval::OneTime, $payment->getInterval() );
+	}
+
+	public function testGetDisplayDataReturnsBasicPaymentDataWithoutLegacyValues(): void {
+		$payment = $this->createPayment();
+		$expectedDisplayData = [
+			'amount' => 1199,
+			'interval' => 0,
+			'paymentType' => 'TST',
+		];
+
+		$this->assertEquals( $expectedDisplayData, $payment->getDisplayValues() );
+	}
+
 	private function createPayment(): Payment {
 		return new class( self::PAYMENT_ID ) extends Payment {
 			public function __construct( int $id ) {
