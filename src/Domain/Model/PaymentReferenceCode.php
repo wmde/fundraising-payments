@@ -23,19 +23,19 @@ class PaymentReferenceCode {
 	public const LENGTH_CHECKSUM = 1;
 	public const READABILITY_DELIMITER = '-';
 
+	private string $formattedCode;
+
 	/**
 	 * @param string $prefix The accounting department uses the prefix to identify different types of payments without needing a lookup for each payment
 	 * @param string $code A unique code, using the allowed character set
 	 * @param string $checksum A Checksum character, derived from the concatenated prefix and code, with the number converted to the allowed characters set (@see ChecksumGenerator)
 	 */
-	public function __construct(
-		private string $prefix,
-		private string $code,
-		private string $checksum
-	) {
+	public function __construct( string $prefix, string $code, string $checksum ) {
 		$this->validate( $prefix, 'prefix', self::LENGTH_PREFIX );
 		$this->validate( $code, 'code', self::LENGTH_CODE );
 		$this->validate( $checksum, 'checksum', self::LENGTH_CHECKSUM );
+
+		$this->formattedCode = implode( self::READABILITY_DELIMITER, [ $prefix, ...str_split( $code, self::LENGTH_CODE / 2 ), $checksum ] );
 	}
 
 	private function validate( string $value, string $paramName, int $expectedLength ): void {
@@ -64,6 +64,6 @@ class PaymentReferenceCode {
 	}
 
 	public function getFormattedCode(): string {
-		return implode( self::READABILITY_DELIMITER, [ $this->prefix, ...str_split( $this->code, self::LENGTH_CODE / 2 ), $this->checksum ] );
+		return $this->formattedCode;
 	}
 }
