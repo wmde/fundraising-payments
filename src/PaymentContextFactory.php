@@ -21,7 +21,6 @@ class PaymentContextFactory {
 		$this->registerDoctrineEuroType( $connection );
 		$this->registerDoctrineIbanType( $connection );
 		$this->registerDoctrinePaymentIntervalType( $connection );
-		$this->registerDoctrinePaymentReferenceCodeType( $connection );
 	}
 
 	public function registerDoctrineEuroType( Connection $connection ): void {
@@ -41,16 +40,6 @@ class PaymentContextFactory {
 		}
 		Type::addType( 'PaymentInterval', 'WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\PaymentInterval' );
 		$connection->getDatabasePlatform()->registerDoctrineTypeMapping( 'PaymentInterval', 'PaymentInterval' );
-		$isRegistered = true;
-	}
-
-	public function registerDoctrinePaymentReferenceCodeType( Connection $connection ): void {
-		static $isRegistered = false;
-		if ( $isRegistered ) {
-			return;
-		}
-		Type::addType( 'PaymentReferenceCode', 'WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\PaymentReferenceCode' );
-		$connection->getDatabasePlatform()->registerDoctrineTypeMapping( 'PaymentReferenceCode', 'PaymentReferenceCode' );
 		$isRegistered = true;
 	}
 

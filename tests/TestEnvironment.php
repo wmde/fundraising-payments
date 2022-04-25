@@ -47,6 +47,7 @@ class TestEnvironment {
 			$schemaCreator->dropSchema();
 		}
 		catch ( \Exception $ex ) {
+			echo $ex->getMessage();
 		}
 
 		$schemaCreator->createSchema();

@@ -32,7 +32,6 @@ use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentRepository
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\Euro
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\PaymentInterval
- * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\PaymentReferenceCode
  * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\Iban
  */
 class DoctrinePaymentRepositoryTest extends TestCase {
@@ -264,6 +263,27 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertNull( $paymentSpy->getPaymentReferenceCode() );
 	}
 
+	public function testOnAnonymiseBankTransferPayment_PaymentReferenceCodeIsKeptAndDetached(): void {
+		$payment = BankTransferPayment::create(
+			1,
+			Euro::newFromInt( 99 ),
+			PaymentInterval::Quarterly,
+			new PaymentReferenceCode( 'XW', 'RAARR4', 'X' )
+		);
+
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+
+		$repo->storePayment( $payment );
+		$payment->anonymise();
+		$repo->storePayment( $payment );
+
+		$insertedPayment = $this->fetchRawBankTransferPaymentData();
+		$keptPaymentReferenceCode = $this->fetchRawPaymentReferenceCode();
+
+		$this->assertNull( $insertedPayment['payment_reference_code'] );
+		$this->assertSame( 'XW-RAA-RR4-X', $keptPaymentReferenceCode['payment_reference_code'] );
+	}
+
 	public function testStoreSofortPayment(): void {
 		$payment = SofortPayment::create(
 			42,
@@ -311,6 +331,30 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertInstanceOf( SofortPayment::class, $payment );
 		$paymentSpy = new SofortPaymentInspector( $payment );
 		$this->assertNull( $paymentSpy->getPaymentReferenceCode() );
+	}
+
+	public function testOnAnonymiseSofortPayment_PaymentReferenceCodeIsKeptAndDetached(): void {
+		$payment = SofortPayment::create(
+			42,
+			Euro::newFromInt( 12 ),
+			PaymentInterval::OneTime,
+			new PaymentReferenceCode( 'XW', 'TARARA', 'X' )
+		);
+		$payment->bookPayment(
+			[ 'transactionId' => 'imatransID42', 'valuationDate' => '2021-06-24T23:00:00Z' ],
+			new DummyPaymentIdRepository()
+		);
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+
+		$repo->storePayment( $payment );
+		$payment->anonymise();
+		$repo->storePayment( $payment );
+
+		$insertedPayment = $this->fetchRawSofortPaymentData();
+		$keptPaymentReferenceCode = $this->fetchRawPaymentReferenceCode();
+
+		$this->assertNull( $insertedPayment['payment_reference_code'] );
+		$this->assertSame( 'XW-TAR-ARA-X', $keptPaymentReferenceCode['payment_reference_code'] );
 	}
 
 	public function testFindPaymentThrowsExceptionWhenPaymentIsNotFound(): void {
@@ -393,9 +437,10 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	 */
 	private function fetchRawBankTransferPaymentData(): array {
 		$data = $this->connection->createQueryBuilder()
-			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'pbt.payment_reference_code' )
+			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'prc.code AS payment_reference_code' )
 			->from( 'payments', 'p' )
-			->join( 'p', 'payments_bank_transfer', 'pbt', 'p.id=pbt.id' )
+			->leftJoin( 'p', 'payments_bank_transfer', 'pbt', 'p.id=pbt.id' )
+			->leftJoin( 'pbt', 'payment_reference_codes', 'prc', 'pbt.payment_reference_code=prc.code' )
 			->where( 'p.id=1' )
 			->fetchAssociative();
 		if ( $data === false ) {
@@ -405,6 +450,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	private function insertRawBankTransferData(): void {
+		$this->connection->insert( 'payment_reference_codes', [ 'code' => 'XW-RAA-RR4-Y' ] );
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'UEB' ] );
 		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'payment_reference_code' => 'XW-RAA-RR4-Y' ] );
 	}
@@ -462,10 +508,11 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 				'p.payment_method',
 				'psub.valuation_date',
 				'psub.transaction_id',
-				'psub.payment_reference_code'
+				'prc.code AS payment_reference_code'
 			)
 			->from( 'payments', 'p' )
-			->join( 'p', 'payments_sofort', 'psub', 'p.id=psub.id' )
+			->leftJoin( 'p', 'payments_sofort', 'psub', 'p.id=psub.id' )
+			->leftJoin( 'psub', 'payment_reference_codes', 'prc', 'psub.payment_reference_code=prc.code' )
 			->where( 'p.id=42' )
 			->fetchAssociative();
 		if ( $data === false ) {
@@ -475,6 +522,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	private function insertRawSofortData(): void {
+		$this->connection->insert( 'payment_reference_codes', [ 'code' => 'XW-TAR-ARA-Y' ] );
 		$this->connection->insert( 'payments', [
 			'id' => 42,
 			'amount' => '1233',
@@ -502,5 +550,20 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			'transaction_id' => 'imatransID42',
 			'payment_reference_code' => null
 		] );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 * @throws \Doctrine\DBAL\Exception
+	 */
+	private function fetchRawPaymentReferenceCode(): array {
+		$data = $this->connection->createQueryBuilder()
+			->select( 'p.code as payment_reference_code' )
+			->from( 'payment_reference_codes', 'p' )
+			->fetchAssociative();
+		if ( $data === false ) {
+			throw new AssertionFailedError( "Expected Payment Reference Code was not found!" );
+		}
+		return $data;
 	}
 }

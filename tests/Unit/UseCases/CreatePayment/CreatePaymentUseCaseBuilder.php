@@ -5,16 +5,15 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CreatePayment;
 
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\NullGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DeterministicPaymentReferenceGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingIbanValidator;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FixedPaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingIbanValidator;
@@ -70,7 +69,7 @@ class CreatePaymentUseCaseBuilder {
 	}
 
 	private function makePaymentReferenceGeneratorStub(): PaymentReferenceCodeGenerator {
-		return new DeterministicPaymentReferenceGenerator( PaymentReferenceCode::ALLOWED_CHARACTERS );
+		return new FixedPaymentReferenceCodeGenerator( [] );
 	}
 
 	private function makePaymentURLFactoryStub(): UrlGeneratorFactory {

@@ -19,7 +19,6 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderUR
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIDRepository;
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
