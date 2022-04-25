@@ -31,7 +31,7 @@ class DoctrinePaymentIDRepositoryTest extends TestCase {
 		$this->assertEquals( 5, $this->makeRepository()->getNewID() );
 	}
 
-	public function testDoctrineReturnsCorrectLAstInsertIDPerConnection(): void {
+	public function testDoctrineReturnsCorrectLastInsertIDPerConnection(): void {
 		$connection1 = $this->makeConnection();
 		$connection2 = $this->makeConnection();
 		$connection3 = $this->makeConnection();

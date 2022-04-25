@@ -9,7 +9,7 @@ use WMDE\Fundraising\PaymentContext\Domain\ChecksumGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 
-class RandomPaymentReferenceCodeGenerator implements PaymentReferenceCodeGenerator {
+class CharacterPickerPaymentReferenceCodeGenerator implements PaymentReferenceCodeGenerator {
 
 	private CharacterIndexGenerator $characterIndexGenerator;
 
@@ -17,13 +17,11 @@ class RandomPaymentReferenceCodeGenerator implements PaymentReferenceCodeGenerat
 	 * @var string[]
 	 */
 	protected array $characters;
-	protected int $characterCount;
 	private int $maxRandom;
 
 	public function __construct( CharacterIndexGenerator $characterIndexGenerator ) {
 		$this->characterIndexGenerator = $characterIndexGenerator;
 		$this->characters = str_split( PaymentReferenceCode::ALLOWED_CHARACTERS );
-		$this->characterCount = count( $this->characters );
 		$this->maxRandom = count( $this->characters ) - 1;
 	}
 
