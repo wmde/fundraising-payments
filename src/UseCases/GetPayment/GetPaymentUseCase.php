@@ -73,7 +73,8 @@ class GetPaymentUseCase {
 			$legacyData->amountInEuroCents,
 			$legacyData->intervalInMonths,
 			$legacyData->paymentName,
-			$this->getLegacyBankdataFieldsArray( $extendedBankData )
+			$this->getLegacyBankdataFieldsArray( $extendedBankData ),
+			$legacyData->paymentStatus
 		);
 	}
 

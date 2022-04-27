@@ -16,6 +16,8 @@ use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
  */
 class CreditCardPayment extends Payment implements BookablePayment {
 
+	use LegacyBookingStatusTrait;
+
 	private const PAYMENT_METHOD = 'MCP';
 
 	/**
@@ -34,7 +36,7 @@ class CreditCardPayment extends Payment implements BookablePayment {
 		return $this->valuationDate;
 	}
 
-	private function isBooked(): bool {
+	public function isBooked(): bool {
 		return $this->valuationDate !== null && !empty( $this->bookingData );
 	}
 
@@ -71,5 +73,4 @@ class CreditCardPayment extends Payment implements BookablePayment {
 			$subtypeValues
 		);
 	}
-
 }

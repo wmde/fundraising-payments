@@ -27,7 +27,8 @@ abstract class Payment implements LegacyDataTransformer {
 			$this->amount->getEuroCents(),
 			$this->interval->value,
 			$this->getPaymentName(),
-			$this->getPaymentSpecificLegacyData()
+			$this->getPaymentSpecificLegacyData(),
+			$this->getLegacyPaymentStatus(),
 		);
 	}
 
@@ -67,4 +68,12 @@ abstract class Payment implements LegacyDataTransformer {
 			"paymentType" => $this->getPaymentName()
 		];
 	}
+
+	/**
+	 * Get the legacy status {@see LegacyPaymentStatus} for possible values
+	 *
+	 * @deprecated See https://phabricator.wikimedia.org/T281853
+	 * @return string
+	 */
+	abstract protected function getLegacyPaymentStatus(): string;
 }
