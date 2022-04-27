@@ -13,6 +13,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
@@ -63,7 +64,13 @@ class GetPaymentUseCaseTest extends TestCase {
 	}
 
 	public function testGivenAPaymentId_itReturnsLegacyDataForPayment(): void {
-		$legacyPaymentData = new LegacyPaymentData( 1299, 12, 'MCP', [] );
+		$legacyPaymentData = new LegacyPaymentData(
+			1299,
+			12,
+			'MCP',
+			[],
+			LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value
+		);
 		$payment = $this->createStub( CreditCardPayment::class );
 		$payment->method( 'getLegacyData' )->willReturn( $legacyPaymentData );
 		$useCase = new GetPaymentUseCase( new PaymentRepositorySpy( [ 7 => $payment ] ), $this->makeBankDataGeneratorDummy() );
@@ -84,7 +91,13 @@ class GetPaymentUseCaseTest extends TestCase {
 	}
 
 	public function testGivenADirectDebitPayment_itLooksUpAdditionalBankData(): void {
-		$legacyPaymentData = new LegacyPaymentData( 1299, 12, 'BEZ', [ 'iban' => 'DE02100500000054540402' ] );
+		$legacyPaymentData = new LegacyPaymentData(
+			1299,
+			12,
+			'BEZ',
+			[ 'iban' => 'DE02100500000054540402' ],
+			LegacyPaymentStatus::DIRECT_DEBIT->value
+		);
 		$payment = $this->createStub( DirectDebitPayment::class );
 		$payment->method( 'getLegacyData' )->willReturn( $legacyPaymentData );
 		$payment->method( 'getIban' )->willReturn( new Iban( 'DE02100500000054540402' ) );

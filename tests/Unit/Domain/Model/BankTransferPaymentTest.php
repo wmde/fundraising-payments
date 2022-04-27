@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 
@@ -38,7 +39,27 @@ class BankTransferPaymentTest extends TestCase {
 			7821,
 			1,
 			'UEB',
-			[ 'ueb_code' => 'XW-TAR-ARA-X' ]
+			[ 'ueb_code' => 'XW-TAR-ARA-X' ],
+			LegacyPaymentStatus::BANK_TRANSFER->value
+		);
+
+		$this->assertEquals( $expectedLegacyData, $payment->getLegacyData() );
+	}
+
+	public function testGetLegacyDataForCancelledPayment(): void {
+		$payment = BankTransferPayment::create(
+			1,
+			Euro::newFromCents( 7821 ),
+			PaymentInterval::Monthly,
+			new PaymentReferenceCode( 'XW', 'TARARA', 'X' )
+		);
+		$payment->cancel();
+		$expectedLegacyData = new LegacyPaymentData(
+			7821,
+			1,
+			'UEB',
+			[ 'ueb_code' => 'XW-TAR-ARA-X' ],
+			LegacyPaymentStatus::CANCELLED->value
 		);
 
 		$this->assertEquals( $expectedLegacyData, $payment->getLegacyData() );

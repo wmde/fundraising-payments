@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Tests\Data\CreditCardPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
@@ -82,6 +83,15 @@ class CreditCardPaymentTest extends TestCase {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
 		$this->assertSame( [],  $creditCardPayment->getLegacyData()->paymentSpecificValues );
+	}
+
+	public function testStatusInLegacyDataChangesWithBookedStatus(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$bookedCreditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$bookedCreditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+
+		$this->assertSame( LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value, $creditCardPayment->getLegacyData()->paymentStatus );
+		$this->assertSame( LegacyPaymentStatus::EXTERNAL_BOOKED->value, $bookedCreditCardPayment->getLegacyData()->paymentStatus );
 	}
 
 	public function testGetDisplayDataReturnsAllFieldsToDisplayForBookedPayment(): void {

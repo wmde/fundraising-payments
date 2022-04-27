@@ -5,6 +5,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
@@ -120,13 +121,14 @@ class PayPalPaymentTest extends TestCase {
 		);
 	}
 
-	public function testGetLegacyDataIsEmptyForUnbookedPayments(): void {
+	public function testGetLegacyDataForUnbookedPayments(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
 
 		$legacyData = $payment->getLegacyData();
 
 		$this->assertSame( [], $legacyData->paymentSpecificValues );
 		$this->assertSame( 'PPL', $legacyData->paymentName );
+		$this->assertSame( LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value, $legacyData->paymentStatus );
 	}
 
 	public function testGetLegacyDataHasDataForBookedPayments(): void {
@@ -140,6 +142,8 @@ class PayPalPaymentTest extends TestCase {
 		$this->assertSame( '42', $legacyData->paymentSpecificValues['paypal_payer_id'] );
 		$this->assertSame( '8RHHUM3W3PRH7QY6B59', $legacyData->paymentSpecificValues['ext_subscr_id'] );
 		$this->assertSame( '2022-01-01 01:01:01', $legacyData->paymentSpecificValues['ext_payment_timestamp'] );
+		// Check booked status
+		$this->assertSame( LegacyPaymentStatus::EXTERNAL_BOOKED->value, $legacyData->paymentStatus );
 	}
 
 	public function testGetDisplayDataReturnsAllFieldsToDisplayForBookedPayment(): void {
