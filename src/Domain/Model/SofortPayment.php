@@ -12,6 +12,8 @@ use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 
 class SofortPayment extends Payment implements BookablePayment {
 
+	use LegacyBookingStatusTrait;
+
 	private const PAYMENT_METHOD = 'SUB';
 
 	/**
@@ -46,6 +48,10 @@ class SofortPayment extends Payment implements BookablePayment {
 
 	public function getValuationDate(): ?DateTimeImmutable {
 		return $this->valuationDate;
+	}
+
+	public function isBooked(): bool {
+		return $this->valuationDate !== null && $this->transactionId !== null;
 	}
 
 	public function canBeBooked( array $transactionData ): bool {
