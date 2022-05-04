@@ -81,6 +81,10 @@ class PaymentTest extends TestCase {
 			protected function getLegacyPaymentStatus(): string {
 				return 'Y';
 			}
+
+			public function isCompleted(): bool {
+				return false;
+			}
 		};
 	}
 }

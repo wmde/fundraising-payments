@@ -31,10 +31,11 @@ class SofortPaymentTest extends TestCase {
 		$this->assertSame( '', $sofortPayment->getPaymentReferenceCode() );
 	}
 
-	public function testNewSofortPaymentsAreUnbooked(): void {
+	public function testNewSofortPaymentsAreUnbookedAndIncomplete(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
 		$this->assertTrue( $sofortPayment->canBeBooked( $this->makeValidTransactionData() ) );
+		$this->assertFalse( $sofortPayment->isCompleted() );
 	}
 
 	public function testGivenNonOneTimePaymentIntervalThrowsException(): void {
@@ -48,6 +49,7 @@ class SofortPaymentTest extends TestCase {
 
 		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 
+		$this->assertTrue( $sofortPayment->isCompleted() );
 		$this->assertFalse( $sofortPayment->canBeBooked( $this->makeValidTransactionData() ) );
 	}
 
