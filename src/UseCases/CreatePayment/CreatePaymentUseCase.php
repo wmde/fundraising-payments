@@ -5,6 +5,7 @@ namespace WMDE\Fundraising\PaymentContext\UseCases\CreatePayment;
 
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
@@ -47,7 +48,7 @@ class CreatePaymentUseCase {
 		$paymentProviderURLGenerator = $this->createPaymentProviderURLGenerator( $payment );
 
 		$this->paymentRepository->storePayment( $payment );
-		return new SuccessResponse( $payment->getId(), $paymentProviderURLGenerator );
+		return new SuccessResponse( $payment->getId(), $paymentProviderURLGenerator, $this->getPaymentComplete( $payment ) );
 	}
 
 	/**
@@ -145,6 +146,10 @@ class CreatePaymentUseCase {
 
 	private function createPaymentProviderURLGenerator( Payment $payment ): PaymentProviderURLGenerator {
 		return $this->paymentURLFactory->createURLGenerator( $payment );
+	}
+
+	private function getPaymentComplete( Payment $payment ): bool {
+		return !( $payment instanceof BookablePayment );
 	}
 
 }
