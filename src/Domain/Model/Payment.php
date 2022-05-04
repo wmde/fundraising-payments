@@ -76,4 +76,6 @@ abstract class Payment implements LegacyDataTransformer {
 	 * @return string
 	 */
 	abstract protected function getLegacyPaymentStatus(): string;
+
+	abstract public function isCompleted(): bool;
 }

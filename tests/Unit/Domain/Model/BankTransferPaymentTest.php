@@ -107,4 +107,10 @@ class BankTransferPaymentTest extends TestCase {
 
 		$this->assertEquals( $expectedOutput, $payment->getDisplayValues() );
 	}
+
+	public function testBankTransferPaymentsAreAlwaysImmediatelyCompletedPayments(): void {
+		$payment = $this->makeBankTransferPayment();
+
+		$this->assertTrue( $payment->isCompleted() );
+	}
 }

@@ -80,4 +80,8 @@ class BankTransferPayment extends Payment implements CancellablePayment {
 		}
 		return LegacyPaymentStatus::BANK_TRANSFER->value;
 	}
+
+	public function isCompleted(): bool {
+		return true;
+	}
 }

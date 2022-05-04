@@ -90,6 +90,12 @@ class DirectDebitPaymentTest extends TestCase {
 		$this->assertEquals( $expectedOutput, $payment->getDisplayValues() );
 	}
 
+	public function testDirectDebitPaymentsAreAlwaysImmediatelyCompletedPayments(): void {
+		$payment = $this->makeDirectDebitPayment();
+
+		$this->assertTrue( $payment->isCompleted() );
+	}
+
 	private function makeDirectDebitPayment(): DirectDebitPayment {
 		return DirectDebitPayment::create(
 			self::PAYMENT_ID,

@@ -21,9 +21,10 @@ class PayPalPaymentTest extends TestCase {
 	private const PAYER_ID = '42';
 	private const FOLLOWUP_PAYMENT_ID = 99;
 
-	public function testNewPayPalPaymentsAreUnbooked(): void {
+	public function testNewPayPalPaymentsAreUnbookedAndIncomplete(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
 		$this->assertTrue( $payment->canBeBooked( PayPalPaymentBookingData::newValidBookingData() ) );
+		$this->assertFalse( $payment->isCompleted() );
 	}
 
 	public function testCompletePaymentWithEmptyTransactionDataFails(): void {
@@ -41,6 +42,7 @@ class PayPalPaymentTest extends TestCase {
 		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
 		$this->assertTrue( $payment->isBooked() );
+		$this->assertTrue( $payment->isCompleted() );
 	}
 
 	public function testBookPaymentSetsValuationDate(): void {

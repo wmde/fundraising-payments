@@ -87,4 +87,8 @@ class DirectDebitPayment extends Payment implements CancellablePayment {
 		}
 		return LegacyPaymentStatus::DIRECT_DEBIT->value;
 	}
+
+	public function isCompleted(): bool {
+		return true;
+	}
 }
