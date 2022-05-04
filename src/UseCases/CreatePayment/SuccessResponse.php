@@ -8,7 +8,8 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderUR
 class SuccessResponse {
 	public function __construct(
 		public readonly int $paymentId,
-		public readonly PaymentProviderURLGenerator $paymentProviderURLGenerator
+		public readonly PaymentProviderURLGenerator $paymentProviderURLGenerator,
+		public readonly bool $paymentComplete
 	) {
 	}
 }

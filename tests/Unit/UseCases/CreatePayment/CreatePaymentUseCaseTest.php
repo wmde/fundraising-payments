@@ -53,6 +53,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
 		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+		$this->assertFalse( $result->paymentComplete );
 		$this->assertPaymentWasStored(
 			new CreditCardPayment(
 				self::PAYMENT_ID,
@@ -76,6 +77,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
 		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+		$this->assertFalse( $result->paymentComplete );
 		$this->assertPaymentWasStored(
 			new PayPalPayment(
 				self::PAYMENT_ID,
@@ -101,6 +103,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
 		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+		$this->assertFalse( $result->paymentComplete );
 		$this->assertPaymentWasStored( SofortPayment::create(
 			self::PAYMENT_ID,
 			Euro::newFromCents( 100 ),
@@ -125,11 +128,39 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
 		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+		$this->assertTrue( $result->paymentComplete );
 		$this->assertPaymentWasStored( BankTransferPayment::create(
 			self::PAYMENT_ID,
 			Euro::newFromCents( 400 ),
 			PaymentInterval::Quarterly,
 			new PaymentReferenceCode( 'XW', 'DARE99', 'X' )
+		) );
+	}
+
+	public function testCreateDirectDebitPayment(): void {
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
+			->withPaymentRepositorySpy()
+			->withSucceedingIbanValidationUseCase()
+			->build();
+
+		$result = $useCase->createPayment( new PaymentCreationRequest(
+			amountInEuroCents: 400,
+			interval: 3,
+			paymentType: 'BEZ',
+			iban: DirectDebitBankData::IBAN,
+			bic: DirectDebitBankData::BIC
+		) );
+
+		$this->assertInstanceOf( SuccessResponse::class, $result );
+		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+		$this->assertTrue( $result->paymentComplete );
+		$this->assertPaymentWasStored( DirectDebitPayment::create(
+			self::PAYMENT_ID,
+			Euro::newFromCents( 400 ),
+			PaymentInterval::Quarterly,
+			new Iban( DirectDebitBankData::IBAN ),
+			DirectDebitBankData::BIC
 		) );
 	}
 
@@ -199,32 +230,6 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
 		$this->assertStringContainsString( 'domain check', $result->errorMessage );
-	}
-
-	public function testCreateDirectDebitPayment(): void {
-		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
-			->withPaymentRepositorySpy()
-			->withSucceedingIbanValidationUseCase()
-			->build();
-
-		$result = $useCase->createPayment( new PaymentCreationRequest(
-			amountInEuroCents: 400,
-			interval: 3,
-			paymentType: 'BEZ',
-			iban: DirectDebitBankData::IBAN,
-			bic: DirectDebitBankData::BIC
-		) );
-
-		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
-		$this->assertPaymentWasStored( DirectDebitPayment::create(
-			self::PAYMENT_ID,
-			Euro::newFromCents( 400 ),
-			PaymentInterval::Quarterly,
-			new Iban( DirectDebitBankData::IBAN ),
-			DirectDebitBankData::BIC
-		) );
 	}
 
 	public function testCreateDirectDebitPaymentWithInvalidIbanFails(): void {
