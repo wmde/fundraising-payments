@@ -73,4 +73,8 @@ class CreditCardPayment extends Payment implements BookablePayment {
 			$subtypeValues
 		);
 	}
+
+	public function isCompleted(): bool {
+		return $this->isBooked();
+	}
 }
