@@ -11,6 +11,9 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
 use WMDE\Fundraising\PaymentContext\PaymentContextFactory;
 
+/**
+ * @phpstan-import-type Params from DriverManager
+ */
 class TestPaymentContextFactory {
 
 	private Configuration $doctrineConfig;
@@ -18,7 +21,7 @@ class TestPaymentContextFactory {
 	private ?EntityManager $entityManager;
 
 	/**
-	 * @param array{db:array<string,mixed>} $config
+	 * @param array{db:Params} $config
 	 */
 	public function __construct( private array $config ) {
 		$this->doctrineConfig = Setup::createConfiguration( true );
