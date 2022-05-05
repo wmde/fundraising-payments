@@ -4,10 +4,13 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests;
 
+/**
+ * @phpstan-import-type Params from \Doctrine\DBAL\DriverManager
+ */
 class TestEnvironment {
 
 	/**
-	 * @var array{db:array<string,mixed>}
+	 * @var array{db:Params}
 	 */
 	private array $config;
 	private TestPaymentContextFactory $factory;
@@ -33,7 +36,7 @@ class TestEnvironment {
 	}
 
 	/**
-	 * @param array{db:array<string,mixed>} $config
+	 * @param array{db:Params} $config
 	 */
 	private function __construct( array $config ) {
 		$this->config = $config;
