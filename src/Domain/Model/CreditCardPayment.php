@@ -49,6 +49,13 @@ class CreditCardPayment extends Payment implements BookablePayment {
 		if ( $this->isBooked() ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
+		if ( !$this->getAmount()->equals( $transformer->getAmount() ) ) {
+			throw new \UnexpectedValueException( sprintf(
+				'Payment amount in transaction data (%s) must match original payment amount (%s)',
+				$transformer->getAmount()->getEuroString(),
+				$this->getAmount()->getEuroString()
+			) );
+		}
 		$this->bookingData = $transformer->getBookingData();
 		$this->valuationDate = $transformer->getValuationDate();
 		return $this;

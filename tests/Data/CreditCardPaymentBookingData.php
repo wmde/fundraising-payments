@@ -6,14 +6,14 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Data;
 class CreditCardPaymentBookingData {
 
 	/**
+	 * @param int $amount
 	 * @return array<string,mixed>
 	 */
-	public static function newValidBookingData(): array {
+	public static function newValidBookingData( int $amount = 100_000 ): array {
 		return [
 			'function' => 'billing',
 			'donation_id' => 1,
-			// Amount should match ValidDonation::DONATION_AMOUNT
-			'amount' => 1337,
+			'amount' => $amount,
 			'transactionId' => 'customer.prefix-ID2tbnag4a9u',
 			'customerId' => 'e20fb9d5281c1bca1901c19f6e46213191bb4c17',
 			'sessionId' => 'CC13064b2620f4028b7d340e3449676213336a4d',

@@ -50,7 +50,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	public function testStoreCreditCardPayment(): void {
 		$payment = new CreditCardPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
-		$payment->bookPayment( [ 'transactionId' => 'badcaffee' ], new DummyPaymentIdRepository() );
+		$payment->bookPayment( [ 'transactionId' => 'badcaffee', 'amount' => 9900 ], new DummyPaymentIdRepository() );
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 
 		$repo->storePayment( $payment );
@@ -60,12 +60,12 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( 3, $insertedPayment['payment_interval'] );
 		$this->assertSame( 'MCP', $insertedPayment['payment_method'] );
 		$this->assertNotNull( $insertedPayment['valuation_date'] );
-		$this->assertSame( '{"transactionId":"badcaffee"}', $insertedPayment['booking_data'] );
+		$this->assertSame( '{"transactionId":"badcaffee","amount":"9900"}', $insertedPayment['booking_data'] );
 	}
 
 	public function testRepositoryPreventsOverridingPaymentsWithTheSameId(): void {
 		$firstPayment = new CreditCardPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
-		$firstPayment->bookPayment( [ 'transactionId' => 'badcaffee' ], new DummyPaymentIdRepository() );
+		$firstPayment->bookPayment( [ 'transactionId' => 'badcaffee', 'amount' => 9900 ], new DummyPaymentIdRepository() );
 		$secondPayment = new CreditCardPayment( 1, Euro::newFromInt( 42 ), PaymentInterval::Monthly );
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 		$repo->storePayment( $firstPayment );
@@ -374,7 +374,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		// the real test is that we avoid the PaymentOverrideException when storing again
 		$this->assertInstanceOf( CreditCardPayment::class, $payment );
 
-		$payment->bookPayment( [ 'transactionId' => 'badcaffee' ], new DummyPaymentIdRepository() );
+		$payment->bookPayment( [ 'transactionId' => 'badcaffee', 'amount' => 4223 ], new DummyPaymentIdRepository() );
 		$repo->storePayment( $payment );
 	}
 

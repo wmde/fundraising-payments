@@ -47,10 +47,13 @@ class BookPaymentUseCaseTest extends TestCase {
 			->with( $payment );
 
 		$useCase = $this->makeBookPaymentUseCase( $repo );
-		$response = $useCase->bookPayment( self::PAYMENT_ID, CreditCardPaymentBookingData::newValidBookingData() );
+
+		$request = CreditCardPaymentBookingData::newValidBookingData( 1122 );
+
+		$response = $useCase->bookPayment( self::PAYMENT_ID, $request );
 
 		$this->assertInstanceOf( SuccessResponse::class, $response );
-		$this->assertFalse( $payment->canBeBooked( CreditCardPaymentBookingData::newValidBookingData() ) );
+		$this->assertFalse( $payment->canBeBooked( $request ) );
 	}
 
 	public function testBookingMissingPaymentWillReturnFailureResult(): void {
@@ -79,7 +82,7 @@ class BookPaymentUseCaseTest extends TestCase {
 	public function testBookingBookedPaymentsWillReturnFailureResponse(): void {
 		$idGenerator = $this->makePaymentIdGenerator();
 		$payment = $this->makeCreditCardPayment();
-		$payment->bookPayment( [ 'transactionId' => 'deadbeef' ], $idGenerator );
+		$payment->bookPayment( [ 'transactionId' => 'deadbeef', 'amount' => 1122 ], $idGenerator );
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
 		$useCase = new BookPaymentUseCase( $repo, $idGenerator, $this->makeSucceedingVerificationServiceFactory() );
 

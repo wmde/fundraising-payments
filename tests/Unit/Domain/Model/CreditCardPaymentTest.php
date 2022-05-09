@@ -56,6 +56,22 @@ class CreditCardPaymentTest extends TestCase {
 		);
 	}
 
+	public function testBookPaymentWithMismatchedAmountFails(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+
+		$this->expectException( \UnexpectedValueException::class );
+		$this->expectExceptionMessageMatches( '/amount/' );
+
+		$creditCardPayment->bookPayment(
+			[
+				...CreditCardPaymentBookingData::newValidBookingData(),
+				'transactionId' => self::OTHER_TRANSACTION_ID,
+				'amount' => '1337'
+			],
+			new DummyPaymentIdRepository()
+		);
+	}
+
 	public function testBookPaymentWithValidTransactionMarksItBooked(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
@@ -75,7 +91,7 @@ class CreditCardPaymentTest extends TestCase {
 		$legacyData = $creditCardPayment->getLegacyData();
 		$this->assertNotEmpty( $legacyData->paymentSpecificValues );
 		// spot-check some values to see if we have the right field names
-		$this->assertSame( '1337', $legacyData->paymentSpecificValues['mcp_amount'] );
+		$this->assertSame( '100000', $legacyData->paymentSpecificValues['mcp_amount'] );
 		$this->assertSame( 'customer.prefix-ID2tbnag4a9u', $legacyData->paymentSpecificValues['ext_payment_id'] );
 		$this->assertSame( 'e20fb9d5281c1bca1901c19f6e46213191bb4c17', $legacyData->paymentSpecificValues['ext_payment_account'] );
 		$this->assertNotEmpty( $legacyData->paymentSpecificValues['ext_payment_timestamp'] );
@@ -105,7 +121,7 @@ class CreditCardPaymentTest extends TestCase {
 			'interval' => 1,
 			'paymentType' => 'MCP',
 			'ext_payment_id' => 'customer.prefix-ID2tbnag4a9u',
-			'mcp_amount' => '1337',
+			'mcp_amount' => '100000',
 			'ext_payment_account' => 'e20fb9d5281c1bca1901c19f6e46213191bb4c17',
 			'mcp_sessionid' => 'CC13064b2620f4028b7d340e3449676213336a4d',
 			'mcp_auth' => 'd1d6fae40cf96af52477a9e521558ab7',
