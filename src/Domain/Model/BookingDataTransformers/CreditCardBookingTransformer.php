@@ -4,9 +4,12 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers;
 
+use WMDE\Euro\Euro;
+
 class CreditCardBookingTransformer {
 
 	private const TRANSACTION_ID_KEY = 'transactionId';
+	private const AMOUNT_KEY = 'amount';
 
 	private const LEGACY_KEY_MAP = [
 		'ext_payment_id' => 'transactionId',
@@ -48,6 +51,14 @@ class CreditCardBookingTransformer {
 		return strval( $this->rawBookingData[self::TRANSACTION_ID_KEY] );
 	}
 
+	/**
+	 * @return Euro
+	 * @throws \InvalidArgumentException
+	 */
+	public function getAmount(): Euro {
+		return Euro::newFromCents( intval( $this->rawBookingData[self::AMOUNT_KEY] ) );
+	}
+
 	public function getValuationDate(): \DateTimeImmutable {
 		return $this->valuationDate;
 	}
@@ -60,6 +71,9 @@ class CreditCardBookingTransformer {
 	private function validateRawData( array $rawBookingData ): void {
 		if ( empty( $rawBookingData[self::TRANSACTION_ID_KEY] ) ) {
 			throw new \InvalidArgumentException( sprintf( "%s was not provided", self::TRANSACTION_ID_KEY ) );
+		}
+		if ( empty( $rawBookingData[self::AMOUNT_KEY] ) ) {
+			throw new \InvalidArgumentException( sprintf( "%s was not provided", self::AMOUNT_KEY ) );
 		}
 	}
 
