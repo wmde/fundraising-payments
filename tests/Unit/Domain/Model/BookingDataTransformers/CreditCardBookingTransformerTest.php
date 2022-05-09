@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model\BookingDataTransformers;
 
 use PHPUnit\Framework\TestCase;
+use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\CreditCardBookingTransformer;
 
 /**
@@ -15,7 +16,7 @@ class CreditCardBookingTransformerTest extends TestCase {
 	public function testGetBookingDataReturnsArrayOfStrings(): void {
 		$transformer = new CreditCardBookingTransformer( [
 			'transactionId' => 1,
-			'amount' => 1.23,
+			'amount' => 123,
 			'sessionId' => 'deadbeef'
 		] );
 
@@ -24,7 +25,7 @@ class CreditCardBookingTransformerTest extends TestCase {
 		$this->assertSame(
 			[
 				'transactionId' => '1',
-				'amount' => '1.23',
+				'amount' => '123',
 				'sessionId' => 'deadbeef'
 			],
 			$result
@@ -34,17 +35,27 @@ class CreditCardBookingTransformerTest extends TestCase {
 	public function testGetTransactionIdReturnsTransactionId(): void {
 		$transformer = new CreditCardBookingTransformer( [
 			'transactionId' => 1,
-			'amount' => 1.23,
+			'amount' => 123,
 			'sessionId' => 'deadbeef'
 		] );
 
 		$this->assertSame( '1', $transformer->getTransactionId() );
 	}
 
+	public function testGetAmountReturnsAmountObject(): void {
+		$transformer = new CreditCardBookingTransformer( [
+			'transactionId' => 1,
+			'amount' => 123,
+			'sessionId' => 'deadbeef'
+		] );
+
+		$this->assertEquals( Euro::newFromCents( 123 ), $transformer->getAmount() );
+	}
+
 	public function testGivenNoValuationDateAndGetValuationDateReturnsCurrentDateTime(): void {
 		$transformer = new CreditCardBookingTransformer( [
 			'transactionId' => 1,
-			'amount' => 1.23,
+			'amount' => 123,
 			'sessionId' => 'deadbeef'
 		] );
 
@@ -55,7 +66,7 @@ class CreditCardBookingTransformerTest extends TestCase {
 		$valuationDate = new \DateTimeImmutable();
 		$transformer = new CreditCardBookingTransformer( [
 			'transactionId' => 1,
-			'amount' => 1.23,
+			'amount' => 123,
 			'sessionId' => 'deadbeef'
 		], $valuationDate );
 
@@ -67,7 +78,7 @@ class CreditCardBookingTransformerTest extends TestCase {
 		$this->expectExceptionMessage( 'transactionId was not provided' );
 
 		new CreditCardBookingTransformer( [
-			'amount' => 1.23,
+			'amount' => 123,
 			'sessionId' => 'deadbeef'
 		] );
 	}
@@ -75,7 +86,7 @@ class CreditCardBookingTransformerTest extends TestCase {
 	public function testLegacyFieldsGetTransformed(): void {
 		$transformer = new CreditCardBookingTransformer( [
 			'transactionId' => 1,
-			'amount' => 1.23,
+			'amount' => 123,
 			'sessionId' => 'deadbeef',
 			'country' => 'de',
 			'currency' => 'EUR',
@@ -93,7 +104,7 @@ class CreditCardBookingTransformerTest extends TestCase {
 				'ext_payment_id' => 1,
 				'ext_payment_status' => 'processed',
 				'ext_payment_timestamp' => '1984-12-12T00:00:00+00:00',
-				'mcp_amount' => 1.23,
+				'mcp_amount' => 123,
 				'ext_payment_account' => 4711,
 				'mcp_sessionid' => 'deadbeef',
 				'mcp_auth' => 'my-auth-key',
