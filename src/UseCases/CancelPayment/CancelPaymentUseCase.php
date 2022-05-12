@@ -23,12 +23,8 @@ class CancelPaymentUseCase {
 			return new FailureResponse( $e->getMessage() );
 		}
 
-		if ( !( $payment instanceof CancellablePayment ) ) {
-			throw new \RuntimeException( 'Tried to cancel an non-cancellable payment' );
-		}
-
-		if ( !$payment->isCancellable() ) {
-			return new FailureResponse( 'This payment is already cancelled' );
+		if ( !( $payment instanceof CancellablePayment ) || !$payment->isCancellable() ) {
+			return new FailureResponse( 'This payment can\'t be canceled - it is already cancelled or does not support cancellation' );
 		}
 
 		$payment->cancel();
