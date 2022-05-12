@@ -64,14 +64,14 @@ class CancelPaymentUseCaseTest extends TestCase {
 		$this->assertSame( 'Me fail English, that\'s unpossible', $response->message );
 	}
 
-	public function testCancelNonCancellablePaymentThrowsException(): void {
+	public function testCancelNonCancellablePaymentReturnsFailureResponse(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 100 ), PaymentInterval::OneTime );
 		$repository = new PaymentRepositorySpy( [ 1 => $payment ] );
 
 		$useCase = new CancelPaymentUseCase( $repository );
+		$response = $useCase->cancelPayment( 1 );
 
-		$this->expectException( \RuntimeException::class );
-		$useCase->cancelPayment( 1 );
+		$this->assertInstanceOf( FailureResponse::class, $response );
 	}
 
 	private function makeDirectDebitPayment(): DirectDebitPayment {
