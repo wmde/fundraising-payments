@@ -6,10 +6,9 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
-use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 
 /**
- * @covers WMDE\Fundraising\PaymentContext\Domain\IbanBlockList
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\IbanBlockList
  */
 class IbanBlocklistTest extends TestCase {
 
