@@ -8,6 +8,6 @@ use WMDE\FunValidators\ValidationResult;
 
 interface IbanValidator {
 
-	public function validate( string $value, string $fieldName = '' ): ValidationResult;
+	public function validate( string $iban, string $fieldName = '' ): ValidationResult;
 
 }

@@ -7,9 +7,6 @@ namespace WMDE\Fundraising\PaymentContext\Domain;
 use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 
-/**
- * TODO: Move the implementation to this context so this interface is not longer orphaned
- */
 interface BankDataGenerator {
 
 	public function getBankDataFromAccountData( string $account, string $bankCode ): ExtendedBankData;
