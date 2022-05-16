@@ -11,8 +11,13 @@ use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
 class PaymentContextFactory {
 
-	private const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping';
+	public const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping';
 
+	/**
+	 * @return MappingDriver
+	 * @deprecated We no longer have a mix of mapping drivers.
+	 *     Use {@see XmlDriver} with an array containing {@see PaymentContextFactory::DOCTRINE_CLASS_MAPPING_DIRECTORY}} instead.
+	 */
 	public function newMappingDriver(): MappingDriver {
 		return new XmlDriver( self::DOCTRINE_CLASS_MAPPING_DIRECTORY );
 	}
