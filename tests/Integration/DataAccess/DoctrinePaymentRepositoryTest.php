@@ -452,12 +452,12 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	private function insertRawBankTransferData(): void {
 		$this->connection->insert( 'payment_reference_codes', [ 'code' => 'XW-RAA-RR4-Y' ] );
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'UEB' ] );
-		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'payment_reference_code' => 'XW-RAA-RR4-Y' ] );
+		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'payment_reference_code' => 'XW-RAA-RR4-Y', 'is_cancelled' => 0 ] );
 	}
 
 	private function insertRawAnonymisedBankTransferData(): void {
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'UEB' ] );
-		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'payment_reference_code' => null ] );
+		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'payment_reference_code' => null, 'is_cancelled' => 0 ] );
 	}
 
 	/**
@@ -469,14 +469,14 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	private function insertRawDirectDebitPaymentData( array $extraData = [] ): void {
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'BEZ' ] );
 		$this->connection->insert( 'payments_direct_debit', array_merge(
-			[ 'id' => 1, 'iban' => self::IBAN, 'bic' => self::BIC, 'is_cancelled' => false ],
+			[ 'id' => 1, 'iban' => self::IBAN, 'bic' => self::BIC, 'is_cancelled' => 0 ],
 			$extraData
 		) );
 	}
 
 	private function insertRawAnonymisedDirectDebitPaymentData(): void {
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'BEZ' ] );
-		$this->connection->insert( 'payments_direct_debit', [ 'id' => 1, 'iban' => null, 'bic' => null, 'is_cancelled' => false ] );
+		$this->connection->insert( 'payments_direct_debit', [ 'id' => 1, 'iban' => null, 'bic' => null, 'is_cancelled' => 0 ] );
 	}
 
 	/**
@@ -531,7 +531,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		] );
 		$this->connection->insert( 'payments_sofort', [
 			'id' => 42,
-			'valuation_date' => '2021-06-24T23:00:00Z',
+			'valuation_date' => '2021-06-24 23:00:00',
 			'transaction_id' => 'imatransID42',
 			'payment_reference_code' => 'XW-TAR-ARA-Y'
 		] );
