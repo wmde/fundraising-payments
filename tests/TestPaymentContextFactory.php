@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\ORMSetup;
 use WMDE\Fundraising\PaymentContext\PaymentContextFactory;
 
 /**
@@ -24,7 +24,10 @@ class TestPaymentContextFactory {
 	 * @param array{db:Params} $config
 	 */
 	public function __construct( private array $config ) {
-		$this->doctrineConfig = Setup::createConfiguration( true );
+		$this->doctrineConfig = ORMSetup::createXMLMetadataConfiguration(
+			[ PaymentContextFactory::DOCTRINE_CLASS_MAPPING_DIRECTORY ],
+			true
+		);
 		$this->contextFactory = new PaymentContextFactory();
 		$this->entityManager = null;
 	}
@@ -37,7 +40,6 @@ class TestPaymentContextFactory {
 	}
 
 	public function newEntityManager(): EntityManager {
-		$this->doctrineConfig->setMetadataDriverImpl( $this->contextFactory->newMappingDriver() );
 		return EntityManager::create( $this->newConnection(), $this->doctrineConfig );
 	}
 
