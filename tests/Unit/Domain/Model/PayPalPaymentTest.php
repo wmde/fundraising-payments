@@ -48,7 +48,7 @@ class PayPalPaymentTest extends TestCase {
 	public function testBookPaymentSetsValuationDate(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
 
-		$payment->bookPayment( [ 'payer_id' => self::PAYER_ID, 'payment_date' => '2022-01-01 01:01:01' ], new DummyPaymentIdRepository() );
+		$payment->bookPayment( [ 'payer_id' => self::PAYER_ID, 'payment_date' => '01:01:01 Jan 01, 2022 UTC' ], new DummyPaymentIdRepository() );
 
 		$this->assertEquals( new \DateTimeImmutable( '2022-01-01 01:01:01' ), $payment->getValuationDate() );
 	}
@@ -143,7 +143,7 @@ class PayPalPaymentTest extends TestCase {
 		// spot-check some values to see if we have the right field names
 		$this->assertSame( '42', $legacyData->paymentSpecificValues['paypal_payer_id'] );
 		$this->assertSame( '8RHHUM3W3PRH7QY6B59', $legacyData->paymentSpecificValues['ext_subscr_id'] );
-		$this->assertSame( '2022-01-01 01:01:01', $legacyData->paymentSpecificValues['ext_payment_timestamp'] );
+		$this->assertSame( PayPalPaymentBookingData::PAYMENT_DATE, $legacyData->paymentSpecificValues['ext_payment_timestamp'] );
 		// Check booked status
 		$this->assertSame( LegacyPaymentStatus::EXTERNAL_BOOKED->value, $legacyData->paymentStatus );
 		$this->assertArrayNotHasKey( 'parent_payment_id', $legacyData->paymentSpecificValues, "initial payments should not have parent payment id" );
@@ -183,7 +183,7 @@ class PayPalPaymentTest extends TestCase {
 			'ext_payment_type' => 'instant',
 			'ext_payment_status' => 'processed',
 			'ext_payment_account' => '42',
-			'ext_payment_timestamp' => '2022-01-01 01:01:01'
+			'ext_payment_timestamp' => PayPalPaymentBookingData::PAYMENT_DATE
 		];
 
 		$actualDisplayData = $payment->getDisplayValues();

@@ -104,7 +104,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( 9900, $insertedPayment['amount'] );
 		$this->assertSame( 3, $insertedPayment['payment_interval'] );
 		$this->assertSame( 'PPL', $insertedPayment['payment_method'] );
-		$this->assertSame( '2022-01-01 01:01:01', $insertedPayment['valuation_date'] );
+		$this->assertSame( '2012-12-02 10:54:49', $insertedPayment['valuation_date'] );
 		$this->assertNull( $insertedPayment['parent_payment_id'] );
 		$this->assertSame( PayPalPaymentBookingData::newEncodedValidBookingData(), $insertedPayment['booking_data'] );
 	}
@@ -143,7 +143,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			'payer_email' => 'foerderpp@wikimedia.de',
 			'payer_id' => '42',
 			'payer_status' => 'verified',
-			'payment_date' => '2022-01-01 01:01:01',
+			'payment_date' => '10:54:49 Dec 02, 2012 PST',
 			'payment_status' => 'processed',
 			'payment_type' => 'instant',
 			'settle_amount' => '2.70',
