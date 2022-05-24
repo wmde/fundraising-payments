@@ -19,6 +19,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\BankTransferPaymentInspector;
@@ -41,6 +42,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	private const IBAN = 'DE00123456789012345678';
 	private const BIC = 'SCROUSDBXXX';
+	private const FOLLOWUP_PAYMENT_ID = 2;
 
 	protected function setUp(): void {
 		$factory = TestEnvironment::newInstance()->getFactory();
@@ -103,7 +105,22 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( 3, $insertedPayment['payment_interval'] );
 		$this->assertSame( 'PPL', $insertedPayment['payment_method'] );
 		$this->assertSame( '2022-01-01 01:01:01', $insertedPayment['valuation_date'] );
+		$this->assertNull( $insertedPayment['parent_payment_id'] );
 		$this->assertSame( PayPalPaymentBookingData::newEncodedValidBookingData(), $insertedPayment['booking_data'] );
+	}
+
+	public function testStoreFollowupPayPalPayment(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
+		$bookingData = PayPalPaymentBookingData::newValidBookingData();
+		$payment->bookPayment( $bookingData, new DummyPaymentIdRepository() );
+		$followupPayment = $payment->bookPayment( $bookingData, $this->makeIdGeneratorForFollowupPayments() );
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+
+		$repo->storePayment( $payment );
+		$repo->storePayment( $followupPayment );
+
+		$insertedPayment = $this->fetchRawPayPalPaymentData( self::FOLLOWUP_PAYMENT_ID );
+		$this->assertSame( 1, $insertedPayment['parent_payment_id'] );
 	}
 
 	public function testFindPayPalPayment(): void {
@@ -111,6 +128,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->insertRawPayPalData();
 
 		$payment = $repo->getPaymentById( 1 );
+		$followupPayment = $repo->getPaymentById( 2 );
 		$this->assertInstanceOf( PayPalPayment::class, $payment );
 
 		$paymentSpy = new PayPalPaymentInspector( $payment );
@@ -132,6 +150,8 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			'subscr_id' => '8RHHUM3W3PRH7QY6B59',
 			'txn_id' => '4242',
 		], $paymentSpy->getBookingData() );
+
+		$this->assertSame( 1, $followupPayment->getLegacyData()->paymentSpecificValues['parent_payment_id'] );
 	}
 
 	public function testStoreDirectDebitPayment(): void {
@@ -406,15 +426,17 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	/**
+	 * @param int $paymentId
 	 * @return array<string,mixed>
 	 * @throws \Doctrine\DBAL\Exception
 	 */
-	private function fetchRawPayPalPaymentData(): array {
+	private function fetchRawPayPalPaymentData( int $paymentId = 1 ): array {
 		$data = $this->connection->createQueryBuilder()
-			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'ppp.valuation_date', 'ppp.booking_data' )
+			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'ppp.valuation_date', 'ppp.booking_data', 'ppp.parent_payment_id' )
 			->from( 'payments', 'p' )
 			->join( 'p', 'payments_paypal', 'ppp', 'p.id=ppp.id' )
-			->where( 'p.id=1' )
+			->where( 'p.id=:paymentId' )
+			->setParameter( 'paymentId', $paymentId )
 			->fetchAssociative();
 		if ( $data === false ) {
 			throw new AssertionFailedError( "Expected PayPal payment was not found!" );
@@ -424,10 +446,17 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	private function insertRawPayPalData(): void {
 		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
+		$this->connection->insert( 'payments', [ 'id' => 2, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
 		$this->connection->insert( 'payments_paypal', [
 			'id' => 1,
 			'valuation_date' => '2021-12-24 23:00:00',
 			'booking_data' => PayPalPaymentBookingData::newEncodedValidBookingData()
+		] );
+		$this->connection->insert( 'payments_paypal', [
+			'id' => 2,
+			'valuation_date' => '2022-12-24 23:00:00',
+			'booking_data' => PayPalPaymentBookingData::newEncodedValidBookingData(),
+			'parent_payment_id' => 1
 		] );
 	}
 
@@ -565,5 +594,11 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			throw new AssertionFailedError( "Expected Payment Reference Code was not found!" );
 		}
 		return $data;
+	}
+
+	private function makeIdGeneratorForFollowupPayments(): PaymentIDRepository {
+		$idGeneratorStub = $this->createStub( PaymentIDRepository::class );
+		$idGeneratorStub->method( 'getNewID' )->willReturn( self::FOLLOWUP_PAYMENT_ID );
+		return $idGeneratorStub;
 	}
 }
