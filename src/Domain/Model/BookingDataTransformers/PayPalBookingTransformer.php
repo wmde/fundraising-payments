@@ -9,6 +9,13 @@ class PayPalBookingTransformer {
 	private const PAYER_ID_KEY = 'payer_id';
 	private const VALUATION_DATE_KEY = 'payment_date';
 
+	/**
+	 * Sent by PayPal in "payment_date" field.
+	 *
+	 * Example: 10:54:49 Dec 02, 2012 PST
+	 */
+	public const PAYPAL_DATE_FORMAT = "H:i:s M d, Y e";
+
 	private const KEYS_TO_FILTER = [
 		'first_name',
 		'last_name',
@@ -54,10 +61,13 @@ class PayPalBookingTransformer {
 			throw new \InvalidArgumentException( 'Transaction data must have a valuation date' );
 		}
 
-		$valuationDate = \DateTimeImmutable::createFromFormat( 'Y-m-d H:i:s', strval( $rawBookingData[self::VALUATION_DATE_KEY] ) );
+		$valuationDate = \DateTimeImmutable::createFromFormat( self::PAYPAL_DATE_FORMAT, strval( $rawBookingData[self::VALUATION_DATE_KEY] ) );
 
 		if ( !$valuationDate ) {
-			throw new \InvalidArgumentException( 'Transaction data must contain valid valuation date' );
+			throw new \InvalidArgumentException( sprintf(
+				'Transaction data must contain valid valuation date, format "%s"',
+				self::PAYPAL_DATE_FORMAT
+			) );
 		}
 
 		$this->valuationDate = $valuationDate;
