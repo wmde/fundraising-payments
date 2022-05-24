@@ -43,8 +43,8 @@ class PayPalPayment extends Payment implements BookablePayment {
 		if ( !$this->isBooked() ) {
 			return true;
 		}
-		// Booked "parent" payments (where "parentPayment" is null) can be booked as followup payments
-		return $this->parentPayment === null && $this->isRecurringPayment();
+		// Booked "initial" payments (payments where "parentPayment" is null) can be booked as followup payments
+		return $this->isBookedInitialPayment();
 	}
 
 	/**
@@ -59,7 +59,7 @@ class PayPalPayment extends Payment implements BookablePayment {
 			throw new DomainException( 'Payment is already completed' );
 		}
 
-		if ( $this->isFollowupBooking() ) {
+		if ( $this->isBookedInitialPayment() ) {
 			return $this->createFollowUpPayment( $transactionData, $idGenerator );
 		}
 
@@ -73,10 +73,14 @@ class PayPalPayment extends Payment implements BookablePayment {
 	}
 
 	protected function getPaymentSpecificLegacyData(): array {
+		$legacyData = [];
 		if ( $this->isBooked() ) {
-			return ( new PayPalBookingTransformer( $this->bookingData ) )->getLegacyData();
+			$legacyData = ( new PayPalBookingTransformer( $this->bookingData ) )->getLegacyData();
 		}
-		return [];
+		if ( $this->parentPayment !== null ) {
+			$legacyData['parent_payment_id'] = $this->parentPayment->getId();
+		}
+		return $legacyData;
 	}
 
 	/**
@@ -92,7 +96,7 @@ class PayPalPayment extends Payment implements BookablePayment {
 		return $followupPayment->bookPayment( $transactionData, $idGenerator );
 	}
 
-	private function isFollowupBooking(): bool {
+	private function isBookedInitialPayment(): bool {
 		// In the future, we might pass the new transaction data to this function, comparing
 		// `txn_id` of this payment with the booking data, to distinguish between double booking (should return false)
 		// and followup booking

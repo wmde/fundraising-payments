@@ -146,6 +146,21 @@ class PayPalPaymentTest extends TestCase {
 		$this->assertSame( '2022-01-01 01:01:01', $legacyData->paymentSpecificValues['ext_payment_timestamp'] );
 		// Check booked status
 		$this->assertSame( LegacyPaymentStatus::EXTERNAL_BOOKED->value, $legacyData->paymentStatus );
+		$this->assertArrayNotHasKey( 'parent_payment_id', $legacyData->paymentSpecificValues, "initial payments should not have parent payment id" );
+	}
+
+	public function testGetLegacyDataHasParentPaymentIdForFollowupPayments(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::Monthly );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+		$childPayment = $payment->bookPayment(
+			PayPalPaymentBookingData::newValidFollowupBookingData(),
+			$this->makeIdGeneratorForFollowupPayments()
+		);
+
+		$legacyData = $childPayment->getLegacyData();
+
+		$this->assertNotEmpty( $legacyData->paymentSpecificValues );
+		$this->assertSame( 1, $legacyData->paymentSpecificValues['parent_payment_id'] );
 	}
 
 	public function testGetDisplayDataReturnsAllFieldsToDisplayForBookedPayment(): void {

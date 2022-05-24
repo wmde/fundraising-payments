@@ -3,5 +3,8 @@
     <entity name="WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment" table="payments_paypal">
         <field name="valuationDate" type="datetime_immutable" column="valuation_date" nullable="true"/>
         <field name="bookingData" type="json" column="booking_data" nullable="true"/>
+        <one-to-one field="parentPayment" target-entity="PayPalPayment">
+            <join-column name="parent_payment_id" referenced-column-name="id" />
+        </one-to-one>
     </entity>
 </doctrine-mapping>
