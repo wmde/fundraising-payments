@@ -14,7 +14,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentTypes;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
@@ -56,12 +56,12 @@ class CreatePaymentUseCase {
 	 * @throws PaymentCreationException
 	 */
 	private function tryCreatePayment( PaymentCreationRequest $request ): Payment {
-		return match ( PaymentTypes::tryFrom( $request->paymentType ) ) {
-			PaymentTypes::CreditCard => $this->createCreditCardPayment( $request ),
-			PaymentTypes::Paypal => $this->createPayPalPayment( $request ),
-			PaymentTypes::Sofort => $this->createSofortPayment( $request ),
-			PaymentTypes::BankTransfer => $this->createBankTransferPayment( $request ),
-			PaymentTypes::DirectDebit => $this->createDirectDebitPayment( $request ),
+		return match ( PaymentType::tryFrom( $request->paymentType ) ) {
+			PaymentType::CreditCard => $this->createCreditCardPayment( $request ),
+			PaymentType::Paypal => $this->createPayPalPayment( $request ),
+			PaymentType::Sofort => $this->createSofortPayment( $request ),
+			PaymentType::BankTransfer => $this->createBankTransferPayment( $request ),
+			PaymentType::DirectDebit => $this->createDirectDebitPayment( $request ),
 			default => throw new \LogicException( sprintf(
 				'Invalid payment type not caught by %s: %s', PaymentValidator::class, $request->paymentType
 			) )

@@ -8,5 +8,5 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\FunValidators\ValidationResponse;
 
 interface DomainSpecificPaymentValidator {
-	public function validatePaymentData( Euro $amount, PaymentInterval $interval, PaymentTypes $paymentType ): ValidationResponse;
+	public function validatePaymentData( Euro $amount, PaymentInterval $interval, PaymentType $paymentType ): ValidationResponse;
 }
