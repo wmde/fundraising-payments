@@ -3,7 +3,12 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\UseCases\CreatePayment;
 
+use WMDE\Fundraising\PaymentContext\Domain\DomainSpecificPaymentValidator;
+
 class PaymentCreationRequest {
+
+	private DomainSpecificPaymentValidator $domainSpecificPaymentValidator;
+
 	public function __construct(
 		public readonly int $amountInEuroCents,
 		public readonly int $interval,
@@ -13,4 +18,13 @@ class PaymentCreationRequest {
 		public readonly string $transferCodePrefix = ''
 	) {
 	}
+
+	public function getDomainSpecificPaymentValidator(): DomainSpecificPaymentValidator {
+		return $this->domainSpecificPaymentValidator;
+	}
+
+	public function setDomainSpecificPaymentValidator( DomainSpecificPaymentValidator $domainSpecificPaymentValidator ): void {
+		$this->domainSpecificPaymentValidator = $domainSpecificPaymentValidator;
+	}
+
 }

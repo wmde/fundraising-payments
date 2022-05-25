@@ -18,12 +18,7 @@ class PaymentValidator {
 	 */
 	private array $errors = [];
 
-	public function __construct(
-		private DomainSpecificPaymentValidator $domainValidator
-	) {
-	}
-
-	public function validatePaymentData( int $amount, int $interval, string $paymentType ): ValidationResponse {
+	public function validatePaymentData( int $amount, int $interval, string $paymentType, DomainSpecificPaymentValidator $domainSpecificPaymentValidator ): ValidationResponse {
 		$this->errors = [];
 		$this->validateAmount( $amount );
 		$this->validateInterval( $interval );
@@ -33,7 +28,7 @@ class PaymentValidator {
 			return ValidationResponse::newFailureResponse( $this->errors );
 		}
 
-		return $this->validateDomain( $amount, $interval );
+		return $this->validateDomain( $amount, $interval, $paymentType, $domainSpecificPaymentValidator );
 	}
 
 	private function validateAmount( int $amount ): void {
@@ -56,7 +51,11 @@ class PaymentValidator {
 		}
 	}
 
-	private function validateDomain( int $amount, int $interval ): ValidationResponse {
-		return $this->domainValidator->validatePaymentData( Euro::newFromCents( $amount ), PaymentInterval::from( $interval ) );
+	private function validateDomain( int $amount, int $interval, string $paymentType, DomainSpecificPaymentValidator $validator ): ValidationResponse {
+		return $validator->validatePaymentData(
+			Euro::newFromCents( $amount ),
+			PaymentInterval::from( $interval ),
+			PaymentTypes::from( $paymentType )
+		);
 	}
 }
