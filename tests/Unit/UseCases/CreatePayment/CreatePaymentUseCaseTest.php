@@ -18,7 +18,9 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
@@ -45,7 +47,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 			->withPaymentRepositorySpy()
 			->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 100,
 			interval: 0,
 			paymentType: 'MCP'
@@ -69,7 +71,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 			->withPaymentRepositorySpy()
 			->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 100,
 			interval: 0,
 			paymentType: 'PPL'
@@ -94,7 +96,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 			->withPaymentReferenceGenerator( $this->makePaymentReferenceGenerator() )
 			->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 100,
 			interval: 0,
 			paymentType: 'SUB',
@@ -119,7 +121,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 			->withPaymentReferenceGenerator( $this->makePaymentReferenceGenerator() )
 			->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 400,
 			interval: 3,
 			paymentType: 'UEB',
@@ -144,7 +146,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 			->withSucceedingIbanValidationUseCase()
 			->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 400,
 			interval: 3,
 			paymentType: 'BEZ',
@@ -167,7 +169,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 	public function testCreateSofortPaymentFailsOnUnsupportedInterval(): void {
 		$useCase = $this->useCaseBuilder->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 100,
 			interval: PaymentInterval::Monthly->value,
 			paymentType: 'SUB',
@@ -181,7 +183,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 	public function testCreatePaymentWithInvalidIntervalFails(): void {
 		$useCase = $this->useCaseBuilder->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 100,
 			interval: 1000,
 			paymentType: 'MCP'
@@ -194,7 +196,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 	public function testCreatePaymentWithInvalidAmountFails(): void {
 		$useCase = $this->useCaseBuilder->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: -500,
 			interval: 0,
 			paymentType: 'MCP'
@@ -207,7 +209,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 	public function testCreatePaymentWithInvalidPaymentTypeFails(): void {
 		$useCase = $this->useCaseBuilder->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 500,
 			interval: 0,
 			paymentType: 'TRA$HCOIN',
@@ -218,15 +220,15 @@ class CreatePaymentUseCaseTest extends TestCase {
 	}
 
 	public function testCreatePaymentWithFailingDomainValidationFails(): void {
-		$useCase = $this->useCaseBuilder
-			->withFailingDomainValidator()
-			->build();
+		$useCase = $this->useCaseBuilder->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$request = $this->newPaymentCreationRequest(
 			amountInEuroCents: 500,
 			interval: 0,
 			paymentType: 'PPL',
-		) );
+		);
+		$request->setDomainSpecificPaymentValidator( new FailingDomainSpecificValidator() );
+		$result = $useCase->createPayment( $request );
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
 		$this->assertStringContainsString( 'domain check', $result->errorMessage );
@@ -237,7 +239,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 			->withFailingIbanValidationUseCase()
 			->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 400,
 			interval: 3,
 			paymentType: 'BEZ',
@@ -259,7 +261,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 			->withUrlGeneratorFactory( $urlGeneratorFactory )
 			->build();
 
-		$result = $useCase->createPayment( new PaymentCreationRequest(
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 100,
 			interval: 0,
 			paymentType: 'PPL',
@@ -267,6 +269,21 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
 		$this->assertSame( $urlGenerator, $result->paymentProviderURLGenerator );
+	}
+
+	private function newPaymentCreationRequest(
+		int $amountInEuroCents,
+		int $interval,
+		string $paymentType,
+		string $iban = '',
+		string $bic = '',
+		string $transferCodePrefix = ''
+	): PaymentCreationRequest {
+		$request = new PaymentCreationRequest(
+			$amountInEuroCents, $interval, $paymentType, $iban, $bic, $transferCodePrefix
+		);
+		$request->setDomainSpecificPaymentValidator( new SucceedingDomainSpecificValidator() );
+		return $request;
 	}
 
 	private function makePaymentReferenceGenerator(): PaymentReferenceCodeGenerator {
