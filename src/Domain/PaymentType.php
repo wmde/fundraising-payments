@@ -4,7 +4,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain;
 
-enum PaymentTypes: string
+enum PaymentType: string
 {
 	case DirectDebit = 'BEZ';
 	case BankTransfer = 'UEB';
