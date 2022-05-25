@@ -6,12 +6,12 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Fixtures;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\DomainSpecificPaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentTypes;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResponse;
 
 class FailingDomainSpecificValidator implements DomainSpecificPaymentValidator {
-	public function validatePaymentData( Euro $amount, PaymentInterval $interval, PaymentTypes $paymentType ): ValidationResponse {
+	public function validatePaymentData( Euro $amount, PaymentInterval $interval, PaymentType $paymentType ): ValidationResponse {
 		return ValidationResponse::newFailureResponse( [
 			new ConstraintViolation(
 				$amount->getEuroString(),

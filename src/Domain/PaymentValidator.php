@@ -46,7 +46,7 @@ class PaymentValidator {
 	}
 
 	private function validatePaymentType( string $paymentType ): void {
-		if ( PaymentTypes::tryFrom( $paymentType ) === null ) {
+		if ( PaymentType::tryFrom( $paymentType ) === null ) {
 			$this->errors[] = new ConstraintViolation( $paymentType, 'Unknown payment type', self::SOURCE_PAYMENT_TYPE );
 		}
 	}
@@ -55,7 +55,7 @@ class PaymentValidator {
 		return $validator->validatePaymentData(
 			Euro::newFromCents( $amount ),
 			PaymentInterval::from( $interval ),
-			PaymentTypes::from( $paymentType )
+			PaymentType::from( $paymentType )
 		);
 	}
 }
