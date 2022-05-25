@@ -33,7 +33,7 @@ class CreatePaymentUseCase {
 	}
 
 	public function createPayment( PaymentCreationRequest $request ): SuccessResponse|FailureResponse {
-		$validationResult = $this->paymentValidator->validatePaymentData( $request->amountInEuroCents, $request->interval, $request->paymentType );
+		$validationResult = $this->paymentValidator->validatePaymentData( $request->amountInEuroCents, $request->interval, $request->paymentType, $request->getDomainSpecificPaymentValidator() );
 		if ( !$validationResult->isSuccessful() ) {
 			return new FailureResponse( $validationResult->getValidationErrors()[0]->getMessageIdentifier() );
 		}

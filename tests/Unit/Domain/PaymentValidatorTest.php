@@ -18,9 +18,14 @@ class PaymentValidatorTest extends TestCase {
 	private const VALID_PAYMENT_TYPE = 'UEB';
 
 	public function testAmountValidation(): void {
-		$validator = new PaymentValidator( $this->makeSucceedingDomainSpecificValidator() );
+		$validator = new PaymentValidator();
 
-		$result = $validator->validatePaymentData( -1, self::VALID_INTERVAL, self::VALID_PAYMENT_TYPE );
+		$result = $validator->validatePaymentData(
+			-1,
+			self::VALID_INTERVAL,
+			self::VALID_PAYMENT_TYPE,
+			$this->makeSucceedingDomainSpecificValidator()
+		);
 
 		$this->assertFalse( $result->isSuccessful() );
 		$errors = $result->getValidationErrors();
@@ -29,9 +34,14 @@ class PaymentValidatorTest extends TestCase {
 	}
 
 	public function testIntervalValidation(): void {
-		$validator = new PaymentValidator( $this->makeSucceedingDomainSpecificValidator() );
+		$validator = new PaymentValidator();
 
-		$result = $validator->validatePaymentData( self::VALID_AMOUNT, 99, self::VALID_PAYMENT_TYPE );
+		$result = $validator->validatePaymentData(
+			self::VALID_AMOUNT,
+			99,
+			self::VALID_PAYMENT_TYPE,
+			$this->makeSucceedingDomainSpecificValidator()
+		);
 
 		$this->assertFalse( $result->isSuccessful() );
 		$errors = $result->getValidationErrors();
@@ -40,9 +50,14 @@ class PaymentValidatorTest extends TestCase {
 	}
 
 	public function testPaymentTypeValidation(): void {
-		$validator = new PaymentValidator( $this->makeSucceedingDomainSpecificValidator() );
+		$validator = new PaymentValidator();
 
-		$result = $validator->validatePaymentData( self::VALID_AMOUNT, self::VALID_INTERVAL, 'TRA$HCOIN' );
+		$result = $validator->validatePaymentData(
+			self::VALID_AMOUNT,
+			self::VALID_INTERVAL,
+			'TRA$HCOIN',
+			$this->makeSucceedingDomainSpecificValidator()
+		);
 
 		$this->assertFalse( $result->isSuccessful() );
 		$errors = $result->getValidationErrors();
@@ -51,9 +66,14 @@ class PaymentValidatorTest extends TestCase {
 	}
 
 	public function testDomainValidation(): void {
-		$validator = new PaymentValidator( $this->makeFailingDomainSpecificValidator() );
+		$validator = new PaymentValidator();
 
-		$result = $validator->validatePaymentData( self::VALID_AMOUNT, self::VALID_INTERVAL, self::VALID_PAYMENT_TYPE );
+		$result = $validator->validatePaymentData(
+			self::VALID_AMOUNT,
+			self::VALID_INTERVAL,
+			self::VALID_PAYMENT_TYPE,
+			$this->makeFailingDomainSpecificValidator()
+		);
 
 		$this->assertFalse( $result->isSuccessful() );
 		$errors = $result->getValidationErrors();

@@ -11,11 +11,9 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\NullGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingIbanValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FixedPaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingIbanValidator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
@@ -119,12 +117,6 @@ class CreatePaymentUseCaseBuilder {
 	}
 
 	private function makePaymentValidator(): PaymentValidator {
-		return new PaymentValidator( new SucceedingDomainSpecificValidator() );
+		return new PaymentValidator();
 	}
-
-	public function withFailingDomainValidator(): self {
-		$this->paymentValidator = new PaymentValidator( new FailingDomainSpecificValidator() );
-		return $this;
-	}
-
 }
