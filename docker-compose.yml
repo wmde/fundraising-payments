@@ -18,6 +18,7 @@ services:
       - MARIADB_USER=fundraising
       - MARIADB_PASSWORD=INSECURE PASSWORD
       - MARIADB_DATABASE=fundraising
+    tmpfs: /var/lib/mysql:rw
     ports:
       - '3309:3306'
     expose:
