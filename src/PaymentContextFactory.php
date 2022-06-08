@@ -11,6 +11,11 @@ use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 
 class PaymentContextFactory {
 
+	/**
+	 * Use this constant for MappingDriverChain::addDriver
+	 */
+	public const ENTITY_NAMESPACE = 'WMDE\Fundraising\PaymentContext\Domain\Model';
+
 	public const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping';
 
 	/**
