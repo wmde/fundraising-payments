@@ -27,16 +27,25 @@ class PayPalBookingTransformerTest extends TestCase {
 		$this->assertArrayNotHasKey( 'address_country_code', $bookingData );
 	}
 
-	public function testGivenEmptyValuationDate_ItThrowsException(): void {
+	/**
+	 * @dataProvider invalidBookingDataProvider
+	 *
+	 * @param array<mixed> $transactionData
+	 * @return void
+	 */
+	public function testGivenMissingFields_constructorThrowsException( array $transactionData ): void {
 		$this->expectException( \InvalidArgumentException::class );
 
-		new PayPalBookingTransformer( [ 'payer_id' => 72 ] );
+		new PayPalBookingTransformer( $transactionData );
 	}
 
-	public function testGivenEmptyPayerId_ItThrowsException(): void {
-		$this->expectException( \InvalidArgumentException::class );
-
-		new PayPalBookingTransformer( [ 'payment_date' => PayPalPaymentBookingData::PAYMENT_DATE ] );
+	/**
+	 * @return iterable<mixed>
+	 */
+	public function invalidBookingDataProvider(): iterable {
+		yield 'empty valuation date' => [ [ 'payer_id' => 72, 'txn_id' => PayPalPaymentBookingData::TRANSACTION_ID ] ];
+		yield 'empty payer ID' => [ [ 'payment_date' => PayPalPaymentBookingData::PAYMENT_DATE, 'txn_id' => PayPalPaymentBookingData::TRANSACTION_ID ] ];
+		yield 'empty transaction ID' => [ [ 'payer_id' => 72, 'payment_date' => PayPalPaymentBookingData::PAYMENT_DATE ] ];
 	}
 
 	/** @dataProvider invalidValuationDateProvider */
@@ -60,6 +69,12 @@ class PayPalBookingTransformerTest extends TestCase {
 		$transformer = new PayPalBookingTransformer( PayPalPaymentBookingData::newValidBookingData() );
 
 		$this->assertEquals( new \DateTimeImmutable( PayPalPaymentBookingData::PAYMENT_DATE ), $transformer->getValuationDate() );
+	}
+
+	public function testGetTransactionId(): void {
+		$transformer = new PayPalBookingTransformer( PayPalPaymentBookingData::newValidBookingData() );
+
+		$this->assertSame( PayPalPaymentBookingData::TRANSACTION_ID, $transformer->getTransactionId() );
 	}
 
 	public function testLegacyFieldsGetTransformed(): void {

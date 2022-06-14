@@ -16,6 +16,8 @@ class PayPalPayment extends Payment implements BookablePayment {
 
 	private const PAYMENT_METHOD = 'PPL';
 
+	private ?string $transactionId = null;
+
 	/**
 	 * @var array<string,string>
 	 */
@@ -65,7 +67,12 @@ class PayPalPayment extends Payment implements BookablePayment {
 
 		$this->bookingData = $transformer->getBookingData();
 		$this->valuationDate = $transformer->getValuationDate();
+		$this->transactionId = $transformer->getTransactionId();
 		return $this;
+	}
+
+	public function getTransactionId(): ?string {
+		return $this->transactionId;
 	}
 
 	protected function getPaymentName(): string {
