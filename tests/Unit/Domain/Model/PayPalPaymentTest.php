@@ -25,6 +25,7 @@ class PayPalPaymentTest extends TestCase {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
 		$this->assertTrue( $payment->canBeBooked( PayPalPaymentBookingData::newValidBookingData() ) );
 		$this->assertFalse( $payment->isCompleted() );
+		$this->assertNull( $payment->getTransactionId() );
 	}
 
 	public function testCompletePaymentWithEmptyTransactionDataFails(): void {
@@ -48,9 +49,17 @@ class PayPalPaymentTest extends TestCase {
 	public function testBookPaymentSetsValuationDate(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
 
-		$payment->bookPayment( [ 'payer_id' => self::PAYER_ID, 'payment_date' => '01:01:01 Jan 01, 2022 UTC' ], new DummyPaymentIdRepository() );
+		$payment->bookPayment( $this->newMinimalBookingData(), new DummyPaymentIdRepository() );
 
 		$this->assertEquals( new \DateTimeImmutable( '2022-01-01 01:01:01' ), $payment->getValuationDate() );
+	}
+
+	public function testBookPaymentSetsTransactionId(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+
+		$payment->bookPayment( $this->newMinimalBookingData(), new DummyPaymentIdRepository() );
+
+		$this->assertEquals( PayPalPaymentBookingData::TRANSACTION_ID, $payment->getTransactionId() );
 	}
 
 	public function testInitialPaymentCanBeBookedAsFollowupPayment(): void {
@@ -197,6 +206,17 @@ class PayPalPaymentTest extends TestCase {
 		$idGeneratorStub = $this->createStub( PaymentIDRepository::class );
 		$idGeneratorStub->method( 'getNewID' )->willReturn( self::FOLLOWUP_PAYMENT_ID );
 		return $idGeneratorStub;
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function newMinimalBookingData(): array {
+		return [
+			'payer_id' => self::PAYER_ID,
+			'payment_date' => '01:01:01 Jan 01, 2022 UTC',
+			'txn_id' => PayPalPaymentBookingData::TRANSACTION_ID
+		];
 	}
 
 }

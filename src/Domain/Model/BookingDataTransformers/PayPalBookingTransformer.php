@@ -8,6 +8,7 @@ class PayPalBookingTransformer {
 
 	private const PAYER_ID_KEY = 'payer_id';
 	private const VALUATION_DATE_KEY = 'payment_date';
+	private const TRANSACTION_ID_KEY = 'txn_id';
 
 	/**
 	 * Sent by PayPal in "payment_date" field.
@@ -48,6 +49,8 @@ class PayPalBookingTransformer {
 	 */
 	private array $rawBookingData;
 
+	private string $transactionId;
+
 	private \DateTimeImmutable $valuationDate;
 
 	/**
@@ -60,6 +63,9 @@ class PayPalBookingTransformer {
 		if ( empty( $rawBookingData[self::VALUATION_DATE_KEY] ) ) {
 			throw new \InvalidArgumentException( 'Transaction data must have a valuation date' );
 		}
+		if ( empty( $rawBookingData[self::TRANSACTION_ID_KEY] ) ) {
+			throw new \InvalidArgumentException( 'Transaction data must have transaction ID' );
+		}
 
 		$valuationDate = \DateTimeImmutable::createFromFormat( self::PAYPAL_DATE_FORMAT, strval( $rawBookingData[self::VALUATION_DATE_KEY] ) );
 
@@ -71,6 +77,7 @@ class PayPalBookingTransformer {
 		}
 
 		$this->valuationDate = $valuationDate;
+		$this->transactionId = strval( $rawBookingData[self::TRANSACTION_ID_KEY] );
 		$this->rawBookingData = $this->anonymise( $rawBookingData );
 	}
 
@@ -103,6 +110,10 @@ class PayPalBookingTransformer {
 	 */
 	private function anonymise( array $rawBookingData ): array {
 		return array_diff_key( $rawBookingData, array_flip( self::KEYS_TO_FILTER ) );
+	}
+
+	public function getTransactionId(): string {
+		return $this->transactionId;
 	}
 
 }

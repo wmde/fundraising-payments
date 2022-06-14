@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Data;
 class PayPalPaymentBookingData {
 
 	public const PAYMENT_DATE = '10:54:49 Dec 02, 2012 PST';
+	public const TRANSACTION_ID = '4242';
 
 	/**
 	 * @return array<string,mixed>
@@ -33,7 +34,7 @@ class PayPalPaymentBookingData {
 			'payment_type' => 'instant',
 			'settle_amount' => '2.70',
 			'subscr_id' => '8RHHUM3W3PRH7QY6B59',
-			'txn_id' => '4242',
+			'txn_id' => self::TRANSACTION_ID,
 		];
 	}
 
