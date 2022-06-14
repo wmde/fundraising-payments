@@ -127,4 +127,8 @@ class PayPalPayment extends Payment implements BookablePayment {
 	public function isCompleted(): bool {
 		return $this->isBooked();
 	}
+
+	public function getParentPayment(): ?PayPalPayment {
+		return $this->parentPayment;
+	}
 }

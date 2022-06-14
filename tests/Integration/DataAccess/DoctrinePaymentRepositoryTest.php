@@ -148,7 +148,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			'payment_type' => 'instant',
 			'settle_amount' => '2.70',
 			'subscr_id' => '8RHHUM3W3PRH7QY6B59',
-			'txn_id' => '4242',
+			'txn_id' => 'T4242',
 		], $paymentSpy->getBookingData() );
 
 		$this->assertSame( 1, $followupPayment->getLegacyData()->paymentSpecificValues['parent_payment_id'] );
