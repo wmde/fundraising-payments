@@ -97,12 +97,10 @@ class PayPalPaymentTest extends TestCase {
 		$this->assertNotSame( $childPayment, $payment, 'Parent and followup payment should be different instances' );
 		$this->assertSame( self::FOLLOWUP_PAYMENT_ID, $childPayment->getId() );
 		$this->assertFalse( $childPayment->canBeBooked( PayPalPaymentBookingData::newValidBookingData() ) );
-		$inspectedParentPayment = new PayPalPaymentInspector( $payment );
-		$inspectedChildPayment = new PayPalPaymentInspector( $childPayment );
+		$this->assertSame( $payment, $childPayment->getParentPayment() );
 		$this->assertSame( self::FOLLOWUP_PAYMENT_ID, $childPayment->getId() );
-		$this->assertEquals( $inspectedParentPayment->getAmount(), $inspectedChildPayment->getAmount() );
-		$this->assertEquals( $inspectedParentPayment->getInterval(), $inspectedChildPayment->getInterval() );
-		$this->assertSame( $payment, $inspectedChildPayment->getParentPayment() );
+		$this->assertEquals( $payment->getAmount(), $childPayment->getAmount() );
+		$this->assertEquals( $payment->getInterval(), $childPayment->getInterval() );
 	}
 
 	public function testCreateFollowupDisallowsFollowUpsFromChildPayments(): void {
@@ -187,7 +185,7 @@ class PayPalPaymentTest extends TestCase {
 			'paypal_mc_currency' => 'EUR',
 			'paypal_mc_fee' => '2.70',
 			'paypal_settle_amount' => '2.70',
-			'ext_payment_id' => '4242',
+			'ext_payment_id' => 'T4242',
 			'ext_subscr_id' => '8RHHUM3W3PRH7QY6B59',
 			'ext_payment_type' => 'instant',
 			'ext_payment_status' => 'processed',
