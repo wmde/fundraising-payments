@@ -9,6 +9,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\PayPalVerificationService;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeTransactionIdFinder;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationResponse;
@@ -22,12 +23,13 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\SuccessRe
 class CreateBookedPayPalPaymentUseCaseTest extends TestCase {
 	private const PAYMENT_ID = 5;
 
-	public function testGivenSuccessfulVerification(): void {
+	public function testGivenSuccessfulVerification_paymentIsBooked(): void {
 		$repository = new PaymentRepositorySpy( [] );
 		$useCase = new CreateBookedPayPalPaymentUseCase(
 			$repository,
 			new SequentialPaymentIDRepository( self::PAYMENT_ID ),
-			$this->makeSucceedingVerifier()
+			$this->makeSucceedingVerifier(),
+			new FakeTransactionIdFinder()
 		);
 
 		$result = $useCase->bookNewPayment( 999, PayPalPaymentBookingData::newValidBookingData() );
@@ -42,13 +44,14 @@ class CreateBookedPayPalPaymentUseCaseTest extends TestCase {
 		$this->assertEquals( PaymentInterval::OneTime, $storedPayment->getInterval() );
 	}
 
-	public function testGivenFailingVerification(): void {
+	public function testGivenFailingVerification_returnsFailureResponse(): void {
 		$repository = $this->createMock( PaymentRepository::class );
 		$repository->expects( $this->never() )->method( 'storePayment' );
 		$useCase = new CreateBookedPayPalPaymentUseCase(
 			$repository,
 			new SequentialPaymentIDRepository( self::PAYMENT_ID ),
-			$this->makeFailingVerifier()
+			$this->makeFailingVerifier(),
+			new FakeTransactionIdFinder()
 		);
 
 		$result = $useCase->bookNewPayment( 999, PayPalPaymentBookingData::newValidBookingData() );
@@ -62,12 +65,29 @@ class CreateBookedPayPalPaymentUseCaseTest extends TestCase {
 		$useCase = new CreateBookedPayPalPaymentUseCase(
 			$repository,
 			new SequentialPaymentIDRepository( self::PAYMENT_ID ),
-			$this->makeSucceedingVerifier()
+			$this->makeSucceedingVerifier(),
+			new FakeTransactionIdFinder()
 		);
 
 		$result = $useCase->bookNewPayment( -5, PayPalPaymentBookingData::newValidBookingData() );
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
+	}
+
+	public function testGivenTransactionDataThatWasPreviouslyProcessed_returnsFailureResponse(): void {
+		$repository = $this->createMock( PaymentRepository::class );
+		$repository->expects( $this->never() )->method( 'storePayment' );
+		$useCase = new CreateBookedPayPalPaymentUseCase(
+			$repository,
+			new SequentialPaymentIDRepository( self::PAYMENT_ID ),
+			$this->makeSucceedingVerifier(),
+			new FakeTransactionIdFinder( [ PayPalPaymentBookingData::TRANSACTION_ID => self::PAYMENT_ID ] )
+		);
+
+		$result = $useCase->bookNewPayment( 999, PayPalPaymentBookingData::newValidBookingData() );
+
+		$this->assertInstanceOf( FailureResponse::class, $result );
+		$this->assertSame( 'This transaction was already processed', $result->message );
 	}
 
 	private function makeSucceedingVerifier(): PayPalVerificationService {

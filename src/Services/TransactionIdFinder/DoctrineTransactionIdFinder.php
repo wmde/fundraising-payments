@@ -47,4 +47,13 @@ class DoctrineTransactionIdFinder implements TransactionIdFinder {
 		return $transactionIds;
 	}
 
+	public function transactionIdExists( string $transactionId ): bool {
+		$qb = $this->db->createQueryBuilder();
+		$qb->select( 'COUNT(id)' )
+			->from( 'payments_paypal' )
+			->where( 'transaction_id=:transactionId' )
+			->setParameter( 'transactionId', $transactionId );
+		return $qb->fetchOne() > 0;
+	}
+
 }

@@ -4,11 +4,13 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment;
 
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\PayPalVerificationService;
+use WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 
 /**
  * This use case will be used to book incoming PayPal payments without any reference where we can look up a payment ID.
@@ -23,7 +25,8 @@ class CreateBookedPayPalPaymentUseCase {
 	public function __construct(
 		private PaymentRepository $repository,
 		private PaymentIDRepository $idGenerator,
-		private PayPalVerificationService $verificationService
+		private PayPalVerificationService $verificationService,
+		private TransactionIdFinder $transactionIdFinder
 	) {
 	}
 
@@ -39,6 +42,10 @@ class CreateBookedPayPalPaymentUseCase {
 			return new FailureResponse( $exception->getMessage() );
 		}
 
+		if ( $this->transactionWasAlreadyProcessed( $transactionData ) ) {
+			return new FailureResponse( 'This transaction was already processed' );
+		}
+
 		$payment = new PayPalPayment( $this->idGenerator->getNewID(), $parsedAmount, PaymentInterval::OneTime );
 		$verificationResponse = $this->verificationService->validate( $transactionData );
 		if ( !$verificationResponse->isValid() ) {
@@ -52,6 +59,20 @@ class CreateBookedPayPalPaymentUseCase {
 		$this->repository->storePayment( $payment );
 
 		return new SuccessResponse( $payment->getId() );
+	}
+
+	/**
+	 * @param array<string,mixed> $transactionData
+	 * @return bool
+	 */
+	private function transactionWasAlreadyProcessed( array $transactionData ): bool {
+		// If the transaction data does not contain a transaction key, the transformer will fail anyway,
+		// so we allow empty here to get to the point where the transformer and our try/catch handles the error
+		if ( empty( $transactionData[PayPalBookingTransformer::TRANSACTION_ID_KEY] ) ) {
+			return false;
+		}
+		$transactionId = strval( $transactionData[PayPalBookingTransformer::TRANSACTION_ID_KEY] );
+		return $this->transactionIdFinder->transactionIdExists( $transactionId );
 	}
 
 }

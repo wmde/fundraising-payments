@@ -84,6 +84,15 @@ class DoctrineTransactionIdFinderTest extends TestCase {
 		$this->assertSame( $expectedTransactionIds, $finder->getAllTransactionIDs( $childPayment ) );
 	}
 
+	public function testGivenPayments_transactionIdExistsReturnsTrue(): void {
+		$finder = new DoctrineTransactionIdFinder( $this->connection );
+		$this->givenPaymentsWithFollowups();
+
+		$this->assertTrue( $finder->transactionIdExists( "ID_ONE" ) );
+		$this->assertTrue( $finder->transactionIdExists( "ID_TWO" ) );
+		$this->assertFalse( $finder->transactionIdExists( "MYSTERY ID 23" ) );
+	}
+
 	/**
 	 * @return PayPalPayment[]
 	 */
