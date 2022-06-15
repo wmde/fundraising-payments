@@ -11,13 +11,16 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
+use WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 
 class GetPaymentUseCase {
 
 	public function __construct(
 		private PaymentRepository $repository,
-		private BankDataGenerator $bankDataGenerator
+		private BankDataGenerator $bankDataGenerator,
+		private TransactionIdFinder $transactionIdFinder,
 	) {
 	}
 
@@ -64,6 +67,10 @@ class GetPaymentUseCase {
 			$legacyData = $this->createExtendedLegacyData( $legacyData, $payment->getIban() );
 		}
 
+		if ( $payment instanceof PayPalPayment ) {
+			$legacyData = $this->createExtendedLegacyDataWithTransactionIds( $legacyData, $payment );
+		}
+
 		return $legacyData;
 	}
 
@@ -106,6 +113,17 @@ class GetPaymentUseCase {
 			'blz' => $extendedBankData->bankCode,
 			'bankname' => $extendedBankData->bankName
 		];
+	}
+
+	private function createExtendedLegacyDataWithTransactionIds( LegacyPaymentData $legacyData, PayPalPayment $payment ): LegacyPaymentData {
+		$transactionIds = $this->transactionIdFinder->getAllTransactionIDs( $payment );
+		return new LegacyPaymentData(
+			$legacyData->amountInEuroCents,
+			$legacyData->intervalInMonths,
+			$legacyData->paymentName,
+			array_merge( $legacyData->paymentSpecificValues, [ 'transactionIds' => $transactionIds ] ),
+			$legacyData->paymentStatus
+		);
 	}
 
 }
