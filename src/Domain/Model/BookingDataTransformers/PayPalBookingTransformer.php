@@ -8,7 +8,7 @@ class PayPalBookingTransformer {
 
 	private const PAYER_ID_KEY = 'payer_id';
 	private const VALUATION_DATE_KEY = 'payment_date';
-	private const TRANSACTION_ID_KEY = 'txn_id';
+	public const TRANSACTION_ID_KEY = 'txn_id';
 
 	/**
 	 * Sent by PayPal in "payment_date" field.
