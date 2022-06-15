@@ -41,7 +41,6 @@ class PayPalPayment extends Payment implements BookablePayment {
 	}
 
 	public function canBeBooked( array $transactionData ): bool {
-		// Unbooked payments can always be booked
 		if ( !$this->isBooked() ) {
 			return true;
 		}
@@ -104,10 +103,6 @@ class PayPalPayment extends Payment implements BookablePayment {
 	}
 
 	private function isBookedInitialPayment(): bool {
-		// In the future, we might pass the new transaction data to this function, comparing
-		// `txn_id` of this payment with the booking data, to distinguish between double booking (should return false)
-		// and followup booking
-		// Tracked in https://phabricator.wikimedia.org/T305257
 		return $this->isBooked() && $this->parentPayment === null && $this->isRecurringPayment();
 	}
 

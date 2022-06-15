@@ -18,6 +18,7 @@ use WMDE\Fundraising\PaymentContext\Tests\Data\CreditCardPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeTransactionIdFinder;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\BookPaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\FailureResponse;
@@ -84,7 +85,7 @@ class BookPaymentUseCaseTest extends TestCase {
 		$payment = $this->makeCreditCardPayment();
 		$payment->bookPayment( [ 'transactionId' => 'deadbeef', 'amount' => 1122 ], $idGenerator );
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
-		$useCase = new BookPaymentUseCase( $repo, $idGenerator, $this->makeSucceedingVerificationServiceFactory() );
+		$useCase = new BookPaymentUseCase( $repo, $idGenerator, $this->makeSucceedingVerificationServiceFactory(), new FakeTransactionIdFinder() );
 
 		$response = $useCase->bookPayment( self::PAYMENT_ID, CreditCardPaymentBookingData::newValidBookingData() );
 
@@ -108,7 +109,7 @@ class BookPaymentUseCaseTest extends TestCase {
 		$idGeneratorStub->method( 'getNewID' )->willReturn( self::CHILD_PAYMENT_ID );
 		$payment = $this->makeBookedPayPalPayment( $idGeneratorStub );
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
-		$useCase = new BookPaymentUseCase( $repo, $idGeneratorStub, $this->makeSucceedingVerificationServiceFactory() );
+		$useCase = new BookPaymentUseCase( $repo, $idGeneratorStub, $this->makeSucceedingVerificationServiceFactory(), new FakeTransactionIdFinder() );
 
 		$response = $useCase->bookPayment(
 			self::PAYMENT_ID,
@@ -136,7 +137,12 @@ class BookPaymentUseCaseTest extends TestCase {
 	public function testExternalValidationServiceFailureReturnsFailureResponse(): void {
 		$payment = $this->makeCreditCardPayment();
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
-		$useCase = new BookPaymentUseCase( $repo, $this->makePaymentIdGenerator(), $this->makeFailingVerificationServiceFactory( 'I failed' ) );
+		$useCase = new BookPaymentUseCase(
+			$repo,
+			$this->makePaymentIdGenerator(),
+			$this->makeFailingVerificationServiceFactory( 'I failed' ),
+			new FakeTransactionIdFinder()
+		);
 
 		$response = $useCase->bookPayment( self::PAYMENT_ID, CreditCardPaymentBookingData::newValidBookingData() );
 
@@ -144,11 +150,32 @@ class BookPaymentUseCaseTest extends TestCase {
 		$this->assertEquals( 'I failed', $response->message );
 	}
 
+	public function testGivenExistingPayPalTransactionId_bookingWillFail(): void {
+		$idGeneratorStub = $this->makePaymentIdGenerator();
+		$payment = $this->makeBookedPayPalPayment( $idGeneratorStub );
+		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
+		$useCase = new BookPaymentUseCase(
+			$repo,
+			$idGeneratorStub,
+			$this->makeSucceedingVerificationServiceFactory(),
+			new FakeTransactionIdFinder( [ PayPalPaymentBookingData::TRANSACTION_ID => self::PAYMENT_ID ] )
+		);
+
+		$response = $useCase->bookPayment(
+			self::PAYMENT_ID,
+			PayPalPaymentBookingData::newValidBookingData()
+		);
+
+		$this->assertInstanceOf( FailureResponse::class, $response );
+		$this->assertSame( 'Payment is already completed', $response->message );
+	}
+
 	private function makeBookPaymentUseCase( PaymentRepository $repo ): BookPaymentUseCase {
 		return new BookPaymentUseCase(
 			$repo,
 			$this->makePaymentIdGenerator(),
-			$this->makeSucceedingVerificationServiceFactory()
+			$this->makeSucceedingVerificationServiceFactory(),
+			new FakeTransactionIdFinder()
 		);
 	}
 
