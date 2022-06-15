@@ -17,4 +17,6 @@ interface TransactionIdFinder {
 	 * @return array<string,int> TransactionId to Payment ID
 	 */
 	public function getAllTransactionIDs( Payment $payment ): array;
+
+	public function transactionIdExists( string $transactionId ): bool;
 }

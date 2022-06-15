@@ -18,4 +18,8 @@ class FakeTransactionIdFinder implements TransactionIdFinder {
 		return $this->transactionIds;
 	}
 
+	public function transactionIdExists( string $transactionId ): bool {
+		return !empty( $this->transactionIds[$transactionId] );
+	}
+
 }
