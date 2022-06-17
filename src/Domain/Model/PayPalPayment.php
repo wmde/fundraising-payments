@@ -16,6 +16,8 @@ class PayPalPayment extends Payment implements BookablePayment {
 
 	private const PAYMENT_METHOD = 'PPL';
 
+	private ?string $transactionId = null;
+
 	/**
 	 * @var array<string,string>
 	 */
@@ -39,7 +41,6 @@ class PayPalPayment extends Payment implements BookablePayment {
 	}
 
 	public function canBeBooked( array $transactionData ): bool {
-		// Unbooked payments can always be booked
 		if ( !$this->isBooked() ) {
 			return true;
 		}
@@ -65,7 +66,12 @@ class PayPalPayment extends Payment implements BookablePayment {
 
 		$this->bookingData = $transformer->getBookingData();
 		$this->valuationDate = $transformer->getValuationDate();
+		$this->transactionId = $transformer->getTransactionId();
 		return $this;
+	}
+
+	public function getTransactionId(): ?string {
+		return $this->transactionId;
 	}
 
 	protected function getPaymentName(): string {
@@ -97,10 +103,6 @@ class PayPalPayment extends Payment implements BookablePayment {
 	}
 
 	private function isBookedInitialPayment(): bool {
-		// In the future, we might pass the new transaction data to this function, comparing
-		// `txn_id` of this payment with the booking data, to distinguish between double booking (should return false)
-		// and followup booking
-		// Tracked in https://phabricator.wikimedia.org/T305257
 		return $this->isBooked() && $this->parentPayment === null && $this->isRecurringPayment();
 	}
 
@@ -119,5 +121,9 @@ class PayPalPayment extends Payment implements BookablePayment {
 
 	public function isCompleted(): bool {
 		return $this->isBooked();
+	}
+
+	public function getParentPayment(): ?PayPalPayment {
+		return $this->parentPayment;
 	}
 }

@@ -6,16 +6,20 @@ namespace WMDE\Fundraising\PaymentContext\UseCases\BookPayment;
 
 use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 
 class BookPaymentUseCase {
 
 	public function __construct(
 		private PaymentRepository $repository,
 		private PaymentIDRepository $idGenerator,
-		private VerificationServiceFactory $verificationServiceFactory
+		private VerificationServiceFactory $verificationServiceFactory,
+		private TransactionIdFinder $transactionIdFinder,
 	) {
 	}
 
@@ -36,7 +40,7 @@ class BookPaymentUseCase {
 			throw new \RuntimeException( 'Tried to book an non-bookable payment' );
 		}
 
-		if ( !$payment->canBeBooked( $transactionData ) ) {
+		if ( $this->paymentWasAlreadyBooked( $payment, $transactionData ) ) {
 			return new FailureResponse( 'Payment is already completed' );
 		}
 
@@ -69,5 +73,34 @@ class BookPaymentUseCase {
 	private function validateWithExternalService( Payment $payment, array $transactionData ): VerificationResponse {
 		return $this->verificationServiceFactory->create( $payment )
 			->validate( $transactionData );
+	}
+
+	/**
+	 * @param BookablePayment $payment
+	 * @param array<string,mixed> $transactionData
+	 * @return bool
+	 */
+	private function paymentWasAlreadyBooked( BookablePayment $payment, array $transactionData ): bool {
+		$wasAlreadyBooked = false;
+		if ( $payment instanceof PayPalPayment ) {
+			$wasAlreadyBooked = $this->paypalPaymentWasAlreadyBooked( $payment, $transactionData );
+		}
+
+		return $wasAlreadyBooked || !$payment->canBeBooked( $transactionData );
+	}
+
+	/**
+	 * @param PayPalPayment $payment
+	 * @param array<string,mixed> $transactionData
+	 * @return bool
+	 */
+	private function paypalPaymentWasAlreadyBooked( PayPalPayment $payment, array $transactionData ): bool {
+		if ( empty( $transactionData[PayPalBookingTransformer::TRANSACTION_ID_KEY] ) ) {
+			return false;
+		}
+		$currentTransactionId = $transactionData[PayPalBookingTransformer::TRANSACTION_ID_KEY];
+		$previousTransactionIds = $this->transactionIdFinder->getAllTransactionIDs( $payment );
+
+		return !empty( $previousTransactionIds[$currentTransactionId] );
 	}
 }
