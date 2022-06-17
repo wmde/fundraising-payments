@@ -19,6 +19,10 @@ class PaymentCreationRequest {
 	) {
 	}
 
+	public function __toString(): string {
+		return json_encode( get_object_vars( $this ) ) ? json_encode( get_object_vars( $this ) ) : '';
+	}
+
 	public function getDomainSpecificPaymentValidator(): DomainSpecificPaymentValidator {
 		return $this->domainSpecificPaymentValidator;
 	}
