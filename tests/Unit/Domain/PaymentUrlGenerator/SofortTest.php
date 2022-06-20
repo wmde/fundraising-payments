@@ -32,7 +32,6 @@ class SofortTest extends TestCase {
 		$translatableDescription = $this->createMock( TranslatableDescription::class );
 
 		$config = new SofortUrlConfig(
-			'Donation',
 			$locale,
 			'https://us.org/yes',
 			'https://us.org/no',
@@ -68,7 +67,6 @@ class SofortTest extends TestCase {
 		$expectedUrl = 'https://dn.ht/picklecat/';
 		$translatableDescriptionMock = $this->createMock( TranslatableDescription::class );
 		$config = new SofortUrlConfig(
-			'Donation',
 			'DE',
 			'https://us.org/yes',
 			'https://us.org/no',
@@ -98,7 +96,6 @@ class SofortTest extends TestCase {
 	public function testWhenApiReturnsErrorAnExceptionWithApiErrorMessageIsThrown(): void {
 		$translatableDescriptionStub = $this->createStub( TranslatableDescription::class );
 		$config = new SofortUrlConfig(
-			'Your purchase',
 			'DE',
 			'https://irreleva.nt/y',
 			'https://irreleva.nt/n',

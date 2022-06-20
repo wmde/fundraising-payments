@@ -30,7 +30,13 @@ class Sofort implements PaymentProviderURLGenerator {
 		$request = new Request();
 		$request->setAmount( $this->payment->getAmount() );
 		$request->setCurrencyCode( self::CURRENCY );
-		$request->setReasons( [ $this->config->getReasonText(), $this->payment->getPaymentReferenceCode() ] );
+		$request->setReasons( [
+			$this->config->getTranslatableDescription()->getText(
+				$this->payment->getAmount(),
+				$this->payment->getInterval()
+			),
+			$this->payment->getPaymentReferenceCode()
+		] );
 		$request->setSuccessUrl(
 			$this->config->getReturnUrl() . '?' . http_build_query(
 				[
