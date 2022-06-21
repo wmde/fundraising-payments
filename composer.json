@@ -10,6 +10,7 @@
 		"wmde/freezable-value-object": "~2.0",
 
 		"doctrine/orm": "^2.11",
+		"doctrine/dbal": "^3.3",
 		"sofort/sofortlib-php": "^3.2",
 		"symfony/cache": "^6.0",
 		"guzzlehttp/guzzle": "^7.4"
