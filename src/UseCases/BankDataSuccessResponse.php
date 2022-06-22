@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData;
+namespace WMDE\Fundraising\PaymentContext\UseCases;
 
 use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 

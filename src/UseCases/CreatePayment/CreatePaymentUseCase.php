@@ -19,6 +19,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderUR
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\UseCases\BankDataFailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 
 class CreatePaymentUseCase {
@@ -130,8 +131,8 @@ class CreatePaymentUseCase {
 	 * @throws PaymentCreationException
 	 */
 	private function createDirectDebitPayment( PaymentCreationRequest $request ): DirectDebitPayment {
-		if ( !$this->validateIbanUseCase->ibanIsValid( $request->iban ) ) {
-			throw new PaymentCreationException( "An invalid Iban was provided" );
+		if ( $this->validateIbanUseCase->ibanIsValid( $request->iban ) instanceof BankDataFailureResponse ) {
+			throw new PaymentCreationException( "An invalid IBAN was provided" );
 		}
 
 		return DirectDebitPayment::create(

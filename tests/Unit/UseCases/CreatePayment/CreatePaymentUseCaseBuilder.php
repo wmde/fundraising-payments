@@ -3,7 +3,10 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CreatePayment;
 
+use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
+use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
@@ -11,7 +14,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\NullGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingIbanValidator;
+use WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckBankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FixedPaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingIbanValidator;
@@ -79,7 +82,7 @@ class CreatePaymentUseCaseBuilder {
 	}
 
 	private function makeFailingIbanUseCase(): ValidateIbanUseCase {
-		return new ValidateIbanUseCase( new FailingIbanValidator(), new IbanBlockList( [] ) );
+		return new ValidateIbanUseCase( new IbanBlockList( [] ), $this->makeFailingBankDataGenerator() );
 	}
 
 	public function withIdGenerator( PaymentIDRepository $idGenerator ): self {
@@ -102,7 +105,10 @@ class CreatePaymentUseCaseBuilder {
 	}
 
 	public function withSucceedingIbanValidationUseCase(): self {
-		$this->validateIbanUseCase = new ValidateIbanUseCase( new SucceedingIbanValidator(), new IbanBlockList( [] ) );
+		$this->validateIbanUseCase = new ValidateIbanUseCase(
+			new IbanBlockList( [] ),
+			new KontoCheckBankDataGenerator( new SucceedingIbanValidator() )
+		);
 		return $this;
 	}
 
@@ -118,5 +124,18 @@ class CreatePaymentUseCaseBuilder {
 
 	private function makePaymentValidator(): PaymentValidator {
 		return new PaymentValidator();
+	}
+
+	private function makeFailingBankDataGenerator(): BankDataGenerator {
+		return new class implements BankDataGenerator {
+			public function getBankDataFromAccountData( string $account, string $bankCode ): ExtendedBankData {
+				throw new \DomainException( 'getBankDataFromAccountData should not be called' );
+			}
+
+			public function getBankDataFromIban( Iban $iban ): ExtendedBankData {
+				throw new \InvalidArgumentException( 'Invalid IBAN (for testing)' );
+			}
+
+		};
 	}
 }

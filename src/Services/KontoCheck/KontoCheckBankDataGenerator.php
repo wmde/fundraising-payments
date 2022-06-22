@@ -80,7 +80,7 @@ class KontoCheckBankDataGenerator implements BankDataGenerator {
 	}
 
 	private function bankNameFromBankCode( string $bankCode ): string {
-		return utf8_encode( \lut_name( $bankCode ) );
+		return utf8_encode( \lut_name( $bankCode ) ?: '' );
 	}
 
 	/**
