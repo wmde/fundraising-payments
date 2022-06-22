@@ -248,7 +248,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
-		$this->assertEquals( "An invalid Iban was provided", $result->errorMessage );
+		$this->assertEquals( "An invalid IBAN was provided", $result->errorMessage );
 	}
 
 	public function testPaymentResponseContainsURLGeneratorFromFactory(): void {

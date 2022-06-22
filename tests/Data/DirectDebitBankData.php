@@ -9,11 +9,11 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 
 class DirectDebitBankData {
 
-	public const IBAN = 'DE00123456789012345678';
-	public const BIC = 'SCROUSDBXXX';
-	public const BANK_NAME = 'Scrooge Bank';
-	public const BANK_CODE = '12345678';
-	public const ACCOUNT = '1234567890';
+	public const IBAN = 'DE02701500000000594937';
+	public const BIC = 'SSKMDEMMXXX';
+	public const BANK_NAME = 'Stadtsparkasse München';
+	public const BANK_CODE = '70150000';
+	public const ACCOUNT = '0000594937';
 
 	public static function validBankData(): ExtendedBankData {
 		return new ExtendedBankData(

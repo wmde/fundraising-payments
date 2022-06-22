@@ -8,14 +8,14 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
-use WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData\BankDataFailureResponse;
-use WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData\BankDataSuccessResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\BankDataFailureResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\BankDataSuccessResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData\GenerateBankDataFromGermanLegacyBankDataUseCase;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData\GenerateBankDataFromGermanLegacyBankDataUseCase
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData\BankDataSuccessResponse
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData\BankDataFailureResponse
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\BankDataSuccessResponse
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\BankDataFailureResponse
  *
  * @license GPL-2.0-or-later
  * @author Kai Nissen <kai.nissen@wikimedia.de>
