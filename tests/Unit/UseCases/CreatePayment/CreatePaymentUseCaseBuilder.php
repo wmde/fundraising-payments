@@ -8,12 +8,12 @@ use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
 use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\NullGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckBankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FixedPaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
@@ -22,7 +22,7 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 
 class CreatePaymentUseCaseBuilder {
-	private PaymentIDRepository $idGenerator;
+	private PaymentIdRepository $idGenerator;
 	private PaymentRepository $repository;
 	private PaymentReferenceCodeGenerator $paymentReferenceCodeGenerator;
 	private UrlGeneratorFactory $urlGeneratorFactory;
@@ -49,9 +49,9 @@ class CreatePaymentUseCaseBuilder {
 		);
 	}
 
-	private function makeIdGeneratorStub(): PaymentIDRepository {
-		return new class implements PaymentIDRepository {
-			public function getNewID(): int {
+	private function makeIdGeneratorStub(): PaymentIdRepository {
+		return new class implements PaymentIdRepository {
+			public function getNewId(): int {
 				throw new \LogicException( 'Test case must not generate an ID' );
 			}
 		};
@@ -85,7 +85,7 @@ class CreatePaymentUseCaseBuilder {
 		return new ValidateIbanUseCase( new IbanBlockList( [] ), $this->makeFailingBankDataGenerator() );
 	}
 
-	public function withIdGenerator( PaymentIDRepository $idGenerator ): self {
+	public function withIdGenerator( PaymentIdRepository $idGenerator ): self {
 		$this->idGenerator = $idGenerator;
 		return $this;
 	}

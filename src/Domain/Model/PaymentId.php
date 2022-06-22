@@ -10,7 +10,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
  *
  * @codeCoverageIgnore
  */
-class PaymentID {
+class PaymentId {
 
 	private ?int $id = null;
 

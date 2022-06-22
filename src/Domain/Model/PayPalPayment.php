@@ -8,7 +8,7 @@ use DateTimeImmutable;
 use DomainException;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 
 class PayPalPayment extends Payment implements BookablePayment {
 
@@ -50,11 +50,12 @@ class PayPalPayment extends Payment implements BookablePayment {
 
 	/**
 	 * @param array<string,mixed> $transactionData Payment information from PayPal
-	 * @param PaymentIDRepository $idGenerator Used for creating followup payments
+	 * @param PaymentIdRepository $idGenerator Used for creating followup payments
+	 *
 	 * @return PayPalPayment
 	 *
 	 */
-	public function bookPayment( array $transactionData, PaymentIDRepository $idGenerator ): PayPalPayment {
+	public function bookPayment( array $transactionData, PaymentIdRepository $idGenerator ): PayPalPayment {
 		$transformer = new PayPalBookingTransformer( $transactionData );
 		if ( !$this->canBeBooked( $transactionData ) ) {
 			throw new DomainException( 'Payment is already completed' );
@@ -93,11 +94,12 @@ class PayPalPayment extends Payment implements BookablePayment {
 	 * Create a booked followup payment
 	 *
 	 * @param array<string,mixed> $transactionData
-	 * @param PaymentIDRepository $idGenerator
+	 * @param PaymentIdRepository $idGenerator
+	 *
 	 * @return PayPalPayment
 	 */
-	private function createFollowUpPayment( array $transactionData, PaymentIDRepository $idGenerator ): PayPalPayment {
-		$followupPayment = new PayPalPayment( $idGenerator->getNewID(), $this->amount, $this->interval );
+	private function createFollowUpPayment( array $transactionData, PaymentIdRepository $idGenerator ): PayPalPayment {
+		$followupPayment = new PayPalPayment( $idGenerator->getNewId(), $this->amount, $this->interval );
 		$followupPayment->parentPayment = $this;
 		return $followupPayment->bookPayment( $transactionData, $idGenerator );
 	}

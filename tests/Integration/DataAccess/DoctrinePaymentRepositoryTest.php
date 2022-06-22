@@ -19,7 +19,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\BankTransferPaymentInspector;
@@ -596,9 +596,9 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		return $data;
 	}
 
-	private function makeIdGeneratorForFollowupPayments(): PaymentIDRepository {
-		$idGeneratorStub = $this->createStub( PaymentIDRepository::class );
-		$idGeneratorStub->method( 'getNewID' )->willReturn( self::FOLLOWUP_PAYMENT_ID );
+	private function makeIdGeneratorForFollowupPayments(): PaymentIdRepository {
+		$idGeneratorStub = $this->createStub( PaymentIdRepository::class );
+		$idGeneratorStub->method( 'getNewId' )->willReturn( self::FOLLOWUP_PAYMENT_ID );
 		return $idGeneratorStub;
 	}
 }
