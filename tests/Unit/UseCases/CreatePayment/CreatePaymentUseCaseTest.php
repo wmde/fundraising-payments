@@ -19,7 +19,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderUR
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
@@ -43,7 +43,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 	public function testCreateCreditCardPayment(): void {
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
+			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->build();
 
@@ -67,7 +67,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 	public function testCreatePayPalPayment(): void {
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
+			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->build();
 
@@ -91,7 +91,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 	public function testCreateSofortPayment(): void {
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
+			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->withPaymentReferenceGenerator( $this->makePaymentReferenceGenerator() )
 			->build();
@@ -116,7 +116,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 	public function testCreateBankTransferPayment(): void {
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
+			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->withPaymentReferenceGenerator( $this->makePaymentReferenceGenerator() )
 			->build();
@@ -141,7 +141,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 	public function testCreateDirectDebitPayment(): void {
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
+			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->withSucceedingIbanValidationUseCase()
 			->build();
@@ -256,7 +256,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$urlGeneratorFactory = $this->createStub( UrlGeneratorFactory::class );
 		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( $urlGenerator );
 		$useCase = $this->useCaseBuilder
-			->withIdGenerator( new SequentialPaymentIDRepository( self::PAYMENT_ID ) )
+			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
 			->withUrlGeneratorFactory( $urlGeneratorFactory )
 			->build();

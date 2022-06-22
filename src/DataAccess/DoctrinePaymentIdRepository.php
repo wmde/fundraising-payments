@@ -5,9 +5,9 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 
-class DoctrinePaymentIDRepository implements PaymentIDRepository {
+class DoctrinePaymentIdRepository implements PaymentIdRepository {
 
 	private EntityManager $entityManager;
 

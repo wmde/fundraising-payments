@@ -11,7 +11,7 @@ use WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeTransactionIdFinder;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\CreateBookedPayPalPaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\FailureResponse;
@@ -27,7 +27,7 @@ class CreateBookedPayPalPaymentUseCaseTest extends TestCase {
 		$repository = new PaymentRepositorySpy( [] );
 		$useCase = new CreateBookedPayPalPaymentUseCase(
 			$repository,
-			new SequentialPaymentIDRepository( self::PAYMENT_ID ),
+			new SequentialPaymentIdRepository( self::PAYMENT_ID ),
 			$this->makeSucceedingVerifier(),
 			new FakeTransactionIdFinder()
 		);
@@ -49,7 +49,7 @@ class CreateBookedPayPalPaymentUseCaseTest extends TestCase {
 		$repository->expects( $this->never() )->method( 'storePayment' );
 		$useCase = new CreateBookedPayPalPaymentUseCase(
 			$repository,
-			new SequentialPaymentIDRepository( self::PAYMENT_ID ),
+			new SequentialPaymentIdRepository( self::PAYMENT_ID ),
 			$this->makeFailingVerifier(),
 			new FakeTransactionIdFinder()
 		);
@@ -64,7 +64,7 @@ class CreateBookedPayPalPaymentUseCaseTest extends TestCase {
 		$repository->expects( $this->never() )->method( 'storePayment' );
 		$useCase = new CreateBookedPayPalPaymentUseCase(
 			$repository,
-			new SequentialPaymentIDRepository( self::PAYMENT_ID ),
+			new SequentialPaymentIdRepository( self::PAYMENT_ID ),
 			$this->makeSucceedingVerifier(),
 			new FakeTransactionIdFinder()
 		);
@@ -79,7 +79,7 @@ class CreateBookedPayPalPaymentUseCaseTest extends TestCase {
 		$repository->expects( $this->never() )->method( 'storePayment' );
 		$useCase = new CreateBookedPayPalPaymentUseCase(
 			$repository,
-			new SequentialPaymentIDRepository( self::PAYMENT_ID ),
+			new SequentialPaymentIdRepository( self::PAYMENT_ID ),
 			$this->makeSucceedingVerifier(),
 			new FakeTransactionIdFinder( [ PayPalPaymentBookingData::TRANSACTION_ID => self::PAYMENT_ID ] )
 		);

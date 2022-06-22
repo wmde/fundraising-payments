@@ -9,15 +9,15 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 
 class BookPaymentUseCase {
 
 	public function __construct(
 		private PaymentRepository $repository,
-		private PaymentIDRepository $idGenerator,
+		private PaymentIdRepository $idGenerator,
 		private VerificationServiceFactory $verificationServiceFactory,
 		private TransactionIdFinder $transactionIdFinder,
 	) {

@@ -7,8 +7,8 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\PayPalVerificationService;
 use WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 
@@ -24,7 +24,7 @@ use WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 class CreateBookedPayPalPaymentUseCase {
 	public function __construct(
 		private PaymentRepository $repository,
-		private PaymentIDRepository $idGenerator,
+		private PaymentIdRepository $idGenerator,
 		private PayPalVerificationService $verificationService,
 		private TransactionIdFinder $transactionIdFinder
 	) {
@@ -46,7 +46,7 @@ class CreateBookedPayPalPaymentUseCase {
 			return new FailureResponse( 'This transaction was already processed' );
 		}
 
-		$payment = new PayPalPayment( $this->idGenerator->getNewID(), $parsedAmount, PaymentInterval::OneTime );
+		$payment = new PayPalPayment( $this->idGenerator->getNewId(), $parsedAmount, PaymentInterval::OneTime );
 		$verificationResponse = $this->verificationService->validate( $transactionData );
 		if ( !$verificationResponse->isValid() ) {
 			return new FailureResponse( $verificationResponse->getMessage() );

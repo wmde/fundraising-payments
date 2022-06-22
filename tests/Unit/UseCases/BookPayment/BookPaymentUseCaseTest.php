@@ -12,8 +12,8 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Data\CreditCardPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
@@ -105,8 +105,8 @@ class BookPaymentUseCaseTest extends TestCase {
 	}
 
 	public function testBookedPaymentsThatAllowFollowups_CreateFollowUpPaymentsWhenTheyAreBooked(): void {
-		$idGeneratorStub = $this->createStub( PaymentIDRepository::class );
-		$idGeneratorStub->method( 'getNewID' )->willReturn( self::CHILD_PAYMENT_ID );
+		$idGeneratorStub = $this->createStub( PaymentIdRepository::class );
+		$idGeneratorStub->method( 'getNewId' )->willReturn( self::CHILD_PAYMENT_ID );
 		$payment = $this->makeBookedPayPalPayment( $idGeneratorStub );
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
 		$useCase = new BookPaymentUseCase( $repo, $idGeneratorStub, $this->makeSucceedingVerificationServiceFactory(), new FakeTransactionIdFinder() );
@@ -199,7 +199,7 @@ class BookPaymentUseCaseTest extends TestCase {
 		return $factory;
 	}
 
-	private function makeBookedPayPalPayment( PaymentIDRepository $idGenerator ): PayPalPayment {
+	private function makeBookedPayPalPayment( PaymentIdRepository $idGenerator ): PayPalPayment {
 		$payment = new PayPalPayment(
 			self::PAYMENT_ID,
 			Euro::newFromCents( 1122 ),
@@ -217,7 +217,7 @@ class BookPaymentUseCaseTest extends TestCase {
 		);
 	}
 
-	private function makePaymentIdGenerator(): PaymentIDRepository {
+	private function makePaymentIdGenerator(): PaymentIdRepository {
 		return new DummyPaymentIdRepository();
 	}
 

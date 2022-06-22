@@ -5,7 +5,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 use DateTimeImmutable;
 use DomainException;
 use InvalidArgumentException;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 
 interface BookablePayment {
 	/**
@@ -14,13 +14,14 @@ interface BookablePayment {
 	 * Implementations MUST check if $transactionData has the right shape.
 	 *
 	 * @param array<string,mixed> $transactionData
-	 * @param PaymentIDRepository $idGenerator ID generator in case the booking triggers a followup payment
+	 * @param PaymentIdRepository $idGenerator ID generator in case the booking triggers a followup payment
+	 *
 	 * @return Payment Might be the same payment instance or a different payment in case of followup payments
 	 *
 	 * @throws DomainException If payment can't be booked (e.g. because it's already booked)
 	 * @throws InvalidArgumentException If $transactionData array does not match needed payment shape
 	 */
-	public function bookPayment( array $transactionData, PaymentIDRepository $idGenerator ): Payment;
+	public function bookPayment( array $transactionData, PaymentIdRepository $idGenerator ): Payment;
 
 	public function getValuationDate(): ?DateTimeImmutable;
 

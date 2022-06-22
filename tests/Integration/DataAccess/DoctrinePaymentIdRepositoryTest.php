@@ -7,15 +7,15 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Integration\DataAccess;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentIDRepository;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentIdRepository;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
 use WMDE\Fundraising\PaymentContext\Tests\TestPaymentContextFactory;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentIDRepository
+ * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentIdRepository
  */
-class DoctrinePaymentIDRepositoryTest extends TestCase {
+class DoctrinePaymentIdRepositoryTest extends TestCase {
 
 	private TestPaymentContextFactory $factory;
 	private EntityManager $entityManager;
@@ -46,7 +46,7 @@ class DoctrinePaymentIDRepositoryTest extends TestCase {
 	}
 
 	private function makeRepository(): PaymentIDRepository {
-		return new DoctrinePaymentIDRepository( $this->entityManager );
+		return new DoctrinePaymentIdRepository( $this->entityManager );
 	}
 
 	private function whenPaymentIDCountIs( int $count ): void {
