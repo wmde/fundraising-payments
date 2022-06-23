@@ -83,8 +83,8 @@ class DirectDebitPaymentTest extends TestCase {
 			'amount' => 4999,
 			'interval' => 3,
 			'paymentType' => 'BEZ',
-			'iban' => 'DE00123456789012345678',
-			'bic' => 'SCROUSDBXXX'
+			'iban' => 'DE02701500000000594937',
+			'bic' => 'SSKMDEMMXXX'
 		];
 
 		$this->assertEquals( $expectedOutput, $payment->getDisplayValues() );

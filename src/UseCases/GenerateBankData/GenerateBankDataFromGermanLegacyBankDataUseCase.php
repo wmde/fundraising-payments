@@ -6,6 +6,8 @@ namespace WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData;
 
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
+use WMDE\Fundraising\PaymentContext\UseCases\BankDataFailureResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\BankDataSuccessResponse;
 
 class GenerateBankDataFromGermanLegacyBankDataUseCase {
 
