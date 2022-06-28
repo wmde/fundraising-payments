@@ -65,7 +65,8 @@ class BankTransferPayment extends Payment implements CancellablePayment {
 
 	public function getDisplayValues(): array {
 		$parentValues = parent::getDisplayValues();
-		$subtypeValues = $this->getPaymentSpecificLegacyData();
+		$paymentReferenceCode = $this->getPaymentReferenceCode();
+		$subtypeValues = $paymentReferenceCode ? [ 'paymentReferenceCode' => $paymentReferenceCode ] : [];
 		return array_merge(
 			$parentValues,
 			$subtypeValues
