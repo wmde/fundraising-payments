@@ -16,6 +16,12 @@ class SofortPayment extends Payment implements BookablePayment {
 
 	private const PAYMENT_METHOD = 'SUB';
 
+	private const LEGACY_TO_DISPLAY_KEY_MAP = [
+		'transaction_id' => 'transactionId',
+		'valuation_date' => 'valuationDate',
+		'ueb_code' => 'paymentReferenceCode'
+	];
+
 	/**
 	 * This field is nullable to allow for anonymisation
 	 *
@@ -105,7 +111,15 @@ class SofortPayment extends Payment implements BookablePayment {
 
 	public function getDisplayValues(): array {
 		$parentValues = parent::getDisplayValues();
-		$subtypeValues = $this->getPaymentSpecificLegacyData();
+		$legacySubtypeValues = $this->getPaymentSpecificLegacyData();
+		$subtypeValues = [];
+		foreach ( $legacySubtypeValues as $key => $value ) {
+			if ( isset( self::LEGACY_TO_DISPLAY_KEY_MAP[$key] ) ) {
+				$subtypeValues[self::LEGACY_TO_DISPLAY_KEY_MAP[$key]] = $value;
+			} else {
+				$subtypeValues[$key] = $value;
+			}
+		}
 		return array_merge(
 			$parentValues,
 			$subtypeValues
