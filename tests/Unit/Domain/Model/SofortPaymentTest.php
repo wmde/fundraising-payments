@@ -146,9 +146,9 @@ class SofortPaymentTest extends TestCase {
 			'amount' => 1000,
 			'interval' => 0,
 			'paymentType' => 'SUB',
-			'ueb_code' => 'XW-DAR-E99-X',
-			'transaction_id' => 'yellow',
-			'valuation_date' => '2001-12-24 17:30:00'
+			'paymentReferenceCode' => 'XW-DAR-E99-X',
+			'transactionId' => 'yellow',
+			'valuationDate' => '2001-12-24 17:30:00'
 		];
 
 		$this->assertNotNull( $payment->getValuationDate() );

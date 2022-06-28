@@ -102,7 +102,7 @@ class BankTransferPaymentTest extends TestCase {
 			'amount' => 7821,
 			'interval' => 1,
 			'paymentType' => 'UEB',
-			'ueb_code' => 'XW-TAR-ARA-X'
+			'paymentReferenceCode' => 'XW-TAR-ARA-X'
 		];
 
 		$this->assertEquals( $expectedOutput, $payment->getDisplayValues() );
