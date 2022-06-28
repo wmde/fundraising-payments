@@ -4,6 +4,11 @@
         <id name="id" type="integer" column="id">
             <generator strategy="IDENTITY"/>
         </id>
-        <field name="paymentId" type="integer" column="payment_id" nullable="true"/>
+        <field name="paymentId" type="integer" column="payment_id" nullable="false">
+            <options>
+                <option name="unsigned">true</option>
+                <option name="default">0</option>
+            </options>
+        </field>
     </entity>
 </doctrine-mapping>
