@@ -19,7 +19,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder\DoctrineTransactionIdFinder;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
 
 /**
@@ -97,7 +97,7 @@ class DoctrineTransactionIdFinderTest extends TestCase {
 	 * @return PayPalPayment[]
 	 */
 	private function givenPaymentsWithFollowups(): array {
-		$idRepository = new SequentialPaymentIDRepository( 55 );
+		$idRepository = new SequentialPaymentIdRepository( 55 );
 		$initialPayment = new PayPalPayment( 1, Euro::newFromCents( 1234 ), PaymentInterval::Monthly );
 		$initialPayment->bookPayment( [ 'payer_id' => 'ABCD1', 'payment_date' => PayPalPaymentBookingData::PAYMENT_DATE, 'txn_id' => 'ID_ONE' ], $idRepository );
 		$child1 = $initialPayment->bookPayment( [ 'payer_id' => 'ABCD1', 'payment_date' => PayPalPaymentBookingData::PAYMENT_DATE, 'txn_id' => 'ID_TWO' ], $idRepository );

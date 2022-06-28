@@ -8,7 +8,7 @@ use DateTimeImmutable;
 use DomainException;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\CreditCardBookingTransformer;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 
 /**
  * @license GPL-2.0-or-later
@@ -44,7 +44,7 @@ class CreditCardPayment extends Payment implements BookablePayment {
 		return $this->valuationDate === null && empty( $this->bookingData );
 	}
 
-	public function bookPayment( array $transactionData, PaymentIDRepository $idGenerator ): Payment {
+	public function bookPayment( array $transactionData, PaymentIdRepository $idGenerator ): Payment {
 		$transformer = new CreditCardBookingTransformer( $transactionData );
 		if ( $this->isBooked() ) {
 			throw new DomainException( 'Payment is already completed' );

@@ -4,9 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Fixtures;
 
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 
-class SequentialPaymentIDRepository implements PaymentIDRepository {
+class SequentialPaymentIdRepository implements PaymentIdRepository {
 
 	private int $currentId;
 
@@ -14,7 +14,7 @@ class SequentialPaymentIDRepository implements PaymentIDRepository {
 		$this->currentId = $initialId;
 	}
 
-	public function getNewID(): int {
+	public function getNewId(): int {
 		$newId = $this->currentId;
 		$this->currentId++;
 		return $newId;

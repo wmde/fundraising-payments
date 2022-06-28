@@ -12,19 +12,19 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
-use WMDE\Fundraising\PaymentContext\Domain\Repositories\PaymentIDRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\BankDataFailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 
 class CreatePaymentUseCase {
 	public function __construct(
-		private PaymentIDRepository $idGenerator,
+		private PaymentIdRepository $idGenerator,
 		private PaymentRepository $paymentRepository,
 		private PaymentReferenceCodeGenerator $paymentReferenceCodeGenerator,
 		private PaymentValidator $paymentValidator,
@@ -75,7 +75,7 @@ class CreatePaymentUseCase {
 	 */
 	private function createCreditCardPayment( PaymentCreationRequest $request ): CreditCardPayment {
 		return new CreditCardPayment(
-			$this->idGenerator->getNewID(),
+			$this->idGenerator->getNewId(),
 			Euro::newFromCents( $request->amountInEuroCents ),
 			PaymentInterval::from( $request->interval )
 		);
@@ -87,7 +87,7 @@ class CreatePaymentUseCase {
 	 */
 	private function createPayPalPayment( PaymentCreationRequest $request ): PayPalPayment {
 		return new PayPalPayment(
-			$this->idGenerator->getNewID(),
+			$this->idGenerator->getNewId(),
 			Euro::newFromCents( $request->amountInEuroCents ),
 			PaymentInterval::from( $request->interval )
 		);
@@ -105,7 +105,7 @@ class CreatePaymentUseCase {
 		}
 
 		return SofortPayment::create(
-			$this->idGenerator->getNewID(),
+			$this->idGenerator->getNewId(),
 			Euro::newFromCents( $request->amountInEuroCents ),
 			$paymentInterval,
 			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )
@@ -118,7 +118,7 @@ class CreatePaymentUseCase {
 	 */
 	private function createBankTransferPayment( PaymentCreationRequest $request ): BankTransferPayment {
 		return BankTransferPayment::create(
-			$this->idGenerator->getNewID(),
+			$this->idGenerator->getNewId(),
 			Euro::newFromCents( $request->amountInEuroCents ),
 			PaymentInterval::from( $request->interval ),
 			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )
@@ -136,7 +136,7 @@ class CreatePaymentUseCase {
 		}
 
 		return DirectDebitPayment::create(
-			$this->idGenerator->getNewID(),
+			$this->idGenerator->getNewId(),
 			Euro::newFromCents( $request->amountInEuroCents ),
 			PaymentInterval::from( $request->interval ),
 			new Iban( $request->iban ),
