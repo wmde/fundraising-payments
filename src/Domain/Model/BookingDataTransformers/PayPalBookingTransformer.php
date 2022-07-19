@@ -9,6 +9,8 @@ class PayPalBookingTransformer {
 	private const PAYER_ID_KEY = 'payer_id';
 	private const VALUATION_DATE_KEY = 'payment_date';
 	public const TRANSACTION_ID_KEY = 'txn_id';
+	public const TRANSACTION_TYPE_KEY = 'txn_type';
+	public const PAYMENT_STATUS_LEGACY_KEY = 'ext_payment_status';
 
 	/**
 	 * Sent by PayPal in "payment_date" field.
@@ -100,6 +102,11 @@ class PayPalBookingTransformer {
 		foreach ( self::LEGACY_KEY_MAP as $legacyKey => $bookingDataKey ) {
 			$result[$legacyKey] = $this->rawBookingData[$bookingDataKey] ?? '';
 		}
+
+		if ( isset( $result[self::PAYMENT_STATUS_LEGACY_KEY] ) && isset( $this->rawBookingData[self::TRANSACTION_TYPE_KEY] ) ) {
+			$result[self::PAYMENT_STATUS_LEGACY_KEY] = $result[self::PAYMENT_STATUS_LEGACY_KEY] . '/' . $this->rawBookingData[self::TRANSACTION_TYPE_KEY];
+		}
+
 		return $result;
 	}
 
