@@ -94,7 +94,7 @@ class PayPalBookingTransformerTest extends TestCase {
 			'ext_payment_id' => $bookingRequestData['txn_id'],
 			'ext_subscr_id' => $bookingRequestData['subscr_id'],
 			'ext_payment_type' => $bookingRequestData['payment_type'],
-			'ext_payment_status' => $bookingRequestData['payment_status'],
+			'ext_payment_status' => $bookingRequestData['payment_status'] . '/' . $bookingRequestData['txn_type'],
 			'ext_payment_account' => $bookingRequestData['payer_id'],
 			'ext_payment_timestamp' => $bookingRequestData['payment_date'],
 		], $result );
