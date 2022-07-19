@@ -188,7 +188,7 @@ class PayPalPaymentTest extends TestCase {
 			'ext_payment_id' => 'T4242',
 			'ext_subscr_id' => '8RHHUM3W3PRH7QY6B59',
 			'ext_payment_type' => 'instant',
-			'ext_payment_status' => 'processed',
+			'ext_payment_status' => 'processed/express_checkout',
 			'ext_payment_account' => '42',
 			'ext_payment_timestamp' => PayPalPaymentBookingData::PAYMENT_DATE
 		];
