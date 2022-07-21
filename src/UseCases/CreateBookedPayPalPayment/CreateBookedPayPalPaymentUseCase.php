@@ -9,8 +9,8 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
-use WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\PayPalVerificationService;
 use WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
+use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationService;
 
 /**
  * This use case will be used to book incoming PayPal payments without any reference where we can look up a payment ID.
@@ -23,10 +23,10 @@ use WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
  */
 class CreateBookedPayPalPaymentUseCase {
 	public function __construct(
-		private PaymentRepository $repository,
-		private PaymentIdRepository $idGenerator,
-		private PayPalVerificationService $verificationService,
-		private TransactionIdFinder $transactionIdFinder
+		private readonly PaymentRepository $repository,
+		private readonly PaymentIdRepository $idGenerator,
+		private readonly VerificationService $verificationService,
+		private readonly TransactionIdFinder $transactionIdFinder
 	) {
 	}
 
