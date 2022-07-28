@@ -24,11 +24,11 @@ class TestPaymentContextFactory {
 	 * @param array{db:Params} $config
 	 */
 	public function __construct( private array $config ) {
+		$this->contextFactory = new PaymentContextFactory();
 		$this->doctrineConfig = ORMSetup::createXMLMetadataConfiguration(
-			[ PaymentContextFactory::DOCTRINE_CLASS_MAPPING_DIRECTORY ],
+			$this->contextFactory->getDoctrineMappingPaths(),
 			true
 		);
-		$this->contextFactory = new PaymentContextFactory();
 		$this->entityManager = null;
 	}
 
