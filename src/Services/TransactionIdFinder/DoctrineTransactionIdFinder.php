@@ -26,8 +26,8 @@ class DoctrineTransactionIdFinder implements TransactionIdFinder {
 
 		$qb = $this->db->createQueryBuilder();
 		$qb->select( 'ppl.transaction_id', 'p.id' )
-			->from( 'payments', 'p' )
-			->join( 'p', 'payments_paypal', 'ppl', 'ppl.id=p.id' )
+			->from( 'payment', 'p' )
+			->join( 'p', 'payment_paypal', 'ppl', 'ppl.id=p.id' )
 			->where( 'p.id=:paymentId' )
 			->orWhere( 'ppl.parent_payment_id=:paymentId' )
 			->setParameter( 'paymentId', $paymentId );
@@ -50,7 +50,7 @@ class DoctrineTransactionIdFinder implements TransactionIdFinder {
 	public function transactionIdExists( string $transactionId ): bool {
 		$qb = $this->db->createQueryBuilder();
 		$qb->select( 'COUNT(id)' )
-			->from( 'payments_paypal' )
+			->from( 'payment_paypal' )
 			->where( 'transaction_id=:transactionId' )
 			->setParameter( 'transactionId', $transactionId );
 		return $qb->fetchOne() > 0;
