@@ -31,7 +31,7 @@ final class Version20220729162240 extends AbstractMigration {
 		$this->verifyDatabasePlatformIsMariaDB();
 
 		$this->addSql( <<<'EOT'
-CREATE TABLE payment_id (
+CREATE TABLE last_generated_payment_id (
     id INT AUTO_INCREMENT NOT NULL, 
     payment_id INT UNSIGNED DEFAULT 0 NOT NULL, 
     PRIMARY KEY(id)
@@ -48,7 +48,7 @@ EOT
 );
 
 		$this->addSql( <<<'EOT'
-CREATE TABLE payments (
+CREATE TABLE payment (
     id INT NOT NULL, 
     amount INT NOT NULL, 
     payment_interval INT NOT NULL, 
@@ -58,7 +58,7 @@ CREATE TABLE payments (
 EOT
 );
 		$this->addSql( <<<'EOT'
-CREATE TABLE payments_bank_transfer (
+CREATE TABLE payment_bank_transfer (
     id INT NOT NULL, 
     payment_reference_code VARCHAR(255) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_unicode_ci`,
     is_cancelled TINYINT(1) NOT NULL,
@@ -70,7 +70,7 @@ EOT
 );
 
 		$this->addSql( <<<'EOT'
-CREATE TABLE payments_credit_card (
+CREATE TABLE payment_credit_card (
 	id INT NOT NULL,
 	valuation_date DATETIME DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
 	booking_data LONGTEXT CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_unicode_ci` COMMENT '(DC2Type:json)',
@@ -80,7 +80,7 @@ EOT
 );
 
 		$this->addSql( <<<'EOT'
-CREATE TABLE payments_direct_debit (
+CREATE TABLE payment_direct_debit (
     id INT NOT NULL,
     iban VARCHAR(255) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_unicode_ci`,
     bic VARCHAR(255) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_unicode_ci`,
@@ -91,7 +91,7 @@ EOT
 );
 
 		$this->addSql( <<<'EOT'
-CREATE TABLE payments_paypal (
+CREATE TABLE payment_paypal (
 	id INT NOT NULL,
 	parent_payment_id INT DEFAULT NULL,
 	valuation_date DATETIME DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
@@ -106,7 +106,7 @@ EOT
 );
 
 		$this->addSql( <<<'EOT'
-CREATE TABLE payments_sofort (
+CREATE TABLE payment_sofort (
 	id INT NOT NULL,
 	payment_reference_code VARCHAR(255) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_unicode_ci`,
 	valuation_date DATETIME DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
@@ -122,14 +122,14 @@ EOT
 	public function down( Schema $schema ): void {
 		$this->verifyDatabasePlatformIsMariaDB();
 
-		$this->addSql( 'DROP TABLE payment_id' );
+		$this->addSql( 'DROP TABLE last_generated_payment_id' );
 		$this->addSql( 'DROP TABLE payment_reference_codes' );
-		$this->addSql( 'DROP TABLE payments' );
-		$this->addSql( 'DROP TABLE payments_bank_transfer' );
-		$this->addSql( 'DROP TABLE payments_credit_card' );
-		$this->addSql( 'DROP TABLE payments_direct_debit' );
-		$this->addSql( 'DROP TABLE payments_paypal' );
-		$this->addSql( 'DROP TABLE payments_sofort' );
+		$this->addSql( 'DROP TABLE payment' );
+		$this->addSql( 'DROP TABLE payment_bank_transfer' );
+		$this->addSql( 'DROP TABLE payment_credit_card' );
+		$this->addSql( 'DROP TABLE payment_direct_debit' );
+		$this->addSql( 'DROP TABLE payment_paypal' );
+		$this->addSql( 'DROP TABLE payment_sofort' );
 	}
 
 	private function verifyDatabasePlatformIsMariaDB(): void {
