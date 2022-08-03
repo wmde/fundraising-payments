@@ -406,8 +406,8 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	private function fetchRawCreditCardPaymentData(): array {
 		$data = $this->connection->createQueryBuilder()
 			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'pcc.valuation_date', 'pcc.booking_data' )
-			->from( 'payments', 'p' )
-			->join( 'p', 'payments_credit_card', 'pcc', 'p.id=pcc.id' )
+			->from( 'payment', 'p' )
+			->join( 'p', 'payment_credit_card', 'pcc', 'p.id=pcc.id' )
 			->where( 'p.id=1' )
 			->fetchAssociative();
 		if ( $data === false ) {
@@ -417,13 +417,13 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	private function insertRawBookedCreditCardData(): void {
-		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
-		$this->connection->insert( 'payments_credit_card', [ 'id' => 1, 'valuation_date' => '2021-12-24 23:00:00', 'booking_data' => '{"transactionId":"1eetcaffee"}' ] );
+		$this->connection->insert( 'payment', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
+		$this->connection->insert( 'payment_credit_card', [ 'id' => 1, 'valuation_date' => '2021-12-24 23:00:00', 'booking_data' => '{"transactionId":"1eetcaffee"}' ] );
 	}
 
 	private function insertRawUnBookedCreditCardData(): void {
-		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
-		$this->connection->insert( 'payments_credit_card', [ 'id' => 1, 'valuation_date' => null, 'booking_data' => null ] );
+		$this->connection->insert( 'payment', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
+		$this->connection->insert( 'payment_credit_card', [ 'id' => 1, 'valuation_date' => null, 'booking_data' => null ] );
 	}
 
 	/**
@@ -434,8 +434,8 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	private function fetchRawPayPalPaymentData( int $paymentId = 1 ): array {
 		$data = $this->connection->createQueryBuilder()
 			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'ppp.valuation_date', 'ppp.booking_data', 'ppp.parent_payment_id' )
-			->from( 'payments', 'p' )
-			->join( 'p', 'payments_paypal', 'ppp', 'p.id=ppp.id' )
+			->from( 'payment', 'p' )
+			->join( 'p', 'payment_paypal', 'ppp', 'p.id=ppp.id' )
 			->where( 'p.id=:paymentId' )
 			->setParameter( 'paymentId', $paymentId )
 			->fetchAssociative();
@@ -446,14 +446,14 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	private function insertRawPayPalData(): void {
-		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
-		$this->connection->insert( 'payments', [ 'id' => 2, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
-		$this->connection->insert( 'payments_paypal', [
+		$this->connection->insert( 'payment', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
+		$this->connection->insert( 'payment', [ 'id' => 2, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
+		$this->connection->insert( 'payment_paypal', [
 			'id' => 1,
 			'valuation_date' => '2021-12-24 23:00:00',
 			'booking_data' => PayPalPaymentBookingData::newEncodedValidBookingData()
 		] );
-		$this->connection->insert( 'payments_paypal', [
+		$this->connection->insert( 'payment_paypal', [
 			'id' => 2,
 			'valuation_date' => '2022-12-24 23:00:00',
 			'booking_data' => PayPalPaymentBookingData::newEncodedValidBookingData(),
@@ -468,8 +468,8 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	private function fetchRawBankTransferPaymentData(): array {
 		$data = $this->connection->createQueryBuilder()
 			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'prc.code AS payment_reference_code' )
-			->from( 'payments', 'p' )
-			->leftJoin( 'p', 'payments_bank_transfer', 'pbt', 'p.id=pbt.id' )
+			->from( 'payment', 'p' )
+			->leftJoin( 'p', 'payment_bank_transfer', 'pbt', 'p.id=pbt.id' )
 			->leftJoin( 'pbt', 'payment_reference_codes', 'prc', 'pbt.payment_reference_code=prc.code' )
 			->where( 'p.id=1' )
 			->fetchAssociative();
@@ -481,13 +481,13 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	private function insertRawBankTransferData(): void {
 		$this->connection->insert( 'payment_reference_codes', [ 'code' => 'XW-RAA-RR4-Y' ] );
-		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'UEB' ] );
-		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'payment_reference_code' => 'XW-RAA-RR4-Y', 'is_cancelled' => 0 ] );
+		$this->connection->insert( 'payment', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'UEB' ] );
+		$this->connection->insert( 'payment_bank_transfer', [ 'id' => 1, 'payment_reference_code' => 'XW-RAA-RR4-Y', 'is_cancelled' => 0 ] );
 	}
 
 	private function insertRawAnonymisedBankTransferData(): void {
-		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'UEB' ] );
-		$this->connection->insert( 'payments_bank_transfer', [ 'id' => 1, 'payment_reference_code' => null, 'is_cancelled' => 0 ] );
+		$this->connection->insert( 'payment', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'UEB' ] );
+		$this->connection->insert( 'payment_bank_transfer', [ 'id' => 1, 'payment_reference_code' => null, 'is_cancelled' => 0 ] );
 	}
 
 	/**
@@ -497,16 +497,16 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	 * @throws \Doctrine\DBAL\Exception
 	 */
 	private function insertRawDirectDebitPaymentData( array $extraData = [] ): void {
-		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'BEZ' ] );
-		$this->connection->insert( 'payments_direct_debit', array_merge(
+		$this->connection->insert( 'payment', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'BEZ' ] );
+		$this->connection->insert( 'payment_direct_debit', array_merge(
 			[ 'id' => 1, 'iban' => self::IBAN, 'bic' => self::BIC, 'is_cancelled' => 0 ],
 			$extraData
 		) );
 	}
 
 	private function insertRawAnonymisedDirectDebitPaymentData(): void {
-		$this->connection->insert( 'payments', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'BEZ' ] );
-		$this->connection->insert( 'payments_direct_debit', [ 'id' => 1, 'iban' => null, 'bic' => null, 'is_cancelled' => 0 ] );
+		$this->connection->insert( 'payment', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'BEZ' ] );
+		$this->connection->insert( 'payment_direct_debit', [ 'id' => 1, 'iban' => null, 'bic' => null, 'is_cancelled' => 0 ] );
 	}
 
 	/**
@@ -516,8 +516,8 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	private function fetchRawDirectDebitPaymentData(): array {
 		$data = $this->connection->createQueryBuilder()
 			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'pdd.iban', 'pdd.bic', 'pdd.is_cancelled' )
-			->from( 'payments', 'p' )
-			->join( 'p', 'payments_direct_debit', 'pdd', 'p.id=pdd.id' )
+			->from( 'payment', 'p' )
+			->join( 'p', 'payment_direct_debit', 'pdd', 'p.id=pdd.id' )
 			->where( 'p.id=1' )
 			->fetchAssociative();
 		if ( $data === false ) {
@@ -540,8 +540,8 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 				'psub.transaction_id',
 				'prc.code AS payment_reference_code'
 			)
-			->from( 'payments', 'p' )
-			->leftJoin( 'p', 'payments_sofort', 'psub', 'p.id=psub.id' )
+			->from( 'payment', 'p' )
+			->leftJoin( 'p', 'payment_sofort', 'psub', 'p.id=psub.id' )
 			->leftJoin( 'psub', 'payment_reference_codes', 'prc', 'psub.payment_reference_code=prc.code' )
 			->where( 'p.id=42' )
 			->fetchAssociative();
@@ -553,13 +553,13 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	private function insertRawSofortData(): void {
 		$this->connection->insert( 'payment_reference_codes', [ 'code' => 'XW-TAR-ARA-Y' ] );
-		$this->connection->insert( 'payments', [
+		$this->connection->insert( 'payment', [
 			'id' => 42,
 			'amount' => '1233',
 			'payment_interval' => 0,
 			'payment_method' => 'SUB'
 		] );
-		$this->connection->insert( 'payments_sofort', [
+		$this->connection->insert( 'payment_sofort', [
 			'id' => 42,
 			'valuation_date' => '2021-06-24 23:00:00',
 			'transaction_id' => 'imatransID42',
@@ -568,13 +568,13 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	}
 
 	private function insertRawAnonymisedSofortData(): void {
-		$this->connection->insert( 'payments', [
+		$this->connection->insert( 'payment', [
 			'id' => 42,
 			'amount' => '1233',
 			'payment_interval' => 0,
 			'payment_method' => 'SUB'
 		] );
-		$this->connection->insert( 'payments_sofort', [
+		$this->connection->insert( 'payment_sofort', [
 			'id' => 42,
 			'valuation_date' => '2021-06-24 23:00:00',
 			'transaction_id' => 'imatransID42',

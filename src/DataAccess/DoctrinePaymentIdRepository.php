@@ -36,12 +36,12 @@ class DoctrinePaymentIdRepository implements PaymentIdRepository {
 	}
 
 	private function updatePaymentId( Connection $connection ): void {
-		$statement = $connection->prepare( "UPDATE payment_id SET payment_id = payment_id + 1" );
+		$statement = $connection->prepare( "UPDATE last_generated_payment_id SET payment_id = payment_id + 1" );
 		$statement->executeStatement();
 	}
 
 	private function getCurrentIdResult( Connection $connection ): Result {
-		$statement = $connection->prepare( 'SELECT payment_id FROM payment_id LIMIT 1' );
+		$statement = $connection->prepare( 'SELECT payment_id FROM last_generated_payment_id LIMIT 1' );
 		return $statement->executeQuery();
 	}
 }
