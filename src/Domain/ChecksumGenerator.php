@@ -4,10 +4,10 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain;
 
-use InvalidArgumentException;
-
 /**
- * @license GPL-2.0-or-later
+ * Calculate a one-character checksum for a payment reference code
+ *
+ * @internal
  */
 class ChecksumGenerator {
 
@@ -19,7 +19,7 @@ class ChecksumGenerator {
 	 */
 	public function __construct( array $checksumCharacters ) {
 		if ( count( $checksumCharacters ) < 2 ) {
-			throw new InvalidArgumentException(
+			throw new \UnexpectedValueException(
 				'Need at least two characters to create meaningful checksum'
 			);
 		}

@@ -6,59 +6,82 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use DateTimeImmutable;
 use DomainException;
-use InvalidArgumentException;
+use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\CreditCardBookingTransformer;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 
 /**
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class CreditCardPayment implements PaymentMethod, BookablePayment {
+class CreditCardPayment extends Payment implements BookablePayment {
 
-	private ?CreditCardTransactionData $creditCardData;
+	use LegacyBookingStatusTrait;
 
-	public function __construct( CreditCardTransactionData $creditCardData = null ) {
-		$this->creditCardData = $creditCardData;
-	}
-
-	public function getId(): string {
-		return PaymentMethod::CREDIT_CARD;
-	}
-
-	public function getCreditCardData(): ?CreditCardTransactionData {
-		return $this->creditCardData;
-	}
+	private const PAYMENT_METHOD = 'MCP';
 
 	/**
-	 * @param CreditCardTransactionData $creditCardData
-	 * @deprecated use bookPayment instead
+	 * @var array<string,string>
 	 */
-	public function addCreditCardTransactionData( CreditCardTransactionData $creditCardData ): void {
-		$this->creditCardData = $creditCardData;
-	}
+	protected array $bookingData;
 
-	public function hasExternalProvider(): bool {
-		return true;
+	protected ?DateTimeImmutable $valuationDate = null;
+
+	public function __construct( int $id, Euro $amount, PaymentInterval $interval ) {
+		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
+		$this->bookingData = [];
 	}
 
 	public function getValuationDate(): ?DateTimeImmutable {
-		return DateTimeImmutable::createFromMutable( $this->creditCardData->getTransactionTimestamp() );
+		return $this->valuationDate;
 	}
 
-	public function paymentCompleted(): bool {
-		return $this->creditCardData !== null && $this->creditCardData->getTransactionId() !== '';
+	public function isBooked(): bool {
+		return $this->valuationDate !== null && !empty( $this->bookingData );
 	}
 
-	public function bookPayment( PaymentTransactionData $transactionData ): void {
-		if ( !( $transactionData instanceof CreditCardTransactionData ) ) {
-			throw new InvalidArgumentException( sprintf( 'Illegal transaction data class for credit card: %s', get_class( $transactionData ) ) );
-		}
-		if ( $transactionData->getTransactionId() === '' ) {
-			throw new InvalidArgumentException( 'Credit card transaction data must have transaction id' );
-		}
-		if ( $this->paymentCompleted() ) {
+	public function canBeBooked( array $transactionData ): bool {
+		return $this->valuationDate === null && empty( $this->bookingData );
+	}
+
+	public function bookPayment( array $transactionData, PaymentIdRepository $idGenerator ): Payment {
+		$transformer = new CreditCardBookingTransformer( $transactionData );
+		if ( $this->isBooked() ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
-		$this->creditCardData = $transactionData;
+		if ( !$this->getAmount()->equals( $transformer->getAmount() ) ) {
+			throw new \UnexpectedValueException( sprintf(
+				'Payment amount in transaction data (%s) must match original payment amount (%s)',
+				$transformer->getAmount()->getEuroString(),
+				$this->getAmount()->getEuroString()
+			) );
+		}
+		$this->bookingData = $transformer->getBookingData();
+		$this->valuationDate = $transformer->getValuationDate();
+		return $this;
 	}
 
+	protected function getPaymentName(): string {
+		return self::PAYMENT_METHOD;
+	}
+
+	protected function getPaymentSpecificLegacyData(): array {
+		if ( $this->isBooked() ) {
+			return ( new CreditCardBookingTransformer( $this->bookingData ) )->getLegacyData();
+		}
+		return [];
+	}
+
+	public function getDisplayValues(): array {
+		$parentValues = parent::getDisplayValues();
+		$subtypeValues = $this->getPaymentSpecificLegacyData();
+		return array_merge(
+			$parentValues,
+			$subtypeValues
+		);
+	}
+
+	public function isCompleted(): bool {
+		return $this->isBooked();
+	}
 }

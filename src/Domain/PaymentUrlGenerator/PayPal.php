@@ -5,12 +5,9 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
-class PayPal {
+class PayPal implements PaymentProviderURLGenerator {
 
 	private const PAYMENT_RECUR = '1';
 	private const PAYMENT_REATTEMPT = '1';
@@ -18,30 +15,40 @@ class PayPal {
 	private const PAYMENT_CYCLE_MONTHLY = 'M';
 
 	private PayPalConfig $config;
-	private string $itemName;
+	private PayPalPayment $payment;
 
-	public function __construct( PayPalConfig $config, string $itemName ) {
+	public function __construct( PayPalConfig $config, PayPalPayment $payment ) {
 		$this->config = $config;
-		$this->itemName = $itemName;
+		$this->payment = $payment;
 	}
 
-	public function generateUrl( int $itemId, string $invoiceId, Euro $amount, int $interval,
-		string $updateToken, string $accessToken ): string {
+	public function generateUrl( RequestContext $requestContext ): string {
 		$params = array_merge(
-			$this->getIntervalDependentParameters( $amount, $interval ),
-			$this->getIntervalAgnosticParameters( $itemId, $invoiceId, $updateToken, $accessToken ),
+			$this->getIntervalDependentParameters( $this->payment->getAmount(), $this->payment->getInterval()->value ),
+			$this->getIntervalAgnosticParameters(
+				$requestContext->itemId,
+				$requestContext->invoiceId,
+				$requestContext->updateToken,
+				$requestContext->accessToken ),
 			$this->getPaymentDelayParameters()
 		);
 
 		return $this->config->getPayPalBaseUrl() . http_build_query( $params );
 	}
 
+	/**
+	 * @param int $itemId
+	 * @param string $invoiceId
+	 * @param string $updateToken
+	 * @param string $accessToken
+	 * @return array<string,mixed>
+	 */
 	private function getIntervalAgnosticParameters( int $itemId, string $invoiceId, string $updateToken, string $accessToken ): array {
 		return [
 			'business' => $this->config->getPayPalAccountAddress(),
 			'currency_code' => 'EUR',
 			'lc' => $this->config->getLocale(),
-			'item_name' => $this->itemName,
+			'item_name' => $this->config->getTranslatableDescription()->getText( $this->payment->getAmount(), $this->payment->getInterval() ),
 			'item_number' => $itemId,
 			'invoice' => $invoiceId,
 			'notify_url' => $this->config->getNotifyUrl(),
@@ -56,6 +63,9 @@ class PayPal {
 		];
 	}
 
+	/**
+	 * @return array<string,mixed>
+	 */
 	private function getPaymentDelayParameters(): array {
 		if ( $this->config->getDelayInDays() > 0 ) {
 			return $this->getDelayedSubscriptionParams( $this->config->getDelayInDays() );
@@ -63,6 +73,11 @@ class PayPal {
 		return [];
 	}
 
+	/**
+	 * @param Euro $amount
+	 * @param int $interval
+	 * @return array<string,mixed>
+	 */
 	private function getIntervalDependentParameters( Euro $amount, int $interval ): array {
 		if ( $interval > 0 ) {
 			return $this->getSubscriptionParams( $amount, $interval );
@@ -78,7 +93,7 @@ class PayPal {
 	 * @param Euro $amount
 	 * @param int $interval
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	private function getSubscriptionParams( Euro $amount, int $interval ): array {
 		return [
@@ -101,7 +116,7 @@ class PayPal {
 	 *
 	 * @param int $delayInDays
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	private function getDelayedSubscriptionParams( int $delayInDays ): array {
 		return [
@@ -118,7 +133,7 @@ class PayPal {
 	 *
 	 * @param Euro $amount
 	 *
-	 * @return array
+	 * @return array<string,string>
 	 */
 	private function getSinglePaymentParams( Euro $amount ): array {
 		return [

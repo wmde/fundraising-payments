@@ -15,7 +15,7 @@ use WMDE\Fundraising\PaymentContext\Domain\ChecksumGenerator;
 class ChecksumGeneratorTest extends TestCase {
 
 	public function testCannotConstructWithLessThanTwoCharacters(): void {
-		$this->expectException( \InvalidArgumentException::class );
+		$this->expectException( \UnexpectedValueException::class );
 		new ChecksumGenerator( [ 'a' ] );
 	}
 
@@ -47,6 +47,9 @@ class ChecksumGeneratorTest extends TestCase {
 		}
 	}
 
+	/**
+	 * @return iterable<string>
+	 */
 	public function getRandomStrings(): iterable {
 		$characters = str_split( 'ACDEFKLMNPRSTWXYZ349-' );
 		$characterCount = count( $characters );

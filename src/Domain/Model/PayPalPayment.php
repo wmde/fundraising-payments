@@ -6,59 +6,126 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
 use DateTimeImmutable;
 use DomainException;
-use InvalidArgumentException;
+use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 
-/**
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
-class PayPalPayment implements PaymentMethod, BookablePayment {
+class PayPalPayment extends Payment implements BookablePayment {
 
-	private PayPalData $payPalData;
+	use LegacyBookingStatusTrait;
 
-	public function __construct( PayPalData $payPalData ) {
-		$this->payPalData = $payPalData;
+	private const PAYMENT_METHOD = 'PPL';
+
+	private ?string $transactionId = null;
+
+	/**
+	 * @var array<string,string>
+	 */
+	private array $bookingData;
+
+	private ?PayPalPayment $parentPayment = null;
+
+	private ?DateTimeImmutable $valuationDate = null;
+
+	public function __construct( int $id, Euro $amount, PaymentInterval $interval ) {
+		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
+		$this->bookingData = [];
 	}
 
-	public function getId(): string {
-		return PaymentMethod::PAYPAL;
+	public function getValuationDate(): ?DateTimeImmutable {
+		return $this->valuationDate;
 	}
 
-	public function getPayPalData(): PayPalData {
-		return $this->payPalData;
+	public function isBooked(): bool {
+		return $this->valuationDate !== null && !empty( $this->bookingData );
+	}
+
+	public function canBeBooked( array $transactionData ): bool {
+		if ( !$this->isBooked() ) {
+			return true;
+		}
+		// Booked "initial" payments (payments where "parentPayment" is null) can be booked as followup payments
+		return $this->isBookedInitialPayment();
 	}
 
 	/**
-	 * @param PayPalData $palPayData
-	 * @deprecated use bookPayment instead
+	 * @param array<string,mixed> $transactionData Payment information from PayPal
+	 * @param PaymentIdRepository $idGenerator Used for creating followup payments
+	 *
+	 * @return PayPalPayment
+	 *
 	 */
-	public function addPayPalData( PayPalData $palPayData ): void {
-		$this->payPalData = $palPayData;
-	}
-
-	public function hasExternalProvider(): bool {
-		return true;
-	}
-
-	public function getValuationDate(): DateTimeImmutable {
-		return new DateTimeImmutable( $this->payPalData->getPaymentTimestamp() );
-	}
-
-	public function paymentCompleted(): bool {
-		return $this->payPalData->getPayerId() !== '';
-	}
-
-	public function bookPayment( PaymentTransactionData $transactionData ): void {
-		if ( !( $transactionData instanceof PayPalData ) ) {
-			throw new InvalidArgumentException( sprintf( 'Illegal transaction data class for paypal: %s', get_class( $transactionData ) ) );
-		}
-		if ( $transactionData->getPayerId() === '' ) {
-			throw new InvalidArgumentException( 'Transaction data must have payer ID' );
-		}
-		if ( $this->paymentCompleted() ) {
+	public function bookPayment( array $transactionData, PaymentIdRepository $idGenerator ): PayPalPayment {
+		$transformer = new PayPalBookingTransformer( $transactionData );
+		if ( !$this->canBeBooked( $transactionData ) ) {
 			throw new DomainException( 'Payment is already completed' );
 		}
-		$this->payPalData = $transactionData;
+
+		if ( $this->isBookedInitialPayment() ) {
+			return $this->createFollowUpPayment( $transactionData, $idGenerator );
+		}
+
+		$this->bookingData = $transformer->getBookingData();
+		$this->valuationDate = $transformer->getValuationDate();
+		$this->transactionId = $transformer->getTransactionId();
+		return $this;
 	}
 
+	public function getTransactionId(): ?string {
+		return $this->transactionId;
+	}
+
+	protected function getPaymentName(): string {
+		return self::PAYMENT_METHOD;
+	}
+
+	protected function getPaymentSpecificLegacyData(): array {
+		$legacyData = [];
+		if ( $this->isBooked() ) {
+			$legacyData = ( new PayPalBookingTransformer( $this->bookingData ) )->getLegacyData();
+		}
+		if ( $this->parentPayment !== null ) {
+			$legacyData['parent_payment_id'] = $this->parentPayment->getId();
+		}
+		return $legacyData;
+	}
+
+	/**
+	 * Create a booked followup payment
+	 *
+	 * @param array<string,mixed> $transactionData
+	 * @param PaymentIdRepository $idGenerator
+	 *
+	 * @return PayPalPayment
+	 */
+	private function createFollowUpPayment( array $transactionData, PaymentIdRepository $idGenerator ): PayPalPayment {
+		$followupPayment = new PayPalPayment( $idGenerator->getNewId(), $this->amount, $this->interval );
+		$followupPayment->parentPayment = $this;
+		return $followupPayment->bookPayment( $transactionData, $idGenerator );
+	}
+
+	private function isBookedInitialPayment(): bool {
+		return $this->isBooked() && $this->parentPayment === null && $this->isRecurringPayment();
+	}
+
+	private function isRecurringPayment(): bool {
+		return $this->interval !== PaymentInterval::OneTime;
+	}
+
+	public function getDisplayValues(): array {
+		$parentValues = parent::getDisplayValues();
+		$subtypeValues = $this->getPaymentSpecificLegacyData();
+		return array_merge(
+			$parentValues,
+			$subtypeValues
+		);
+	}
+
+	public function isCompleted(): bool {
+		return $this->isBooked();
+	}
+
+	public function getParentPayment(): ?PayPalPayment {
+		return $this->parentPayment;
+	}
 }

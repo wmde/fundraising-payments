@@ -4,82 +4,171 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
-use DateTime;
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
+use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\SofortTransactionData;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
+use WMDE\Fundraising\PaymentContext\Tests\Inspectors\SofortPaymentInspector;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment
  */
 class SofortPaymentTest extends TestCase {
 
-	public function testInitialProperties(): void {
-		$sofortPayment = new SofortPayment( 'lorem' );
-		$this->assertSame( 'SUB', $sofortPayment->getId() );
-		$this->assertSame( 'lorem', $sofortPayment->getBankTransferCode() );
-		$this->assertNull( $sofortPayment->getConfirmedAt() );
+	public function testGetPaymentCode(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$this->assertEquals( 'XW-DAR-E99-X', $sofortPayment->getPaymentReferenceCode() );
 	}
 
-	public function testConfirmedAcceptsDateTime(): void {
-		$sofortPayment = new SofortPayment( 'lorem' );
-		$sofortPayment->setConfirmedAt( new DateTime( '2001-12-24T17:30:00Z' ) );
-		$this->assertEquals( new DateTime( '2001-12-24T17:30:00Z' ), $sofortPayment->getConfirmedAt() );
+	public function testGetPaymentCodeOfAnonymisedPaymentsReturnsEmptyString(): void {
+		$sofortPayment = $this->makeSofortPayment();
+		$sofortPayment->anonymise();
+
+		$this->assertSame( '', $sofortPayment->getPaymentReferenceCode() );
 	}
 
-	public function testIsConfirmedPayment_newPaymentIsNotConfirmed(): void {
-		$sofortPayment = new SofortPayment( 'ipsum' );
-		$this->assertFalse( $sofortPayment->isConfirmedPayment() );
+	public function testNewSofortPaymentsAreUnbookedAndIncomplete(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$this->assertTrue( $sofortPayment->canBeBooked( $this->makeValidTransactionData() ) );
+		$this->assertFalse( $sofortPayment->isCompleted() );
 	}
 
-	public function testIsConfirmedPayment_settingPaymentDateConfirmsPayment(): void {
-		$sofortPayment = new SofortPayment( 'ipsum' );
-		$sofortPayment->setConfirmedAt( new DateTime( 'now' ) );
-		$this->assertTrue( $sofortPayment->isConfirmedPayment() );
-	}
-
-	public function testPaymentWithoutDate_isUncompleted(): void {
-		$sofortPayment = new SofortPayment( 'ipsum' );
-		$this->assertFalse( $sofortPayment->paymentCompleted() );
-	}
-
-	public function testPaymentWithDate_isCompleted(): void {
-		$sofortPayment = new SofortPayment( 'ipsum' );
-		$sofortPayment->setConfirmedAt( new DateTime( 'now' ) );
-		$this->assertTrue( $sofortPayment->paymentCompleted() );
-	}
-
-	public function testCompletePaymentWithInvalidTransactionObjectFails(): void {
-		$payment = new SofortPayment( 'ipsum' );
-		$wrongPaymentTransaction = new class() implements PaymentTransactionData {
-		};
-
+	public function testGivenNonOneTimePaymentIntervalThrowsException(): void {
 		$this->expectException( \InvalidArgumentException::class );
 
-		$payment->bookPayment( $wrongPaymentTransaction );
+		SofortPayment::create( 1, Euro::newFromCents( 1000 ), PaymentInterval::HalfYearly, new PaymentReferenceCode( 'XW', 'DARE99', 'X' ) );
 	}
 
-	public function testGivenCompletedPayment_completePaymentFails(): void {
-		$payment = new SofortPayment( 'ipsum' );
-		$firstCompletion = new SofortTransactionData( new \DateTimeImmutable() );
-		$secondCompletion = new SofortTransactionData( new \DateTimeImmutable( '2021-12-24 0:00:00' ) );
-		$payment->bookPayment( $firstCompletion );
+	public function testBookPaymentSetsCompleted(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
+
+		$this->assertTrue( $sofortPayment->isCompleted() );
+		$this->assertFalse( $sofortPayment->canBeBooked( $this->makeValidTransactionData() ) );
+	}
+
+	public function testBookPaymentValidatesDate(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$this->expectException( \DomainException::class );
+		$this->expectExceptionMessageMatches( '/Error in valuation date/' );
+
+		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24' ], new DummyPaymentIdRepository() );
+	}
+
+	public function testBookPaymentValidatesTransactionIdNotEmpty(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$this->expectException( \DomainException::class );
+		$this->expectExceptionMessageMatches( '/Transaction ID missing/' );
+
+		$sofortPayment->bookPayment( [ 'transactionId' => '', 'valuationDate' => '2001-12-24T17:30:00Z' ], new DummyPaymentIdRepository() );
+	}
+
+	public function testBookPaymentSetsValuationDate(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
+
+		$this->assertEquals( new \DateTimeImmutable( '2001-12-24T17:30:00Z' ), $sofortPayment->getValuationDate() );
+	}
+
+	public function testBookPaymentSetsTransactionId(): void {
+		$sofortPayment = $this->makeSofortPayment();
+
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
+
+		$sofortPaymentInspector = new SofortPaymentInspector( $sofortPayment );
+
+		$this->assertEquals( 'yellow', $sofortPaymentInspector->getTransactionId() );
+	}
+
+	public function testPaymentCannotBeBookedTwice(): void {
+		$sofortPayment = $this->makeSofortPayment();
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 
 		$this->expectException( \DomainException::class );
 
-		$payment->bookPayment( $secondCompletion );
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 	}
 
-	public function testCompletePaymentWithValidTransactionDataSucceeds(): void {
-		$payment = new SofortPayment( 'ipsum' );
-		$valuationDate = new \DateTimeImmutable();
-		$transactionData = new SofortTransactionData( $valuationDate );
+	public function testNewPaymentHasFormattedReferenceCodeInLegacyData(): void {
+		$sofortPayment = $this->makeSofortPayment();
 
-		$payment->bookPayment( $transactionData );
+		$legacyData = $sofortPayment->getLegacyData();
 
-		$this->assertTrue( $payment->paymentCompleted() );
-		$this->assertEquals( $valuationDate, $payment->getValuationDate() );
+		$this->assertSame( [ 'ueb_code' => 'XW-DAR-E99-X' ], $legacyData->paymentSpecificValues );
 	}
 
+	public function testAnonymisedPaymentHasEmptyReferenceCodeInLegacyData(): void {
+		$sofortPayment = $this->makeSofortPayment();
+		$sofortPayment->anonymise();
+
+		$legacyData = $sofortPayment->getLegacyData();
+
+		$this->assertSame( [ 'ueb_code' => '' ], $legacyData->paymentSpecificValues );
+	}
+
+	public function testBookedPaymentHasTransactionDataInLegacyData(): void {
+		$sofortPayment = $this->makeSofortPayment();
+		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
+		$expectedLegacyData = [
+			'ueb_code' => 'XW-DAR-E99-X',
+			'transaction_id' => 'yellow',
+			'valuation_date' => '2001-12-24 17:30:00'
+		];
+
+		$legacyData = $sofortPayment->getLegacyData();
+
+		$this->assertEquals( $expectedLegacyData, $legacyData->paymentSpecificValues );
+	}
+
+	public function testStatusInLegacyDataChangesWithBookedStatus(): void {
+		$sofortPayment = $this->makeSofortPayment();
+		$bookedSofortPayment = $this->makeSofortPayment();
+		$bookedSofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
+
+		$this->assertSame( LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value, $sofortPayment->getLegacyData()->paymentStatus );
+		$this->assertSame( LegacyPaymentStatus::EXTERNAL_BOOKED->value, $bookedSofortPayment->getLegacyData()->paymentStatus );
+	}
+
+	public function testGetDisplayDataReturnsAllFieldsToDisplay(): void {
+		$payment = $this->makeSofortPayment();
+		$payment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
+
+		$expectedOutput = [
+			'amount' => 1000,
+			'interval' => 0,
+			'paymentType' => 'SUB',
+			'paymentReferenceCode' => 'XW-DAR-E99-X',
+			'transactionId' => 'yellow',
+			'valuationDate' => '2001-12-24 17:30:00'
+		];
+
+		$this->assertNotNull( $payment->getValuationDate() );
+		$this->assertFalse( $payment->canBeBooked( [] ) );
+		$this->assertEquals( $expectedOutput, $payment->getDisplayValues() );
+	}
+
+	private function makeSofortPayment(): SofortPayment {
+		return SofortPayment::create(
+			1,
+			Euro::newFromCents( 1000 ),
+			PaymentInterval::OneTime,
+			new PaymentReferenceCode( 'XW', 'DARE99', 'X' )
+		);
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function makeValidTransactionData(): array {
+		return [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ];
+	}
 }

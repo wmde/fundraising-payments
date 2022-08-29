@@ -6,3 +6,20 @@ services:
     volumes:
       - ./:/usr/src/app
     working_dir: /usr/src/app
+    command:
+      - chmod +x /usr/src/app/build/wait-for-it.sh
+    depends_on:
+      - database
+
+  database:
+    image: mariadb:10.4
+    environment:
+      - MARIADB_RANDOM_ROOT_PASSWORD=yes
+      - MARIADB_USER=fundraising
+      - MARIADB_PASSWORD=INSECURE PASSWORD
+      - MARIADB_DATABASE=fundraising
+    tmpfs: /var/lib/mysql:rw
+    ports:
+      - '3309:3306'
+    expose:
+      - "3309"

@@ -27,9 +27,10 @@ class PayPalConfig {
 	private string $returnUrl;
 	private string $cancelUrl;
 	private int $delayInDays;
+	private TranslatableDescription $translatableDescription;
 
 	private function __construct( string $payPalAccountAddress, string $locale, string $payPalBaseUrl, string $notifyUrl,
-		string $returnUrl, string $cancelUrl, int $delayInDays ) {
+		string $returnUrl, string $cancelUrl, int $delayInDays, TranslatableDescription $translatableDescription ) {
 		$this->payPalAccountAddress = $payPalAccountAddress;
 		$this->locale = $locale;
 		$this->payPalBaseUrl = $payPalBaseUrl;
@@ -37,15 +38,17 @@ class PayPalConfig {
 		$this->returnUrl = $returnUrl;
 		$this->cancelUrl = $cancelUrl;
 		$this->delayInDays = $delayInDays;
+		$this->translatableDescription = $translatableDescription;
 	}
 
 	/**
 	 * @param array{ 'account-address': string, 'locale' : string, 'base-url': string, 'notify-url': string, 'return-url': string, 'cancel-url': string, 'delay-in-days'?: int } $config
+	 * @param TranslatableDescription $translatableDescription
 	 *
 	 * @return PayPalConfig
 	 * @throws RuntimeException
 	 */
-	public static function newFromConfig( array $config ): self {
+	public static function newFromConfig( array $config, TranslatableDescription $translatableDescription ): self {
 		return ( new self(
 			$config[self::CONFIG_KEY_ACCOUNT_ADDRESS],
 			$config[self::CONFIG_KEY_LOCALE],
@@ -53,7 +56,8 @@ class PayPalConfig {
 			$config[self::CONFIG_KEY_NOTIFY_URL],
 			$config[self::CONFIG_KEY_RETURN_URL],
 			$config[self::CONFIG_KEY_CANCEL_URL],
-			isset( $config[self::CONFIG_KEY_DELAY_IN_DAYS] ) ? (int)$config[self::CONFIG_KEY_DELAY_IN_DAYS] : -1
+			isset( $config[self::CONFIG_KEY_DELAY_IN_DAYS] ) ? (int)$config[self::CONFIG_KEY_DELAY_IN_DAYS] : -1,
+			$translatableDescription
 		) )->assertNoEmptyFields();
 	}
 
@@ -95,4 +99,7 @@ class PayPalConfig {
 		return $this->delayInDays;
 	}
 
+	public function getTranslatableDescription(): TranslatableDescription {
+		return $this->translatableDescription;
+	}
 }

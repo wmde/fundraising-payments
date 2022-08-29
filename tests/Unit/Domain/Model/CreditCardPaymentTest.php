@@ -5,71 +5,138 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
 use PHPUnit\Framework\TestCase;
+use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardTransactionData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentTransactionData;
+use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Tests\Data\CreditCardPaymentBookingData;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment
  */
 class CreditCardPaymentTest extends TestCase {
 
-	private const TRANSACTION_ID = '7788998877';
 	private const OTHER_TRANSACTION_ID = '3388998877';
 
-	public function testGivenNullCreditCardTransactionData_isUncompleted(): void {
-		$creditCardPayment = new CreditCardPayment();
-		$this->assertFalse( $creditCardPayment->paymentCompleted() );
+	public function testNewCreditCardPaymentsAreNotBookedAndIncomplete(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$this->assertTrue( $creditCardPayment->canBeBooked( [] ) );
+		$this->assertFalse( $creditCardPayment->isCompleted() );
 	}
 
-	public function testGivenCreditCardTransactionDataWithNoTransactionID_isUncompleted(): void {
-		$creditCardPayment = new CreditCardPayment( new CreditCardTransactionData() );
-		$this->assertFalse( $creditCardPayment->paymentCompleted() );
-	}
-
-	public function testGivenCreditCardTransactionDataWithTransactionID_isCompleted(): void {
-		$creditCardPayment = new CreditCardPayment( ( new CreditCardTransactionData() )->setTransactionId( self::TRANSACTION_ID ) );
-		$this->assertTrue( $creditCardPayment->paymentCompleted() );
-	}
-
-	public function testCompletePaymentWithInvalidTransactionObjectFails(): void {
-		$creditCardPayment = new CreditCardPayment( new CreditCardTransactionData() );
-		$wrongPaymentTransaction = new class() implements PaymentTransactionData {
-		};
+	public function testCompletePaymentWithOutTransactionIdFails(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
 		$this->expectException( \InvalidArgumentException::class );
 
-		$creditCardPayment->bookPayment( $wrongPaymentTransaction );
+		$creditCardPayment->bookPayment( [], new DummyPaymentIdRepository() );
 	}
 
 	public function testCompletePaymentWithEmptyTransactionDataFails(): void {
-		$creditCardPayment = new CreditCardPayment( new CreditCardTransactionData() );
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
 		$this->expectException( \InvalidArgumentException::class );
 
-		$creditCardPayment->bookPayment( new CreditCardTransactionData() );
+		$creditCardPayment->bookPayment( [ 'transactionId' => '' ], new DummyPaymentIdRepository() );
 	}
 
-	public function testGivenCompletedPayment_completePaymentFails(): void {
-		$transactionData = new CreditCardTransactionData();
-		$transactionData->setTransactionId( self::TRANSACTION_ID );
-		$creditCardPayment = new CreditCardPayment( $transactionData );
-		$newTransactionData = new CreditCardTransactionData();
-		$newTransactionData->setTransactionId( self::OTHER_TRANSACTION_ID );
+	public function testPaymentCannotBeBookedMultipleTimes(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$creditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
 		$this->expectException( \DomainException::class );
 
-		$creditCardPayment->bookPayment( $newTransactionData );
+		$creditCardPayment->bookPayment(
+			[
+				...CreditCardPaymentBookingData::newValidBookingData(),
+				'transactionId' => self::OTHER_TRANSACTION_ID
+			],
+			new DummyPaymentIdRepository()
+		);
 	}
 
-	public function testCompletePaymentWithValidTransactionDataSucceeds(): void {
-		$creditCardPayment = new CreditCardPayment( new CreditCardTransactionData() );
-		$transactionData = new CreditCardTransactionData();
-		$transactionData->setTransactionId( self::TRANSACTION_ID );
+	public function testBookPaymentWithMismatchedAmountFails(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
-		$creditCardPayment->bookPayment( $transactionData );
+		$this->expectException( \UnexpectedValueException::class );
+		$this->expectExceptionMessageMatches( '/amount/' );
 
-		$this->assertTrue( $creditCardPayment->paymentCompleted() );
-		$this->assertSame( self::TRANSACTION_ID, $creditCardPayment->getCreditCardData()->getTransactionId() );
+		$creditCardPayment->bookPayment(
+			[
+				...CreditCardPaymentBookingData::newValidBookingData(),
+				'transactionId' => self::OTHER_TRANSACTION_ID,
+				'amount' => '1337'
+			],
+			new DummyPaymentIdRepository()
+		);
+	}
+
+	public function testBookPaymentWithValidTransactionMarksItBooked(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+
+		$creditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+
+		$this->assertFalse( $creditCardPayment->canBeBooked( CreditCardPaymentBookingData::newValidBookingData() ) );
+		// Credit cards get their valuation date from current time instead of transaction data
+		$this->assertNotNull( $creditCardPayment->getValuationDate() );
+		$this->assertEqualsWithDelta( time(), $creditCardPayment->getValuationDate()->getTimestamp(), 5 );
+		$this->assertTrue( $creditCardPayment->isCompleted() );
+	}
+
+	public function testGivenBookedPayment_paymentLegacyDataIsNonEmptyArray(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$creditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+
+		$legacyData = $creditCardPayment->getLegacyData();
+		$this->assertNotEmpty( $legacyData->paymentSpecificValues );
+		// spot-check some values to see if we have the right field names
+		$this->assertSame( '100000', $legacyData->paymentSpecificValues['mcp_amount'] );
+		$this->assertSame( 'customer.prefix-ID2tbnag4a9u', $legacyData->paymentSpecificValues['ext_payment_id'] );
+		$this->assertSame( 'e20fb9d5281c1bca1901c19f6e46213191bb4c17', $legacyData->paymentSpecificValues['ext_payment_account'] );
+		$this->assertNotEmpty( $legacyData->paymentSpecificValues['ext_payment_timestamp'] );
+	}
+
+	public function testGivenNewPayment_paymentLegacyDataIsEmptyArray(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+
+		$this->assertSame( [],  $creditCardPayment->getLegacyData()->paymentSpecificValues );
+	}
+
+	public function testStatusInLegacyDataChangesWithBookedStatus(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$bookedCreditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$bookedCreditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+
+		$this->assertSame( LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value, $creditCardPayment->getLegacyData()->paymentStatus );
+		$this->assertSame( LegacyPaymentStatus::EXTERNAL_BOOKED->value, $bookedCreditCardPayment->getLegacyData()->paymentStatus );
+	}
+
+	public function testGetDisplayDataReturnsAllFieldsToDisplayForBookedPayment(): void {
+		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$creditCardPayment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+
+		$expectedValues = [
+			'amount' => 100000,
+			'interval' => 1,
+			'paymentType' => 'MCP',
+			'ext_payment_id' => 'customer.prefix-ID2tbnag4a9u',
+			'mcp_amount' => '100000',
+			'ext_payment_account' => 'e20fb9d5281c1bca1901c19f6e46213191bb4c17',
+			'mcp_sessionid' => 'CC13064b2620f4028b7d340e3449676213336a4d',
+			'mcp_auth' => 'd1d6fae40cf96af52477a9e521558ab7',
+			'mcp_title' => 'Your generous donation',
+			'mcp_country' => 'DE',
+			'mcp_currency' => 'EUR',
+			'mcp_cc_expiry_date' => '',
+			'ext_payment_status' => 'processed'
+		];
+
+		$actualDisplayData = $creditCardPayment->getDisplayValues();
+
+		$this->assertNotNull( $creditCardPayment->getValuationDate() );
+		$this->assertFalse( $creditCardPayment->canBeBooked( [] ) );
+		unset( $actualDisplayData['ext_payment_timestamp'] );
+		$this->assertEquals( $expectedValues, $actualDisplayData );
 	}
 }

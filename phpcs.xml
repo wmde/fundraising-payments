@@ -9,6 +9,7 @@
     <file>tests/</file>
     <arg value="s"/>
     <arg value="p"/>
-    <rule ref="vendor/wmde/fundraising-phpcs/WMDE/Fundraising" />
+	<rule ref="vendor/wmde/fundraising-phpcs/WMDE/Fundraising" />
+    <exclude-pattern>/tests/Inspectors/*</exclude-pattern>
 
 </ruleset>

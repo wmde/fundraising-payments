@@ -4,17 +4,20 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 
+use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPal as PaypalUrlGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\TranslatableDescription;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPal
  *
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class PayPalTest extends \PHPUnit\Framework\TestCase {
+class PayPalTest extends TestCase {
 
 	private const BASE_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr?';
 	private const LOCALE = 'de_DE';
@@ -23,12 +26,27 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 	private const RETURN_URL = 'https://my.donation.app/donation/confirm/';
 	private const CANCEL_URL = 'https://my.donation.app/donation/cancel/';
 	private const ITEM_NAME = 'Mentioning that awesome organization on the invoice';
+	private RequestContext $testRequestContext;
+
+	public function setup(): void {
+		$this->testRequestContext = new RequestContext(
+			1234,
+			'd1234',
+			'utoken',
+			'atoken'
+		);
+	}
 
 	public function testSubscriptions(): void {
-		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), self::ITEM_NAME );
+		$payment = new PayPalPayment(
+			1234,
+			Euro::newFromString( '12.34' ),
+			PaymentInterval::Quarterly
+		);
+		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), $payment );
 
 		$this->assertUrlValidForSubscriptions(
-			$generator->generateUrl( 1234, 'd1234', Euro::newFromString( '12.34' ), 3, 'utoken', 'atoken' )
+			$generator->generateUrl( $this->testRequestContext )
 		);
 	}
 
@@ -38,10 +56,15 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testSinglePayments(): void {
-		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), self::ITEM_NAME );
+		$payment = new PayPalPayment(
+			1234,
+			Euro::newFromString( '12.34' ),
+			PaymentInterval::OneTime
+		);
+		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), $payment );
 
 		$this->assertUrlValidForSinglePayments(
-			$generator->generateUrl( 1234, 'd1234', Euro::newFromString( '12.34' ), 0, 'utoken', 'atoken' )
+			$generator->generateUrl( $this->testRequestContext )
 		);
 	}
 
@@ -51,6 +74,8 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	private function newPayPalUrlConfig(): PayPalConfig {
+		$descriptionStub = $this->createStub( TranslatableDescription::class );
+		$descriptionStub->method( 'getText' )->willReturn( self::ITEM_NAME );
 		return PayPalConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
@@ -59,7 +84,8 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 				'notify-url' => self::NOTIFY_URL,
 				'return-url' => self::RETURN_URL,
 				'cancel-url' => self::CANCEL_URL
-			]
+			],
+			$descriptionStub
 		);
 	}
 
@@ -69,6 +95,7 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	private function newIncompletePayPalUrlConfig(): PayPalConfig {
+		$descriptionStub = $this->createStub( TranslatableDescription::class );
 		return PayPalConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
@@ -77,15 +104,22 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 				'notify-url' => self::NOTIFY_URL,
 				'return-url' => self::RETURN_URL,
 				'cancel-url' => ''
-			]
+			],
+			$descriptionStub
 		);
 	}
 
 	public function testDelayedSubscriptions(): void {
-		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfigWithDelayedPayment(), self::ITEM_NAME );
+		$payment = new PayPalPayment(
+			1234,
+			Euro::newFromString( '12.34' ),
+			PaymentInterval::Quarterly
+		);
+
+		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfigWithDelayedPayment(), $payment );
 
 		$this->assertUrlValidForDelayedSubscriptions(
-			$generator->generateUrl( 1234, 'd1234', Euro::newFromString( '12.34' ), 3, 'utoken', 'atoken' )
+			$generator->generateUrl( $this->testRequestContext )
 		);
 	}
 
@@ -96,6 +130,8 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	private function newPayPalUrlConfigWithDelayedPayment(): PayPalConfig {
+		$descriptionStub = $this->createStub( TranslatableDescription::class );
+		$descriptionStub->method( 'getText' )->willReturn( 'Mentioning that awesome organization on the invoice' );
 		return PayPalConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
@@ -105,7 +141,8 @@ class PayPalTest extends \PHPUnit\Framework\TestCase {
 				'return-url' => self::RETURN_URL,
 				'cancel-url' => self::CANCEL_URL,
 				'delay-in-days' => 90
-			]
+			],
+			$descriptionStub
 		);
 	}
 
