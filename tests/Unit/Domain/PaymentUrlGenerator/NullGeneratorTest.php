@@ -18,7 +18,7 @@ class NullGeneratorTest extends TestCase {
 
 		$nullGenerator = new NullGenerator();
 
-		self::assertEmpty( $nullGenerator->generateURL( $contextMock ) );
+		self::assertSame( '', $nullGenerator->generateURL( $contextMock ) );
 	}
 
 }
