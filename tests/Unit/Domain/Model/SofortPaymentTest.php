@@ -135,7 +135,7 @@ class SofortPaymentTest extends TestCase {
 		$bookedSofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 
 		$this->assertSame( LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value, $sofortPayment->getLegacyData()->paymentStatus );
-		$this->assertSame( LegacyPaymentStatus::EXTERNAL_BOOKED->value, $bookedSofortPayment->getLegacyData()->paymentStatus );
+		$this->assertSame( LegacyPaymentStatus::BANK_TRANSFER->value, $bookedSofortPayment->getLegacyData()->paymentStatus );
 	}
 
 	public function testGetDisplayDataReturnsAllFieldsToDisplay(): void {

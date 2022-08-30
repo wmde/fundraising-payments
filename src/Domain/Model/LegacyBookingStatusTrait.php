@@ -9,7 +9,8 @@ trait LegacyBookingStatusTrait {
 	abstract public function isBooked(): bool;
 
 	protected function getLegacyPaymentStatus(): string {
-		if ( $this->isBooked() ) { return LegacyPaymentStatus::EXTERNAL_BOOKED->value;
+		if ( $this->isBooked() ) {
+			return LegacyPaymentStatus::EXTERNAL_BOOKED->value;
 		}
 		return LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value;
 	}
