@@ -18,7 +18,7 @@ use WMDE\Fundraising\PaymentContext\Tests\Inspectors\PayPalPaymentInspector;
  */
 class PayPalPaymentTest extends TestCase {
 
-	private const PAYER_ID = '42';
+	private const PAYER_ID = '42DFPNJDF8RED';
 	private const FOLLOWUP_PAYMENT_ID = 99;
 
 	public function testNewPayPalPaymentsAreUnbookedAndIncomplete(): void {
@@ -148,7 +148,7 @@ class PayPalPaymentTest extends TestCase {
 
 		$this->assertNotEmpty( $legacyData->paymentSpecificValues );
 		// spot-check some values to see if we have the right field names
-		$this->assertSame( '42', $legacyData->paymentSpecificValues['paypal_payer_id'] );
+		$this->assertSame( '42DFPNJDF8RED', $legacyData->paymentSpecificValues['paypal_payer_id'] );
 		$this->assertSame( '8RHHUM3W3PRH7QY6B59', $legacyData->paymentSpecificValues['ext_subscr_id'] );
 		$this->assertSame( PayPalPaymentBookingData::PAYMENT_DATE, $legacyData->paymentSpecificValues['ext_payment_timestamp'] );
 		// Check booked status
@@ -178,7 +178,7 @@ class PayPalPaymentTest extends TestCase {
 			'amount' => 1000,
 			'interval' => 0,
 			'paymentType' => 'PPL',
-			'paypal_payer_id' => '42',
+			'paypal_payer_id' => '42DFPNJDF8RED',
 			'paypal_subscr_id' => '8RHHUM3W3PRH7QY6B59',
 			'paypal_payer_status' => 'verified',
 			'paypal_mc_gross' => '2.70',
@@ -189,7 +189,7 @@ class PayPalPaymentTest extends TestCase {
 			'ext_subscr_id' => '8RHHUM3W3PRH7QY6B59',
 			'ext_payment_type' => 'instant',
 			'ext_payment_status' => 'processed/express_checkout',
-			'ext_payment_account' => '42',
+			'ext_payment_account' => '42DFPNJDF8RED',
 			'ext_payment_timestamp' => PayPalPaymentBookingData::PAYMENT_DATE
 		];
 
