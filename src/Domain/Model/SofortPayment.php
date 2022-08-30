@@ -105,6 +105,19 @@ class SofortPayment extends Payment implements BookablePayment {
 		return $data;
 	}
 
+	/**
+	 * We override the behavior of the LegacyBookingStatusTrait because Sofort payments need
+	 * to look like bank transfer statements when they are exported.
+	 *
+	 * @return string
+	 */
+	protected function getLegacyPaymentStatus(): string {
+		if ( $this->isBooked() ) {
+			return LegacyPaymentStatus::BANK_TRANSFER->value;
+		}
+		return LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value;
+	}
+
 	public function anonymise(): void {
 		$this->paymentReferenceCode = null;
 	}
