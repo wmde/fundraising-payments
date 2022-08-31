@@ -28,6 +28,7 @@ class PayPalBookingTransformer {
 		'address_zip',
 		'address_city',
 		'address_country_code',
+		'payer_email',
 	];
 
 	private const LEGACY_KEY_MAP = [
