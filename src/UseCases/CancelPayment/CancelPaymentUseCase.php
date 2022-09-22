@@ -32,4 +32,21 @@ class CancelPaymentUseCase {
 
 		return new SuccessResponse();
 	}
+
+	public function restorePayment( int $paymentId ): SuccessResponse|FailureResponse {
+		try {
+			$payment = $this->repository->getPaymentById( $paymentId );
+		} catch ( PaymentNotFoundException $e ) {
+			return new FailureResponse( $e->getMessage() );
+		}
+
+		if ( !( $payment instanceof CancellablePayment ) || !$payment->isRestorable() ) {
+			return new FailureResponse( 'This payment can\'t be restored - it is not cancelled or does not support cancellation' );
+		}
+
+		$payment->restore();
+		$this->repository->storePayment( $payment );
+
+		return new SuccessResponse();
+	}
 }

@@ -59,8 +59,16 @@ class BankTransferPayment extends Payment implements CancellablePayment {
 		$this->isCancelled = true;
 	}
 
+	public function restore(): void {
+		$this->isCancelled = false;
+	}
+
 	public function isCancellable(): bool {
 		return !$this->isCancelled();
+	}
+
+	public function isRestorable(): bool {
+		return $this->isCancelled();
 	}
 
 	public function getDisplayValues(): array {
