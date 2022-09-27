@@ -41,12 +41,36 @@ class CancelPaymentUseCaseTest extends TestCase {
 	}
 
 	public function testCancelCanceledPaymentReturnsFailureResponse(): void {
+		$payment = $this->makeCancelledDirectDebitPayment();
+		$repository = new PaymentRepositorySpy( [ 1 => $payment ] );
+
+		$useCase = new CancelPaymentUseCase( $repository );
+		$response = $useCase->cancelPayment( 1 );
+
+		$this->assertInstanceOf( FailureResponse::class, $response );
+	}
+
+	public function testRestoresPayment(): void {
+		$payment = $this->makeCancelledDirectDebitPayment();
+		$repository = $this->createMock( PaymentRepository::class );
+		$repository->method( 'getPaymentById' )->willReturn( $payment );
+		$repository->expects( $this->once() )
+			->method( 'storePayment' )
+			->with( $payment );
+
+		$useCase = new CancelPaymentUseCase( $repository );
+		$response = $useCase->restorePayment( 1 );
+
+		$this->assertFalse( $payment->isCancelled() );
+		$this->assertInstanceOf( SuccessResponse::class, $response );
+	}
+
+	public function testRestoreUncanceledPaymentReturnsFailureResponse(): void {
 		$payment = $this->makeDirectDebitPayment();
 		$repository = new PaymentRepositorySpy( [ 1 => $payment ] );
 
-		$payment->cancel();
 		$useCase = new CancelPaymentUseCase( $repository );
-		$response = $useCase->cancelPayment( 1 );
+		$response = $useCase->restorePayment( 1 );
 
 		$this->assertInstanceOf( FailureResponse::class, $response );
 	}
@@ -64,12 +88,35 @@ class CancelPaymentUseCaseTest extends TestCase {
 		$this->assertSame( 'Me fail English, that\'s unpossible', $response->message );
 	}
 
+	public function testRestoreMissingPaymentThrowsException(): void {
+		$repository = $this->createMock( PaymentRepository::class );
+		$repository->method( 'getPaymentById' )->willThrowException(
+			new PaymentNotFoundException( 'Me fail English, that\'s unpossible' )
+		);
+
+		$useCase = new CancelPaymentUseCase( $repository );
+		$response = $useCase->restorePayment( 1 );
+
+		$this->assertInstanceOf( FailureResponse::class, $response );
+		$this->assertSame( 'Me fail English, that\'s unpossible', $response->message );
+	}
+
 	public function testCancelNonCancellablePaymentReturnsFailureResponse(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 100 ), PaymentInterval::OneTime );
 		$repository = new PaymentRepositorySpy( [ 1 => $payment ] );
 
 		$useCase = new CancelPaymentUseCase( $repository );
 		$response = $useCase->cancelPayment( 1 );
+
+		$this->assertInstanceOf( FailureResponse::class, $response );
+	}
+
+	public function testRestoreNonCancellablePaymentReturnsFailureResponse(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 100 ), PaymentInterval::OneTime );
+		$repository = new PaymentRepositorySpy( [ 1 => $payment ] );
+
+		$useCase = new CancelPaymentUseCase( $repository );
+		$response = $useCase->restorePayment( 1 );
 
 		$this->assertInstanceOf( FailureResponse::class, $response );
 	}
@@ -82,5 +129,11 @@ class CancelPaymentUseCaseTest extends TestCase {
 			new Iban( DirectDebitBankData::IBAN ),
 			DirectDebitBankData::BIC
 		);
+	}
+
+	private function makeCancelledDirectDebitPayment(): DirectDebitPayment {
+		$payment = $this->makeDirectDebitPayment();
+		$payment->cancel();
+		return $payment;
 	}
 }

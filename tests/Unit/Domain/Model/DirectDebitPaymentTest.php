@@ -32,6 +32,15 @@ class DirectDebitPaymentTest extends TestCase {
 		$this->assertFalse( $payment->isCancellable() );
 	}
 
+	public function testRestorePayment(): void {
+		$payment = $this->makeCancelledDirectDebitPayment();
+
+		$payment->restore();
+
+		$this->assertFalse( $payment->isCancelled() );
+		$this->assertFalse( $payment->isRestorable() );
+	}
+
 	public function testNewPaymentCanReturnIbanAndBic(): void {
 		$iban = new Iban( DirectDebitBankData::IBAN );
 		$payment = DirectDebitPayment::create(
@@ -104,5 +113,11 @@ class DirectDebitPaymentTest extends TestCase {
 			new Iban( DirectDebitBankData::IBAN ),
 			DirectDebitBankData::BIC
 		);
+	}
+
+	private function makeCancelledDirectDebitPayment(): DirectDebitPayment {
+		$payment = $this->makeDirectDebitPayment();
+		$payment->cancel();
+		return $payment;
 	}
 }

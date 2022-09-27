@@ -8,5 +8,9 @@ interface CancellablePayment {
 
 	public function isCancellable(): bool;
 
+	public function isRestorable(): bool;
+
 	public function cancel(): void;
+
+	public function restore(): void;
 }

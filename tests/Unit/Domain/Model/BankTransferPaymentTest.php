@@ -81,6 +81,15 @@ class BankTransferPaymentTest extends TestCase {
 		$this->assertFalse( $payment->isCancellable() );
 	}
 
+	public function testRestorePayment(): void {
+		$payment = $this->makeCancelledBankTransferPayment();
+
+		$payment->restore();
+
+		$this->assertFalse( $payment->isRestorable() );
+		$this->assertFalse( $payment->isCancelled() );
+	}
+
 	private function makeBankTransferPayment(): BankTransferPayment {
 		return BankTransferPayment::create(
 			1,
@@ -88,6 +97,12 @@ class BankTransferPaymentTest extends TestCase {
 			PaymentInterval::Monthly,
 			new PaymentReferenceCode( 'XW', 'TARARA', 'X' )
 		);
+	}
+
+	private function makeCancelledBankTransferPayment(): BankTransferPayment {
+		$payment = $this->makeBankTransferPayment();
+		$payment->cancel();
+		return $payment;
 	}
 
 	public function testGetDisplayDataReturnsAllFieldsToDisplay(): void {
