@@ -30,7 +30,7 @@ class CancelPaymentUseCase {
 		$payment->cancel();
 		$this->repository->storePayment( $payment );
 
-		return new SuccessResponse();
+		return new SuccessResponse( $payment->isCompleted() );
 	}
 
 	public function restorePayment( int $paymentId ): SuccessResponse|FailureResponse {
@@ -47,6 +47,6 @@ class CancelPaymentUseCase {
 		$payment->restore();
 		$this->repository->storePayment( $payment );
 
-		return new SuccessResponse();
+		return new SuccessResponse( $payment->isCompleted() );
 	}
 }
