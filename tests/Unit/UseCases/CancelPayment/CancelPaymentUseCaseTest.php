@@ -38,6 +38,7 @@ class CancelPaymentUseCaseTest extends TestCase {
 
 		$this->assertTrue( $payment->isCancelled() );
 		$this->assertInstanceOf( SuccessResponse::class, $response );
+		$this->assertTrue( $response->paymentIsCompleted );
 	}
 
 	public function testCancelCanceledPaymentReturnsFailureResponse(): void {
@@ -63,6 +64,7 @@ class CancelPaymentUseCaseTest extends TestCase {
 
 		$this->assertFalse( $payment->isCancelled() );
 		$this->assertInstanceOf( SuccessResponse::class, $response );
+		$this->assertTrue( $response->paymentIsCompleted );
 	}
 
 	public function testRestoreUncanceledPaymentReturnsFailureResponse(): void {
