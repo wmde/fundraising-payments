@@ -19,6 +19,16 @@ class PayPalBookingTransformer {
 	 */
 	public const PAYPAL_DATE_FORMAT = "H:i:s M d, Y e";
 
+	/**
+	 * PayPal sends us a lot of Payer-related metadata in their IPNs,
+	 * these are they keys that we drop while transforming the data.
+	 *
+	 * We drop this data for two reasons:
+	 * 1. We care about data protection and don't want to store it.
+	 * 2. The character encoding of strings may not be not UTF-8,
+	 *    which will throw an exception on calls to json_encode
+	 *    (e.g. when writing to the database).
+	 */
 	private const KEYS_TO_FILTER = [
 		'first_name',
 		'last_name',
@@ -29,6 +39,8 @@ class PayPalBookingTransformer {
 		'address_city',
 		'address_country_code',
 		'payer_email',
+		'payer_business_name',
+		'residence_country',
 	];
 
 	private const LEGACY_KEY_MAP = [
