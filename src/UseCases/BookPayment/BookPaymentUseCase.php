@@ -41,7 +41,7 @@ class BookPaymentUseCase {
 		}
 
 		if ( $this->paymentWasAlreadyBooked( $payment, $transactionData ) ) {
-			return new FailureResponse( 'Payment is already completed' );
+			return FailureResponse::newAlreadyCompletedResponse();
 		}
 
 		$verificationResponse = $this->validateWithExternalService( $payment, $transactionData );
