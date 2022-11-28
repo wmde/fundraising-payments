@@ -38,6 +38,7 @@ class PayPalPaymentBookingData {
 			'subscr_id' => '8RHHUM3W3PRH7QY6B59',
 			'txn_id' => self::TRANSACTION_ID,
 			'txn_type' => 'express_checkout',
+			'memo' => 'Liebe Grüße aus Chicago, ich lese euch öfters und werde das nicht ändern.'
 		];
 	}
 

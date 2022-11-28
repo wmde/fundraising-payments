@@ -41,6 +41,7 @@ class PayPalBookingTransformer {
 		'payer_email',
 		'payer_business_name',
 		'residence_country',
+		'memo',
 	];
 
 	private const LEGACY_KEY_MAP = [
