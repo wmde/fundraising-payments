@@ -27,6 +27,7 @@ class PayPalBookingTransformerTest extends TestCase {
 		$this->assertArrayNotHasKey( 'payer_email', $bookingData );
 		$this->assertArrayNotHasKey( 'payer_business_name', $bookingData );
 		$this->assertArrayNotHasKey( 'residence_country', $bookingData );
+		$this->assertArrayNotHasKey( 'memo', $bookingData );
 	}
 
 	/**
