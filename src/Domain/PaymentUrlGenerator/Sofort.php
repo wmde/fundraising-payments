@@ -58,8 +58,7 @@ class Sofort implements PaymentProviderURLGenerator {
 
 		try {
 			$response = $this->client->get( $request );
-		}
-		catch ( RuntimeException $exception ) {
+		} catch ( RuntimeException $exception ) {
 			throw new RuntimeException( 'Could not generate Sofort URL: ' . $exception->getMessage() );
 		}
 

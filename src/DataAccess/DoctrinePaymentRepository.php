@@ -17,9 +17,7 @@ class DoctrinePaymentRepository implements PaymentRepository {
 		$this->entityManager->persist( $payment );
 		try {
 			$this->entityManager->flush();
-		}
-		// catch might be an ORMException in the future, see https://github.com/doctrine/orm/issues/7780
-		catch ( UniqueConstraintViolationException $ex ) {
+		} catch ( UniqueConstraintViolationException $ex ) {
 			throw new PaymentOverrideException( $ex->getMessage(), $ex->getCode(), $ex );
 		}
 	}

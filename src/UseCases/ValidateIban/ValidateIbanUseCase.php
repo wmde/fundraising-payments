@@ -21,8 +21,7 @@ class ValidateIbanUseCase {
 	public function ibanIsValid( string $iban ): BankDataSuccessResponse|BankDataFailureResponse {
 		try {
 			$bankData = $this->bankDataGenerator->getBankDataFromIban( new Iban( $iban ) );
-		}
-		catch ( \InvalidArgumentException $ex ) {
+		} catch ( \InvalidArgumentException $ex ) {
 			return new BankDataFailureResponse( $ex->getMessage() );
 		}
 
