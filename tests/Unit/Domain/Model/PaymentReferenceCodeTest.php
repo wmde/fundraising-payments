@@ -21,7 +21,7 @@ class PaymentReferenceCodeTest extends TestCase {
 	 */
 	public function testInvalidInputThrowsException( string $prefix, string $code, string $checksum, string $expectedInErrorMessage ): void {
 		$this->expectException( \UnexpectedValueException::class );
-		$this->expectDeprecationMessageMatches( $expectedInErrorMessage );
+		$this->expectExceptionMessageMatches( $expectedInErrorMessage );
 
 		new PaymentReferenceCode( $prefix, $code, $checksum );
 	}
@@ -29,7 +29,7 @@ class PaymentReferenceCodeTest extends TestCase {
 	/**
 	 * @return array{string,string,string,string}[]
 	 */
-	public function invalidInputProvider(): array {
+	public static function invalidInputProvider(): array {
 		return [
 			'Prefix must be valid char' => [ '#', 'XYZDCA', 'T', '/prefix/' ],
 			'Prefix must be 2 characters' => [ 'L', 'XYZDCA', 'T', '/prefix/', ],
@@ -66,7 +66,7 @@ class PaymentReferenceCodeTest extends TestCase {
 	/**
 	 * @return array<string,array{string}>
 	 */
-	public function invalidCodeProvider(): array {
+	public static function invalidCodeProvider(): array {
 		return [
 			'checksum missing' => [ 'XW-DAR-E47' ],
 			'extra-parts' => [ 'XW-DAR-E47-X-4' ],

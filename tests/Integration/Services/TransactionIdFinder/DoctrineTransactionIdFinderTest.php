@@ -47,7 +47,7 @@ class DoctrineTransactionIdFinderTest extends TestCase {
 	/**
 	 * @return iterable<array{Payment}>
 	 */
-	public function provideNonPayPalPayments(): iterable {
+	public static function provideNonPayPalPayments(): iterable {
 		$paymentReferenceCode = PaymentReferenceCode::newFromString( 'XW-DAR-E99-T' );
 		yield "credit card" => [ new CreditCardPayment( 1, Euro::newFromCents( 1234 ), PaymentInterval::Monthly ) ];
 		yield "sofort" => [ SofortPayment::create( 1, Euro::newFromCents( 1234 ), PaymentInterval::OneTime, $paymentReferenceCode ) ];

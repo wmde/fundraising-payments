@@ -20,7 +20,7 @@ class PayPalVerificationService implements VerificationService {
 
 	public const ERROR_WRONG_RECEIVER = 'Payment receiver address does not match';
 	public const ERROR_UNSUPPORTED_CURRENCY = 'Unsupported currency';
-	public const ERROR_HTTP_ERROR = 'Payment provider returned an error (HTTP status: %s)';
+	public const ERROR_HTTP_ERROR = 'Payment provider returned an error. HTTP status: %s';
 	public const ERROR_UNCONFIRMED = 'Payment provider did not confirm the sent data';
 	public const ERROR_UNKNOWN = 'An error occurred while trying to confirm the sent data. PayPal response: %s';
 

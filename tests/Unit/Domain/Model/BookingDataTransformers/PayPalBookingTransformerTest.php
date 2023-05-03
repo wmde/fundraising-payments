@@ -45,7 +45,7 @@ class PayPalBookingTransformerTest extends TestCase {
 	/**
 	 * @return iterable<mixed>
 	 */
-	public function invalidBookingDataProvider(): iterable {
+	public static function invalidBookingDataProvider(): iterable {
 		yield 'empty valuation date' => [ [ 'payer_id' => 72, 'txn_id' => PayPalPaymentBookingData::TRANSACTION_ID ] ];
 		yield 'empty payer ID' => [ [ 'payment_date' => PayPalPaymentBookingData::PAYMENT_DATE, 'txn_id' => PayPalPaymentBookingData::TRANSACTION_ID ] ];
 		yield 'empty transaction ID' => [ [ 'payer_id' => 72, 'payment_date' => PayPalPaymentBookingData::PAYMENT_DATE ] ];
@@ -61,7 +61,7 @@ class PayPalBookingTransformerTest extends TestCase {
 	/**
 	 * @return iterable<mixed>
 	 */
-	public function invalidValuationDateProvider(): iterable {
+	public static function invalidValuationDateProvider(): iterable {
 		yield [ 0 ];
 		yield [ '' ];
 		yield [ 'Not a date' ];

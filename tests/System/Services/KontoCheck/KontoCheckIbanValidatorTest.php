@@ -22,7 +22,7 @@ class KontoCheckIbanValidatorTest extends TestCase {
 	/**
 	 * @return array<int,array{string}>
 	 */
-	public function validIbanProvider(): array {
+	public static function validIbanProvider(): array {
 		return [
 			[ 'DE89370400440532013000' ],
 			[ 'AT611904300234573201' ],
@@ -45,7 +45,7 @@ class KontoCheckIbanValidatorTest extends TestCase {
 	/**
 	 * @return array<int,array{string}>
 	 */
-	public function wellFormedInvalidIbanProvider(): array {
+	public static function wellFormedInvalidIbanProvider(): array {
 		return [
 			[ 'DE01234567890123456789' ],
 			[ 'AT012345678901234567' ],
@@ -68,7 +68,7 @@ class KontoCheckIbanValidatorTest extends TestCase {
 	/**
 	 * @return array<int,array{string}>
 	 */
-	public function notWellFormedIbanProvider(): array {
+	public static function notWellFormedIbanProvider(): array {
 		return [
 			[ 'DE0123456789012345678' ],
 			[ 'DE012345678901234567890' ],
