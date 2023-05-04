@@ -10,7 +10,6 @@ use JsonException;
 
 class GuzzlePaypalAPI implements PaypalAPI {
 
-	const ENDPOINT_AUTH = '/v1/oauth2/token';
 	const ENDPOINT_LIST_PRODUCTS = '/v1/catalogs/products';
 
 	/**
@@ -26,32 +25,22 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	}
 
 	public function listProducts(): array {
-		$authResponse = $this->client->request(
+		$productResponse = $this->client->request(
 			'POST',
-			self::ENDPOINT_AUTH,
-			[
-				RequestOptions::AUTH => [ $this->clientId, $this->clientSecret ],
-				RequestOptions::HEADERS => [ 'Content-Type' => "application/x-www-form-urlencoded" ],
-				RequestOptions::FORM_PARAMS => [ 'grant_type' => 'client_credentials' ]
-			],
+			self::ENDPOINT_LIST_PRODUCTS,
+			[ RequestOptions::HEADERS => [
+				'Authorization' => "Basic {$this->clientId}:{$this->clientSecret}"
+			] ]
 		);
-
 		try {
-			$jsonAuthResponse = json_decode( $authResponse->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR );
+			$jsonProductResponse = json_decode( $productResponse->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR );
 		} catch ( JsonException $e ) {
 			throw new PayPalAPIException( "Malformed JSON", 0, $e );
 		}
 
-		if ( !is_array( $jsonAuthResponse ) || !isset( $jsonAuthResponse['access_token'] ) ) {
-			throw new PayPalAPIException( "Authentication failed!" );
+		if ( !is_array( $jsonProductResponse ) || !isset( $jsonProductResponse['products'] ) ) {
+			throw new PayPalAPIException( "Listing products failed!" );
 		}
-		$accessToken = $jsonAuthResponse[ 'access_token' ];
-
-		$this->client->request(
-			'POST',
-			self::ENDPOINT_LIST_PRODUCTS,
-			[ RequestOptions::HEADERS => [ 'Authorization' => "Bearer $accessToken" ] ]
-		);
 		return [];
 	}
 
