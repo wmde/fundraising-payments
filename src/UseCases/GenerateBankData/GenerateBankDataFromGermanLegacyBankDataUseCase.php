@@ -22,8 +22,7 @@ class GenerateBankDataFromGermanLegacyBankDataUseCase {
 	public function generateIban( string $bankAccount, string $bankCode ): BankDataSuccessResponse|BankDataFailureResponse {
 		try {
 			$bankData = $this->bankDataGenerator->getBankDataFromAccountData( $bankAccount, $bankCode );
-		}
-		catch ( \RuntimeException $ex ) {
+		} catch ( \RuntimeException $ex ) {
 			return new BankDataFailureResponse( $ex->getMessage() );
 		}
 
