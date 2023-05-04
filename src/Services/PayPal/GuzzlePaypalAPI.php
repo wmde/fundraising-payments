@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Services\PayPal;
 
 use GuzzleHttp\Client;
+use JsonException;
 
 class GuzzlePaypalAPI implements PaypalAPI {
 
@@ -21,11 +22,25 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	}
 
 	public function listProducts(): array {
-		$authResponse = $this->client->request( 'POST', '/v1/oauth2/token', [ 'auth' => [ $this->clientId, $this->clientSecret ] ] );
-		// TODO find out what PayPal sends as a response when auth is invalid and throw auth exception
-		// TODO guard against JSON_DECODE errors and throw auth exception
-		$jsonAuthResponse = json_decode( $authResponse->getBody()->getContents(), true );
-		// TODO check for missing access_token and throw auth exception
+		$authResponse = $this->client->request(
+			'POST',
+			'/v1/oauth2/token',
+			[
+				'auth' => [ $this->clientId, $this->clientSecret ],
+				'headers' => [ 'Content-Type' => "application/x-www-form-urlencoded" ],
+				'form_params' => [ 'grant_type' => 'client_credentials' ]
+			],
+		);
+
+		try {
+			$jsonAuthResponse = json_decode( $authResponse->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR );
+		} catch ( JsonException $e ) {
+			throw new PayPalAPIException( "Malformed JSON", 0, $e );
+		}
+
+		if ( !is_array( $jsonAuthResponse ) || !isset( $jsonAuthResponse['access_token'] ) ) {
+			throw new PayPalAPIException( "Authentication failed!" );
+		}
 		$accessToken = $jsonAuthResponse[ 'access_token' ];
 
 		$this->client->request( 'POST', '', [ 'headers' => [ 'Authorization' => "Bearer $accessToken" ] ] );
