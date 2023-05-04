@@ -38,7 +38,7 @@ class KontoCheckBankDataGeneratorTest extends TestCase {
 	/**
 	 * @return array<int,array{string}>
 	 */
-	public function ibanTestProvider(): array {
+	public static function ibanTestProvider(): array {
 		return [
 			[ '' ],
 			[ 'DE120105170648489892' ],
@@ -95,7 +95,7 @@ class KontoCheckBankDataGeneratorTest extends TestCase {
 	/**
 	 * @return array<int,array{string,string}>
 	 */
-	public function accountTestProvider(): array {
+	public static function accountTestProvider(): array {
 		return [
 			[ '', '' ],
 			[ '0648489890', '' ],

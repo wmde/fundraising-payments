@@ -30,7 +30,7 @@ class IbanTest extends TestCase {
 	/**
 	 * @return array<array{string, string}>
 	 */
-	public function getValidIbansWithDisallowedCharacters(): array {
+	public static function getValidIbansWithDisallowedCharacters(): array {
 		return [
 			[ "AT\xc2\xa7022050302101023600", 'AT022050302101023600' ],
 			[ "DE\xe2\x80\xaa1250010517064\xe2\x80\xac8489890", 'DE12500105170648489890' ],

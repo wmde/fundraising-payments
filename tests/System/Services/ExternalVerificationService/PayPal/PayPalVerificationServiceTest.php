@@ -62,8 +62,8 @@ class PayPalVerificationServiceTest extends TestCase {
 			'mc_currency' => 'EUR'
 		] );
 
-		$messageStart = str_replace( '%s', '', PayPalVerificationService::ERROR_UNKNOWN );
-		$this->assertStringStartsWith( $messageStart, $response->getMessage() );
+		$expectedMessage = sprintf( PayPalVerificationService::ERROR_UNKNOWN, '' );
+		$this->assertStringStartsWith( $expectedMessage, $response->getMessage() );
 	}
 
 	public function testReturnsSuccessResponse(): void {
@@ -97,7 +97,7 @@ class PayPalVerificationServiceTest extends TestCase {
 		$response = $this->makeVerificationService( $this->makeFailingClient() )
 			->validate( $this->makeRequest() );
 
-		$messageStart = str_replace( '%s)', '', PayPalVerificationService::ERROR_HTTP_ERROR );
+		$messageStart = sprintf( PayPalVerificationService::ERROR_HTTP_ERROR, '' );
 		$this->assertStringStartsWith( $messageStart, $response->getMessage() );
 	}
 
@@ -105,7 +105,7 @@ class PayPalVerificationServiceTest extends TestCase {
 		$response = $this->makeVerificationService( $this->newClient( 'Ra-ra-rasputin, lover of the Russian queen!' ) )
 			->validate( $this->makeRequest() );
 
-		$messageStart = str_replace( '%s', '', PayPalVerificationService::ERROR_UNKNOWN );
+		$messageStart = sprintf( PayPalVerificationService::ERROR_UNKNOWN, '' );
 		$this->assertStringStartsWith( $messageStart, $response->getMessage() );
 	}
 

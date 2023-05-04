@@ -100,7 +100,7 @@ class CreditCardTest extends TestCase {
 	/**
 	 * @return array<mixed[]>
 	 */
-	public function donationProvider(): array {
+	public static function donationProvider(): array {
 		return [
 			[
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
