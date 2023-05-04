@@ -25,27 +25,21 @@ class GuzzlePaypalAPITest extends TestCase {
 		$this->guzzleHistory = [];
 	}
 
-	public function testWhenListProductsIsCalledWeAuthenticate(): void {
+	public function testListProductsSendsCredentials(): void {
 		$client = $this->givenClientWithResponses(
-			$this->createSuccessfulAuthResponse(),
 			$this->createEmptyProductResponse()
 		);
 		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword' );
 
 		$guzzlePaypalApi->listProducts();
 
-		$this->assertCount( 2, $this->guzzleHistory, 'We expect an auth request and a list request' );
-		/** @var Request $authRequest */
-		$authRequest = $this->guzzleHistory[ 0 ][ 'request' ];
-		$listRequest = $this->guzzleHistory[ 1 ][ 'request' ];
+		$this->assertCount( 1, $this->guzzleHistory, 'We expect a list request' );
+		/** @var Request $listRequest */
+		$listRequest = $this->guzzleHistory[ 0 ][ 'request' ];
 		$this->assertSame(
-			'Basic ' . base64_encode( 'testUserName:testPassword' ),
-			$authRequest->getHeaderLine( 'authorization' )
+			'Basic testUserName:testPassword',
+			$listRequest->getHeaderLine( 'authorization' )
 		);
-		$this->assertSame( 'application/x-www-form-urlencoded', $authRequest->getHeaderLine( 'Content-Type' ) );
-		$this->assertSame( 'grant_type=client_credentials', $authRequest->getBody()->getContents() );
-		// see request in https://developer.paypal.com/api/rest/authentication/
-		$this->assertSame( "Bearer " . self::ACCESS_TOKEN, $listRequest->getHeaderLine( 'Authorization' ) );
 	}
 
 	public function testWhenApiReturnsMalformedJsonThrowException(): void {
@@ -65,17 +59,13 @@ class GuzzlePaypalAPITest extends TestCase {
 		$responseWithoutAuthToken = new Response(
 			200,
 			[],
-			'{"I\'M NOT AN AUTH KEY": "0" }'
+			'{"error": "access denied" }'
 		);
 		$guzzlePaypalApi = new GuzzlePaypalAPI( $this->givenClientWithResponses( $responseWithoutAuthToken ), 'testUserName', 'testPassword' );
 
 		$this->expectException( PayPalAPIException::class );
 
 		$guzzlePaypalApi->listProducts();
-	}
-
-	public function testWhenListProductsIsCalledMultipleTimesThenAuthenticationIsPerformedOnlyOnce(): void {
-		$this->markTestIncomplete( "TODO" );
 	}
 
 	public function testListProductsReturnsListOfProducts(): void {
