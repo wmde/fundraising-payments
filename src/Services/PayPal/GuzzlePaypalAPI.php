@@ -5,9 +5,13 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Services\PayPal;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use JsonException;
 
 class GuzzlePaypalAPI implements PaypalAPI {
+
+	const ENDPOINT_AUTH = '/v1/oauth2/token';
+	const ENDPOINT_LIST_PRODUCTS = '/v1/catalogs/products';
 
 	/**
 	 * @param Client $client client without auth configuration
@@ -24,11 +28,11 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	public function listProducts(): array {
 		$authResponse = $this->client->request(
 			'POST',
-			'/v1/oauth2/token',
+			self::ENDPOINT_AUTH,
 			[
-				'auth' => [ $this->clientId, $this->clientSecret ],
-				'headers' => [ 'Content-Type' => "application/x-www-form-urlencoded" ],
-				'form_params' => [ 'grant_type' => 'client_credentials' ]
+				RequestOptions::AUTH => [ $this->clientId, $this->clientSecret ],
+				RequestOptions::HEADERS => [ 'Content-Type' => "application/x-www-form-urlencoded" ],
+				RequestOptions::FORM_PARAMS => [ 'grant_type' => 'client_credentials' ]
 			],
 		);
 
@@ -43,7 +47,11 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		}
 		$accessToken = $jsonAuthResponse[ 'access_token' ];
 
-		$this->client->request( 'POST', '', [ 'headers' => [ 'Authorization' => "Bearer $accessToken" ] ] );
+		$this->client->request(
+			'POST',
+			self::ENDPOINT_LIST_PRODUCTS,
+			[ RequestOptions::HEADERS => [ 'Authorization' => "Bearer $accessToken" ] ]
+		);
 		return [];
 	}
 
