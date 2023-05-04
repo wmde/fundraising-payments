@@ -6,9 +6,11 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI
@@ -58,19 +60,65 @@ RESPONSE
 
 		$this->assertCount( 2, $container, 'We expect an auth request and a list request' );
 
+		/** @var Request $authRequest */
 		$authRequest = $container[ 0 ][ 'request' ];
 		$listRequest = $container[ 1 ][ 'request' ];
 		$this->assertSame(
 			'Basic ' . base64_encode( 'testUserName:testPassword' ),
 			$authRequest->getHeaderLine( 'authorization' )
 		);
-		// TODO Test required headers (content-type) and content (grant_type) for $authRequest
-		//      see request in https://developer.paypal.com/api/rest/authentication/
+		$this->assertSame( 'application/x-www-form-urlencoded', $authRequest->getHeaderLine( 'Content-Type' ) );
+		$this->assertSame( 'grant_type=client_credentials', $authRequest->getBody()->getContents() );
+
+		// see request in https://developer.paypal.com/api/rest/authentication/
 		$this->assertSame( "Bearer $accessToken", $listRequest->getHeaderLine( 'Authorization' ) );
 	}
 
+	public function testWhenApiReturnsMalformedJsonThrowException(): void {
+		$mock = new MockHandler( [
+			new Response(
+				200,
+				[],
+				<<<RESPONSE
+					{"sss_reserved": "0",
+RESPONSE
+			)
+		] );
+
+		$handlerStack = HandlerStack::create( $mock );
+
+		$client = new Client( [ 'handler' => $handlerStack ] );
+
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword' );
+
+		$this->expectException( PayPalAPIException::class );
+
+		$guzzlePaypalApi->listProducts();
+	}
+
+	public function testWhenApiReturnsJSONWithUnexpectedKeys(): void {
+		$mock = new MockHandler( [
+			new Response(
+				200,
+				[],
+				<<<RESPONSE
+					{"I'M NOT AN AUTH KEY": "0" }
+RESPONSE
+			)
+		] );
+
+		$handlerStack = HandlerStack::create( $mock );
+
+		$client = new Client( [ 'handler' => $handlerStack ] );
+
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword' );
+
+		$this->expectException( PayPalAPIException::class );
+
+		$guzzlePaypalApi->listProducts();
+	}
+
 	// TODO test authentication failure
-	// TODO test malformed auth response (no access token)
 
 	// TODO test that auth URL request is only called once on multiple calls to listProducts
 
