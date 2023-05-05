@@ -12,7 +12,7 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 
 class GuzzlePaypalAPI implements PaypalAPI {
 
-	private const ENDPOINT_LIST_PRODUCTS = '/v1/catalogs/products';
+	private const ENDPOINT_PRODUCTS = '/v1/catalogs/products';
 
 	/**
 	 * @param Client $client client without auth configuration
@@ -41,8 +41,8 @@ class GuzzlePaypalAPI implements PaypalAPI {
 
 	public function listProducts(): array {
 		$productResponse = $this->client->request(
-			'POST',
-			self::ENDPOINT_LIST_PRODUCTS,
+			'GET',
+			self::ENDPOINT_PRODUCTS,
 			[ RequestOptions::HEADERS => [
 				'Authorization' => "Basic {$this->clientId}:{$this->clientSecret}"
 			] ]
@@ -80,4 +80,45 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		return $products;
 	}
 
+	public function createProduct( Product $product ): Product {
+		$response = $this->client->request(
+			'POST',
+			self::ENDPOINT_PRODUCTS,
+			[
+				RequestOptions::HEADERS => [
+					'Authorization' => "Basic {$this->clientId}:{$this->clientSecret}",
+					'Content-Type' => "application/json",
+					'Accept' => "application/json",
+					'Prefer' => 'return=representation'
+				],
+				RequestOptions::BODY => $product->toJSON()
+			]
+		);
+
+		$serverResponse = $response->getBody()->getContents();
+		try {
+			$jsonProductResponse = json_decode( $serverResponse, true, 512, JSON_THROW_ON_ERROR );
+		} catch ( JsonException $e ) {
+			throw $this->createLoggedException(
+				"Malformed JSON",
+				[
+					"serverResponse" => $serverResponse,
+					"error" => $e->getMessage()
+				],
+				$e
+			);
+		}
+
+		if ( !is_array( $jsonProductResponse ) || empty( $jsonProductResponse['name'] ) || empty( $jsonProductResponse['id'] ) ) {
+			throw $this->createLoggedException(
+				'Server did not send product data back',
+				[ "serverResponse" => $serverResponse ]
+			);
+		}
+		return new Product(
+			$jsonProductResponse['name'],
+			$jsonProductResponse['id'],
+			$jsonProductResponse['description'] ?? null
+		);
+	}
 }

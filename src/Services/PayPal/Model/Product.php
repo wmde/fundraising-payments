@@ -6,16 +6,20 @@ namespace WMDE\Fundraising\PaymentContext\Services\PayPal\Model;
 
 class Product {
 
-	public readonly string $category;
-	public readonly string $type;
-
 	public function __construct(
 		public readonly string $name,
-		public readonly ?string $id,
-		public readonly ?string $description,
+		public readonly ?string $id = null,
+		public readonly ?string $description = null,
 	) {
-		// https://developer.paypal.com/docs/api/catalog-products/v1/#products_create
-		$this->category = 'NONPROFIT';
-		$this->type = 'SERVICE';
+	}
+
+	public function toJSON(): string {
+		return json_encode( [
+			"name" => $this->name,
+			"id" => $this->id,
+			"description" => $this->description,
+			"category" => "NONPROFIT",
+			"type" => "SERVICE"
+		], JSON_THROW_ON_ERROR );
 	}
 }
