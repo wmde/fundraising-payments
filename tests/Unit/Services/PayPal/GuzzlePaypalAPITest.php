@@ -13,6 +13,7 @@ use Psr\Log\NullLogger;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
+use WMDE\PsrLogTestDoubles\LoggerSpy;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI
@@ -46,41 +47,51 @@ class GuzzlePaypalAPITest extends TestCase {
 	}
 
 	public function testWhenApiReturnsMalformedJsonThrowException(): void {
-		$malformedJsonResponse = new Response(
-			200,
-			[],
-			'{"sss_reserved": "0"'
-		);
+		$logger = new LoggerSpy();
+		$responseBody = '{"sss_reserved": "0"';
+		$malformedJsonResponse = new Response( 200, [], $responseBody );
 		$guzzlePaypalApi = new GuzzlePaypalAPI(
 			$this->givenClientWithResponses( $malformedJsonResponse ),
 			'testUserName',
 			'testPassword',
-			new NullLogger()
+			$logger
 		);
 
-		$this->expectException( PayPalAPIException::class );
-		$this->expectExceptionMessageMatches( "/Malformed JSON/" );
-
-		$guzzlePaypalApi->listProducts();
+		try {
+			$guzzlePaypalApi->listProducts();
+			$this->fail( 'listProducts should throw an exception' );
+		} catch ( PayPalAPIException $e ) {
+			$this->assertStringContainsString( "Malformed JSON", $e->getMessage() );
+			$firstCall = $logger->getFirstLogCall();
+			$this->assertNotNull( $firstCall );
+			$this->assertStringContainsString( "Malformed JSON", $firstCall->getMessage() );
+			$this->assertArrayHasKey( 'serverResponse', $firstCall->getContext() );
+			$this->assertSame( $responseBody, $firstCall->getContext()['serverResponse'] );
+		}
 	}
 
-	public function testWhenApiReturnsJSONWithUnexpectedKeys(): void {
-		$responseWithoutAuthToken = new Response(
-			200,
-			[],
-			'{"error": "access denied" }'
-		);
+	public function testWhenApiReturnsJSONWithUnexpectedKeysLogServerResponseAndThrowException(): void {
+		$logger = new LoggerSpy();
+		$responseBody = '{"error": "access denied" }';
+		$responseWithoutAuthToken = new Response( 200, [], $responseBody );
 		$guzzlePaypalApi = new GuzzlePaypalAPI(
 			$this->givenClientWithResponses( $responseWithoutAuthToken ),
 			'testUserName',
 			'testPassword',
-			new NullLogger()
+			$logger
 		);
 
-		$this->expectException( PayPalAPIException::class );
-		$this->expectExceptionMessageMatches( "/Listing products failed!/" );
-
-		$guzzlePaypalApi->listProducts();
+		try {
+			$guzzlePaypalApi->listProducts();
+			$this->fail( 'listProducts should throw an exception' );
+		} catch ( PayPalAPIException $e ) {
+			$this->assertStringContainsString( "Listing products failed", $e->getMessage() );
+			$firstCall = $logger->getFirstLogCall();
+			$this->assertNotNull( $firstCall );
+			$this->assertStringContainsString( "Listing products failed", $firstCall->getMessage() );
+			$this->assertArrayHasKey( 'serverResponse', $firstCall->getContext() );
+			$this->assertSame( $responseBody, $firstCall->getContext()['serverResponse'] );
+		}
 	}
 
 	public function testListProductsReturnsListOfProducts(): void {
@@ -95,6 +106,9 @@ class GuzzlePaypalAPITest extends TestCase {
 			[ new Product( 'WMDE_Donation', 'ID-1', 'Description' ), new Product( 'WMDE_Membership', 'ID-2', null ) ],
 			$actualProducts
 		);
+		/** @var Request $createRequest */
+		$createRequest = $this->guzzleHistory[0]['request'];
+		$this->assertSame( 'GET', $createRequest->getMethod() );
 	}
 
 	public function testListProductsReturnsNoProductsWhenServerResponseContainsNoProducts(): void {
@@ -116,16 +130,148 @@ class GuzzlePaypalAPITest extends TestCase {
 	 * @return void
 	 */
 	public function testWhenServerIndicatesMultiplePagesOfProductsExceptionIsThrown(): void {
-		$client = $this->givenClientWithResponses(
-			$this->createTooManyProductPagesResponse()
+		$logger = new LoggerSpy();
+		$responseBody = <<<RESPONSE
+			{
+			  "total_items": 44444,
+			  "total_pages": 2,
+			  "products": []
+			}
+RESPONSE;
+		$response = new Response( 200, [], $responseBody );
+		$client = $this->givenClientWithResponses( $response );
+
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', $logger );
+
+		try {
+			$guzzlePaypalApi->listProducts();
+			$this->fail( 'listProducts should throw an exception' );
+		} catch ( PayPalAPIException $e ) {
+			$this->assertStringContainsString( "Paging is not supported because we don't have that many products", $e->getMessage() );
+			$firstCall = $logger->getFirstLogCall();
+			$this->assertNotNull( $firstCall );
+			$this->assertStringContainsString( "Paging is not supported because we don't have that many products", $firstCall->getMessage() );
+			$this->assertArrayHasKey( 'serverResponse', $firstCall->getContext() );
+			$this->assertSame( $responseBody, $firstCall->getContext()['serverResponse'] );
+		}
+	}
+
+	public function testCreateProductSendsProductData(): void {
+		$responseBody = <<<RESPONSE
+			{
+				"id": "someSpecificID",
+				"name": "WMDE_FUNNYDonation",
+				"description": "WMDE_FUNNYDonationDescription",
+				"type": "SERVICE",
+				"category": "NONPROFIT",
+				"create_time": "2019-01-10T21:20:49Z",
+				"update_time": "2019-01-10T21:20:49Z"
+			}
+RESPONSE;
+		$response = new Response( 200, [], $responseBody );
+		$client = $this->givenClientWithResponses( $response );
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+		$product = new Product( 'WMDE_FUNNYDonation', "someSpecificID", 'WMDE_FUNNYDonationDescription' );
+
+		$guzzlePaypalApi->createProduct( $product );
+
+		$this->assertCount( 1, $this->guzzleHistory, 'We expect a create request' );
+		$expectedRequestBody = <<<REQUEST
+{
+"name": "WMDE_FUNNYDonation",
+"id": "someSpecificID",
+"description": "WMDE_FUNNYDonationDescription",
+"category": "NONPROFIT",
+"type": "SERVICE"
+}
+REQUEST;
+		/** @var Request $createRequest */
+		$createRequest = $this->guzzleHistory[ 0 ][ 'request' ];
+
+		$this->assertSame( 'POST', $createRequest->getMethod() );
+		$this->assertSame( 'Basic testUserName:testPassword', $createRequest->getHeaderLine( 'authorization' ) );
+		$this->assertSame(
+			json_encode( json_decode( $expectedRequestBody ) ),
+			$createRequest->getBody()->getContents()
+		);
+		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Content-Type' ) );
+		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Accept' ) );
+		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Accept' ) );
+	}
+
+	public function testNewProductIsCreatedFromServerData(): void {
+		// The server response here has different values on purpose to make sure that all values come from the server
+		// In reality, the PayPal server should *never* change our values, only generate IDs if they are missing
+		$responseBody = <<<RESPONSE
+			{
+				"id": "ServerId",
+				"name": "ServerDonation",
+				"description": "ServerDescription",
+				"type": "SERVICE",
+				"category": "NONPROFIT",
+				"create_time": "2019-01-10T21:20:49Z",
+				"update_time": "2019-01-10T21:20:49Z"
+			}
+RESPONSE;
+		$response = new Response( 200, [], $responseBody );
+		$client = $this->givenClientWithResponses( $response );
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+		$product = new Product( 'WMDE_FUNNYDonation' );
+
+		$createdProduct = $guzzlePaypalApi->createProduct( $product );
+
+		$this->assertNotSame( $product, $createdProduct, 'method should create a new product from server data' );
+		$this->assertSame( 'ServerId', $createdProduct->id );
+		$this->assertSame( 'ServerDonation', $createdProduct->name );
+		$this->assertSame( 'ServerDescription', $createdProduct->description );
+	}
+
+	public function testCreateProductFailsWhenServerResponseHasMalformedJson(): void {
+		$logger = new LoggerSpy();
+		$responseBody = '{"sss_reserved": "0"';
+		$malformedJsonResponse = new Response( 200, [], $responseBody );
+		$guzzlePaypalApi = new GuzzlePaypalAPI(
+			$this->givenClientWithResponses( $malformedJsonResponse ),
+			'testUserName',
+			'testPassword',
+			$logger
 		);
 
-		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+		try {
+			$guzzlePaypalApi->createProduct( new Product( '' ) );
+			$this->fail( 'createProduct should throw an exception' );
+		} catch ( PayPalAPIException $e ) {
+			$this->assertStringContainsString( "Malformed JSON", $e->getMessage() );
+			$firstCall = $logger->getFirstLogCall();
+			$this->assertNotNull( $firstCall );
+			$this->assertStringContainsString( "Malformed JSON", $firstCall->getMessage() );
+			$this->assertArrayHasKey( 'serverResponse', $firstCall->getContext() );
+			$this->assertSame( $responseBody, $firstCall->getContext()['serverResponse'] );
+		}
+	}
 
-		$this->expectException( PayPalAPIException::class );
-		$this->expectExceptionMessageMatches( "/Paging is not supported because we don't have that many products!/" );
+	public function testCreateProductFailsWhenServerResponseDoesNotContainProductData(): void {
+		$logger = new LoggerSpy();
+		$responseBody = '{"error": "access denied" }';
+		$malformedJsonResponse = new Response( 200, [], $responseBody );
+		$guzzlePaypalApi = new GuzzlePaypalAPI(
+			$this->givenClientWithResponses( $malformedJsonResponse ),
+			'testUserName',
+			'testPassword',
+			$logger
+		);
 
-		$guzzlePaypalApi->listProducts();
+		try {
+			$guzzlePaypalApi->createProduct( new Product( '' ) );
+			$this->fail( 'createProduct should throw an exception' );
+		} catch ( PayPalAPIException $e ) {
+			$this->assertStringContainsString( "Server did not send product data back", $e->getMessage() );
+			$firstCall = $logger->getFirstLogCall();
+			$this->assertNotNull( $firstCall );
+			$this->assertStringContainsString( "Server did not send product data back", $firstCall->getMessage() );
+			$this->assertArrayHasKey( 'serverResponse', $firstCall->getContext() );
+			$this->assertSame( $responseBody, $firstCall->getContext()['serverResponse'] );
+		}
 	}
 
 	private function givenClientWithResponses( Response ...$responses ): Client {
@@ -142,25 +288,11 @@ class GuzzlePaypalAPITest extends TestCase {
 			200,
 			[],
 			<<<RESPONSE
-{
-  "total_items": 0,
-  "total_pages": 0,
-  "products": []
-}
-RESPONSE
-		);
-	}
-
-	private function createTooManyProductPagesResponse(): Response {
-		return new Response(
-			200,
-			[],
-			<<<RESPONSE
-{
-  "total_items": 44444,
-  "total_pages": 2,
-  "products": []
-}
+			{
+  				"total_items": 0,
+  				"total_pages": 0,
+  				"products": []
+			}
 RESPONSE
 		);
 	}
