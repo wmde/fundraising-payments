@@ -9,7 +9,9 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 
 /**
@@ -17,8 +19,9 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
  */
 class GuzzlePaypalAPITest extends TestCase {
 
-	private const ACCESS_TOKEN = 'A21AAFEpH4PsADK7qSS7pSRsgzfENtu-Q1ysgEDVDESseMHBYXVJYE8ovjj68elIDy8nF26AwPhfXTIeWAZHSLIsQkSYz9ifg';
-
+	/**
+	 * @var array<int,array<string,mixed>>
+	 */
 	private array $guzzleHistory;
 
 	protected function setUp(): void {
@@ -29,7 +32,7 @@ class GuzzlePaypalAPITest extends TestCase {
 		$client = $this->givenClientWithResponses(
 			$this->createEmptyProductResponse()
 		);
-		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword' );
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
 
 		$guzzlePaypalApi->listProducts();
 
@@ -48,9 +51,15 @@ class GuzzlePaypalAPITest extends TestCase {
 			[],
 			'{"sss_reserved": "0"'
 		);
-		$guzzlePaypalApi = new GuzzlePaypalAPI( $this->givenClientWithResponses( $malformedJsonResponse ), 'testUserName', 'testPassword' );
+		$guzzlePaypalApi = new GuzzlePaypalAPI(
+			$this->givenClientWithResponses( $malformedJsonResponse ),
+			'testUserName',
+			'testPassword',
+			new NullLogger()
+		);
 
 		$this->expectException( PayPalAPIException::class );
+		$this->expectExceptionMessageMatches( "/Malformed JSON/" );
 
 		$guzzlePaypalApi->listProducts();
 	}
@@ -61,51 +70,71 @@ class GuzzlePaypalAPITest extends TestCase {
 			[],
 			'{"error": "access denied" }'
 		);
-		$guzzlePaypalApi = new GuzzlePaypalAPI( $this->givenClientWithResponses( $responseWithoutAuthToken ), 'testUserName', 'testPassword' );
+		$guzzlePaypalApi = new GuzzlePaypalAPI(
+			$this->givenClientWithResponses( $responseWithoutAuthToken ),
+			'testUserName',
+			'testPassword',
+			new NullLogger()
+		);
 
 		$this->expectException( PayPalAPIException::class );
+		$this->expectExceptionMessageMatches( "/Listing products failed!/" );
 
 		$guzzlePaypalApi->listProducts();
 	}
 
 	public function testListProductsReturnsListOfProducts(): void {
-		$this->markTestIncomplete( "TODO" );
+		$client = $this->givenClientWithResponses(
+			$this->createProductResponse()
+		);
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+
+		$actualProducts = $guzzlePaypalApi->listProducts();
+
+		$this->assertEquals(
+			[ new Product( 'WMDE_Donation', 'ID-1', 'Description' ), new Product( 'WMDE_Membership', 'ID-2', null ) ],
+			$actualProducts
+		);
 	}
 
 	public function testListProductsReturnsNoProductsWhenServerResponseContainsNoProducts(): void {
-		$this->markTestIncomplete( "TODO" );
+		$client = $this->givenClientWithResponses(
+			$this->createEmptyProductResponse()
+		);
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+
+		$actualProducts = $guzzlePaypalApi->listProducts();
+
+		$this->assertEquals(
+			[],
+			$actualProducts
+		);
 	}
 
+	/**
+	 * we only have 2 products and don't want to implement paging
+	 * @return void
+	 */
 	public function testWhenServerIndicatesMultiplePagesOfProductsExceptionIsThrown(): void {
-		// we only have 2 products and don't want to implement paging
-		$this->markTestIncomplete( "TODO" );
+		$client = $this->givenClientWithResponses(
+			$this->createTooManyProductPagesResponse()
+		);
+
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+
+		$this->expectException( PayPalAPIException::class );
+		$this->expectExceptionMessageMatches( "/Paging is not supported because we don't have that many products!/" );
+
+		$guzzlePaypalApi->listProducts();
 	}
 
 	private function givenClientWithResponses( Response ...$responses ): Client {
-		$mock = new MockHandler( $responses );
+		$mock = new MockHandler( array_values( $responses ) );
 		$history = Middleware::history( $this->guzzleHistory );
 		$handlerStack = HandlerStack::create( $mock );
 		$handlerStack->push( $history );
 
 		return new Client( [ 'handler' => $handlerStack ] );
-	}
-
-	private function createSuccessfulAuthResponse(): Response {
-		$accessToken = self::ACCESS_TOKEN;
-		return new Response(
-			200,
-			[],
-			<<<RESPONSE
-{
-  "scope": "https://uri.paypal.com/services/invoicing https://uri.paypal.com/services/disputes/read-buyer https://uri.paypal.com/services/payments/realtimepayment https://uri.paypal.com/services/disputes/update-seller https://uri.paypal.com/services/payments/payment/authcapture openid https://uri.paypal.com/services/disputes/read-seller https://uri.paypal.com/services/payments/refund https://api-m.paypal.com/v1/vault/credit-card https://api-m.paypal.com/v1/payments/.* https://uri.paypal.com/payments/payouts https://api-m.paypal.com/v1/vault/credit-card/.* https://uri.paypal.com/services/subscriptions https://uri.paypal.com/services/applications/webhooks",
-  "access_token": "{$accessToken}",
-  "token_type": "Bearer",
-  "app_id": "APP-80W284485P519543T",
-  "expires_in": 31668,
-  "nonce": "2020-04-03T15:35:36ZaYZlGvEkV4yVSz8g6bAKFoGSEzuy3CQcz3ljhibkOHg"
-}
-RESPONSE
-		);
 	}
 
 	private function createEmptyProductResponse(): Response {
@@ -122,4 +151,74 @@ RESPONSE
 		);
 	}
 
+	private function createTooManyProductPagesResponse(): Response {
+		return new Response(
+			200,
+			[],
+			<<<RESPONSE
+{
+  "total_items": 44444,
+  "total_pages": 2,
+  "products": []
+}
+RESPONSE
+		);
+	}
+
+	private function createProductResponse(): Response {
+		return new Response(
+			200,
+			[],
+			<<<RESPONSE
+			{
+  "total_items": 2,
+  "total_pages": 1,
+  "products": [
+    {
+		"id": "ID-1",
+     	"name": "WMDE_Donation",
+      	"description": "Description",
+      	"create_time": "2023-12-10T21:20:49Z",
+      	"links": [
+        	{
+				"href": "https://api-m.paypal.com/v1/catalogs/products/72255d4849af8ed6e0df1173",
+          		"rel": "self",
+          		"method": "GET"
+        	}
+      	]
+    },
+    {
+		"id": "ID-2",
+     	"name": "WMDE_Membership",
+      	"create_time": "2018-12-10T21:20:49Z",
+      	"links": [
+        {
+			"href": "https://api-m.paypal.com/v1/catalogs/products/125d4849af8ed6e0df18",
+         	"rel": "self",
+          	"method": "GET"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+		"href": "https://api-m.paypal.com/v1/catalogs/products?page_size=2&page=1",
+      	"rel": "self",
+      	"method": "GET"
+    },
+    {
+		"href": "https://api-m.paypal.com/v1/catalogs/products?page_size=2&page=2",
+	     "rel": "next",
+     	"method": "GET"
+    },
+    {
+		"href": "https://api-m.paypal.com/v1/catalogs/products?page_size=2&page=10",
+      	"rel": "last",
+      	"method": "GET"
+    }
+  ]
+}
+RESPONSE
+		);
+	}
 }
