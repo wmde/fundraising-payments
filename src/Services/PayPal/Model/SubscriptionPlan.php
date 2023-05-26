@@ -3,13 +3,48 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Services\PayPal\Model;
 
+use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
+
 class SubscriptionPlan {
 	public function __construct(
 		public readonly string $name,
 		public readonly string $productId,
 		public readonly int $monthlyInterval,
+		public readonly ?string $id = null,
 		public readonly ?string $description = null
 	) {
+	}
+
+	/**
+	 * @param array<string,mixed> $apiData A single plan item form the PayPal API request
+	 * @return SubscriptionPlan
+	 */
+	public static function createFromJSON( array $apiData ): SubscriptionPlan {
+		// Theoretically, we'd want to check name, product_id, and id in $apiData,
+		// but the billing_cycles check should be sufficient to detect broken data from the PayPal API
+
+		if ( empty( $apiData['billing_cycles'] ) || !is_array( $apiData['billing_cycles'] ) || count( $apiData['billing_cycles'] ) !== 1 ) {
+			throw new PayPalAPIException( 'Wrong billing cycle data' );
+		}
+		$billingCycle = $apiData['billing_cycles'][0];
+
+		if ( !isset( $billingCycle['frequency'] ) || !isset( $billingCycle['frequency']['interval_count'] ) ) {
+			throw new PayPalAPIException( 'Wrong frequency data in billing cycle' );
+		}
+		$frequency = $billingCycle['frequency'];
+
+		if ( ( $frequency['interval_unit'] ?? '' ) !== 'MONTH' ) {
+			throw new PayPalAPIException( 'interval_unit must be MONTH' );
+		}
+		$monthlyInterval = intval( $frequency['interval_count'] );
+
+		return new SubscriptionPlan(
+			strval( $apiData['name'] ),
+			strval( $apiData['product_id'] ),
+			$monthlyInterval,
+			strval( $apiData['id'] ),
+			strval( $apiData['description'] ?? '' ),
+		);
 	}
 
 	public function toJSON(): string {
