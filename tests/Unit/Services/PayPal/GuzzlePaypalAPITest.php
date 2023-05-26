@@ -274,6 +274,54 @@ RESPONSE;
 		}
 	}
 
+	public function testListSubscriptionPlansSendsCredentials(): void {
+		$client = $this->givenClientWithResponses(
+			$this->createEmptyPlanResponse()
+		);
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+
+		$guzzlePaypalApi->listSubscriptionPlansForProduct( 'donation' );
+
+		$this->assertCount( 1, $this->guzzleHistory, 'We expect a list request' );
+		/** @var Request $listRequest */
+		$listRequest = $this->guzzleHistory[ 0 ][ 'request' ];
+		$this->assertSame(
+			'Basic testUserName:testPassword',
+			$listRequest->getHeaderLine( 'authorization' )
+		);
+	}
+
+	public function testListSubscriptionPlansQueriesOnlyRequestedProducts(): void {
+		$client = $this->givenClientWithResponses(
+			$this->createEmptyPlanResponse()
+		);
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+
+		$guzzlePaypalApi->listSubscriptionPlansForProduct( 'donation' );
+
+		$this->assertCount( 1, $this->guzzleHistory, 'We expect a list request' );
+		/** @var Request $listRequest */
+		$listRequest = $this->guzzleHistory[ 0 ][ 'request' ];
+		$this->assertSame(
+			'product_id=donation',
+			$listRequest->getUri()->getQuery()
+		);
+	}
+
+	public function testListSubscriptionPlansReturnsSubscriptions(): void {
+		$client = $this->givenClientWithResponses(
+			$this->createSubscriptionsResponse()
+		);
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+
+		$plans = $guzzlePaypalApi->listSubscriptionPlansForProduct( 'donation' );
+
+		$this->assertCount( 2, $plans );
+		$this->assertEquals( 'monthly donation', $plans[0]->name );
+	}
+
+	// TODO test unhappy paths for malformed JSON, missing 'plans' property in json and pages > 1 in JSON
+
 	private function givenClientWithResponses( Response ...$responses ): Client {
 		$mock = new MockHandler( array_values( $responses ) );
 		$history = Middleware::history( $this->guzzleHistory );
@@ -351,6 +399,28 @@ RESPONSE
   ]
 }
 RESPONSE
+		);
+	}
+
+	private function createEmptyPlanResponse(): Response {
+		return new Response(
+			200,
+			[],
+			<<<RESPONSE
+			{
+  				"total_items": 0,
+  				"total_pages": 0,
+  				"plans": []
+			}
+RESPONSE
+		);
+	}
+
+	private function createSubscriptionsResponse(): Response {
+		return new Response(
+			200,
+			[],
+			file_get_contents( __DIR__ . '/../../../Data/PaypalAPI/list_plans_response.json' )
 		);
 	}
 }
