@@ -320,7 +320,35 @@ RESPONSE;
 		$this->assertEquals( 'monthly donation', $plans[0]->name );
 	}
 
-	// TODO test unhappy paths for malformed JSON, missing 'plans' property in json and pages > 1 in JSON
+	public function testListSubscriptionPlansThrowsErrorOnMalformedJSON(): void {
+		$client = $this->givenClientWithResponses(
+			$this->createBrokenJSONResponse()
+		);
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+
+		$this->expectExceptionMessage( 'Malformed JSON' );
+		$guzzlePaypalApi->listSubscriptionPlansForProduct( 'donation' );
+	}
+
+	public function testListSubscriptionPlansThrowsErrorOnMissingPlansProperty(): void {
+		$client = $this->givenClientWithResponses(
+			$this->createUndefinedPlansPropertyResponse()
+		);
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+
+		$this->expectExceptionMessage( 'Malformed JSON' );
+		$guzzlePaypalApi->listSubscriptionPlansForProduct( 'donation' );
+	}
+
+	public function testListSubscriptionPlansThrowsErrorOnPagePropertyBiggerThanOne(): void {
+		$client = $this->givenClientWithResponses(
+			$this->createMultiplePagesResponse()
+		);
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+
+		$this->expectExceptionMessage( 'Paging is not supported because each product should not have more than 4 payment intervals!' );
+		$guzzlePaypalApi->listSubscriptionPlansForProduct( 'donation' );
+	}
 
 	private function givenClientWithResponses( Response ...$responses ): Client {
 		$mock = new MockHandler( array_values( $responses ) );
@@ -417,10 +445,49 @@ RESPONSE
 	}
 
 	private function createSubscriptionsResponse(): Response {
+		$validJSONResponseContent = file_get_contents( __DIR__ . '/../../../Data/PaypalAPI/list_plans_response.json' );
 		return new Response(
 			200,
 			[],
-			file_get_contents( __DIR__ . '/../../../Data/PaypalAPI/list_plans_response.json' )
+			$validJSONResponseContent
+		);
+	}
+
+	private function createBrokenJSONResponse(): Response {
+		return new Response(
+			200,
+			[],
+			<<<RESPONSE
+			{
+  				"br0ken
+RESPONSE
+		);
+	}
+
+	private function createUndefinedPlansPropertyResponse(): Response {
+		return new Response(
+			200,
+			[],
+			<<<RESPONSE
+			{
+  				"total_items": 0,
+  				"total_pages": 0,
+			}
+RESPONSE
+		);
+	}
+
+	private function createMultiplePagesResponse(): Response {
+		return new Response(
+			200,
+			[],
+			<<<RESPONSE
+			{
+  				"total_items": 0,
+  				"total_pages": 42,
+  				"plans": []
+			}
+RESPONSE
 		);
 	}
 }
