@@ -9,10 +9,12 @@ use GuzzleHttp\RequestOptions;
 use JsonException;
 use Psr\Log\LoggerInterface;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 
 class GuzzlePaypalAPI implements PaypalAPI {
 
 	private const ENDPOINT_PRODUCTS = '/v1/catalogs/products';
+	private const ENDPOINT_SUBSCRIPTION_PLANS = '/v1/billing/plans';
 
 	/**
 	 * @param Client $client client without auth configuration
@@ -121,4 +123,51 @@ class GuzzlePaypalAPI implements PaypalAPI {
 			$jsonProductResponse['description'] ?? null
 		);
 	}
+
+	public function listSubscriptionPlansForProduct( string $productId ): array {
+		$planResponse = $this->client->request(
+			'GET',
+			self::ENDPOINT_SUBSCRIPTION_PLANS,
+			[
+				RequestOptions::HEADERS => [
+					'Authorization' => "Basic {$this->clientId}:{$this->clientSecret}",
+					'Accept' => "application/json",
+					'Prefer' => 'return=representation'
+				],
+				RequestOptions::QUERY => [ 'product_id' => $productId ]
+			]
+		);
+
+		$serverResponse = $planResponse->getBody()->getContents();
+		try {
+			$jsonPlanResponse = json_decode( $serverResponse, true, 512, JSON_THROW_ON_ERROR );
+		} catch ( JsonException $e ) {
+			throw $this->createLoggedException(
+				"Malformed JSON",
+				[
+					"serverResponse" => $serverResponse,
+					"error" => $e->getMessage()
+				],
+				$e
+			);
+		}
+
+		if ( !is_array( $jsonPlanResponse ) || !isset( $jsonPlanResponse['plans'] ) ) {
+			throw $this->createLoggedException( "Listing subscription plans failed!", [ "serverResponse" => $serverResponse ] );
+		}
+
+		if ( $jsonPlanResponse['total_pages'] > 1 ) {
+			throw $this->createLoggedException(
+				"Paging is not supported because each product should not have more than 4 payment intervals!",
+				[ "serverResponse" => $serverResponse ]
+			);
+		}
+
+		$plans = [];
+		foreach ( $jsonPlanResponse['plans'] as $plan ) {
+			$plans[] = SubscriptionPlan::createFromJSON( $plan );
+		}
+		return $plans;
+	}
+
 }
