@@ -61,7 +61,7 @@ class PayPalBookingTransformer {
 	];
 
 	/**
-	 * @var array<string,mixed>
+	 * @var array<string,scalar>
 	 */
 	private array $rawBookingData;
 
@@ -70,7 +70,7 @@ class PayPalBookingTransformer {
 	private \DateTimeImmutable $valuationDate;
 
 	/**
-	 * @param array<string,mixed> $rawBookingData
+	 * @param array<string,scalar> $rawBookingData
 	 */
 	public function __construct( array $rawBookingData ) {
 		if ( empty( $rawBookingData[self::PAYER_ID_KEY] ) ) {
@@ -109,7 +109,7 @@ class PayPalBookingTransformer {
 	}
 
 	/**
-	 * @return array<string,mixed>
+	 * @return array<string,scalar>
 	 */
 	public function getLegacyData(): array {
 		$result = [];
@@ -125,9 +125,9 @@ class PayPalBookingTransformer {
 	}
 
 	/**
-	 * @param array<string,mixed> $rawBookingData
+	 * @param array<string,scalar> $rawBookingData
 	 *
-	 * @return array<string,mixed>
+	 * @return array<string,scalar>
 	 */
 	private function anonymise( array $rawBookingData ): array {
 		return array_diff_key( $rawBookingData, array_flip( self::KEYS_TO_FILTER ) );

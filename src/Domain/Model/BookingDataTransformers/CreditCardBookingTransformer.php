@@ -24,14 +24,14 @@ class CreditCardBookingTransformer {
 	];
 
 	/**
-	 * @var array<string, mixed>
+	 * @var array<string, scalar>
 	 */
 	private array $rawBookingData;
 
 	private \DateTimeImmutable $valuationDate;
 
 	/**
-	 * @param array<string, mixed> $rawBookingData
+	 * @param array<string, scalar> $rawBookingData
 	 * @param \DateTimeImmutable|null $valuationDate
 	 */
 	public function __construct( array $rawBookingData, ?\DateTimeImmutable $valuationDate = null ) {
@@ -64,7 +64,7 @@ class CreditCardBookingTransformer {
 	}
 
 	/**
-	 * @param array<string, mixed> $rawBookingData
+	 * @param array<string, scalar> $rawBookingData
 	 *
 	 * @return void
 	 */

@@ -13,7 +13,7 @@ interface BookablePayment {
 	 *
 	 * Implementations MUST check if $transactionData has the right shape.
 	 *
-	 * @param array<string,mixed> $transactionData
+	 * @param array<string,scalar> $transactionData
 	 * @param PaymentIdRepository $idGenerator ID generator in case the booking triggers a followup payment
 	 *
 	 * @return Payment Might be the same payment instance or a different payment in case of followup payments
@@ -26,7 +26,7 @@ interface BookablePayment {
 	public function getValuationDate(): ?DateTimeImmutable;
 
 	/**
-	 * @param array<string,mixed> $transactionData
+	 * @param array<string,scalar> $transactionData
 	 * @return bool
 	 */
 	public function canBeBooked( array $transactionData ): bool;

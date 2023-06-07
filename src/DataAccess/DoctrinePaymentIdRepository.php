@@ -20,7 +20,7 @@ class DoctrinePaymentIdRepository implements PaymentIdRepository {
 	public function getNewId(): int {
 		$connection = $this->entityManager->getConnection();
 
-		$paymentId = $connection->transactional( function ( Connection $connection ): int {
+		$paymentId = $connection->transactional( function ( Connection $connection ): mixed {
 			$this->updatePaymentId( $connection );
 			$result = $this->getCurrentIdResult( $connection );
 			$id = $result->fetchOne();
@@ -29,10 +29,10 @@ class DoctrinePaymentIdRepository implements PaymentIdRepository {
 				throw new \RuntimeException( 'The ID generator needs a row with initial payment_id set to 0.' );
 			}
 
-			return intval( $id );
+			return $id;
 		} );
 
-		return intval( $paymentId );
+		return ScalarTypeConverter::toInt( $paymentId );
 	}
 
 	private function updatePaymentId( Connection $connection ): void {

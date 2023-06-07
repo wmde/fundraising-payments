@@ -10,7 +10,7 @@ class PayPalPaymentBookingData {
 	public const TRANSACTION_ID = 'T4242';
 
 	/**
-	 * @return array<string,mixed>
+	 * @return array<string,string|int>
 	 */
 	public static function newValidBookingData(): array {
 		return [
@@ -43,7 +43,7 @@ class PayPalPaymentBookingData {
 	}
 
 	/**
-	 * @return array<string,mixed>
+	 * @return array<string,string|int>
 	 */
 	public static function newValidFollowupBookingData(): array {
 		return [

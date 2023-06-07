@@ -32,7 +32,7 @@ class CreateBookedPayPalPaymentUseCase {
 
 	/**
 	 * @param int $amountInCents
-	 * @param array<string,mixed> $transactionData
+	 * @param array<string,scalar> $transactionData
 	 * @return SuccessResponse|FailureResponse
 	 */
 	public function bookNewPayment( int $amountInCents, array $transactionData ): SuccessResponse|FailureResponse {
@@ -62,7 +62,7 @@ class CreateBookedPayPalPaymentUseCase {
 	}
 
 	/**
-	 * @param array<string,mixed> $transactionData
+	 * @param array<string,scalar> $transactionData
 	 * @return bool
 	 */
 	private function transactionWasAlreadyProcessed( array $transactionData ): bool {

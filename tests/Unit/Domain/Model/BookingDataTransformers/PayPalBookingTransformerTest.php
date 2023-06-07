@@ -33,7 +33,7 @@ class PayPalBookingTransformerTest extends TestCase {
 	/**
 	 * @dataProvider invalidBookingDataProvider
 	 *
-	 * @param array<mixed> $transactionData
+	 * @param array<scalar> $transactionData
 	 * @return void
 	 */
 	public function testGivenMissingFields_constructorThrowsException( array $transactionData ): void {
@@ -43,7 +43,7 @@ class PayPalBookingTransformerTest extends TestCase {
 	}
 
 	/**
-	 * @return iterable<mixed>
+	 * @return iterable<string,array{array<string,scalar>}>
 	 */
 	public static function invalidBookingDataProvider(): iterable {
 		yield 'empty valuation date' => [ [ 'payer_id' => 72, 'txn_id' => PayPalPaymentBookingData::TRANSACTION_ID ] ];
@@ -52,14 +52,14 @@ class PayPalBookingTransformerTest extends TestCase {
 	}
 
 	/** @dataProvider invalidValuationDateProvider */
-	public function testGivenInvalidValuationDate_ItThrowsException( mixed $invalidValuationDate ): void {
+	public function testGivenInvalidValuationDate_ItThrowsException( string|int $invalidValuationDate ): void {
 		$this->expectException( \InvalidArgumentException::class );
 
 		new PayPalBookingTransformer( [ 'payer_id' => 1, 'payment_date' => $invalidValuationDate ] );
 	}
 
 	/**
-	 * @return iterable<mixed>
+	 * @return iterable<array{scalar}>
 	 */
 	public static function invalidValuationDateProvider(): iterable {
 		yield [ 0 ];

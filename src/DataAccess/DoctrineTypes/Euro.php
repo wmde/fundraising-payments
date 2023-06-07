@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use WMDE\Euro\Euro as WMDEEuro;
+use WMDE\Fundraising\PaymentContext\DataAccess\ScalarTypeConverter;
 
 class Euro extends Type {
 
@@ -23,7 +24,7 @@ class Euro extends Type {
 	}
 
 	public function convertToPHPValue( mixed $value, AbstractPlatform $platform ): WMDEEuro {
-		return WMDEEuro::newFromCents( intval( $value ) );
+		return WMDEEuro::newFromCents( ScalarTypeConverter::toInt( $value ) );
 	}
 
 	public function convertToDatabaseValue( mixed $value, AbstractPlatform $platform ): int {
