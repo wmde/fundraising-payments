@@ -80,7 +80,15 @@ class KontoCheckBankDataGenerator implements BankDataGenerator {
 	}
 
 	private function bankNameFromBankCode( string $bankCode ): string {
-		return utf8_encode( \lut_name( $bankCode ) ?: '' );
+		$bankName = mb_convert_encoding( \lut_name( $bankCode ) ?: '', 'UTF-8', 'ISO-8859-1' );
+		if ( is_string( $bankName ) ) {
+			return $bankName;
+		} elseif ( $bankName === false ) {
+			// This should never happen
+			throw new \UnexpectedValueException( "lut_name( $bankCode ) returned bank name that could not be transformed from ISO-8859-1 to UTF-8" );
+		}
+		// This return statement would only be reached if mb_convert_encoding was called with an array and is only here to make the method type-safe
+		return '';
 	}
 
 	/**
