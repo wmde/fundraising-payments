@@ -7,7 +7,7 @@ class CreditCardPaymentBookingData {
 
 	/**
 	 * @param int $amount
-	 * @return array<string,mixed>
+	 * @return array<string,scalar>
 	 */
 	public static function newValidBookingData( int $amount = 100_000 ): array {
 		return [

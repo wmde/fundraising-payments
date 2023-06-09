@@ -49,7 +49,7 @@ class PayPalPayment extends Payment implements BookablePayment {
 	}
 
 	/**
-	 * @param array<string,mixed> $transactionData Payment information from PayPal
+	 * @param array<string,scalar> $transactionData Payment information from PayPal
 	 * @param PaymentIdRepository $idGenerator Used for creating followup payments
 	 *
 	 * @return PayPalPayment
@@ -93,7 +93,7 @@ class PayPalPayment extends Payment implements BookablePayment {
 	/**
 	 * Create a booked followup payment
 	 *
-	 * @param array<string,mixed> $transactionData
+	 * @param array<string,scalar> $transactionData
 	 * @param PaymentIdRepository $idGenerator
 	 *
 	 * @return PayPalPayment

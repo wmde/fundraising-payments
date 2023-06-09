@@ -166,7 +166,7 @@ class SofortPaymentTest extends TestCase {
 	}
 
 	/**
-	 * @return array<string,mixed>
+	 * @return array<string,string>
 	 */
 	private function makeValidTransactionData(): array {
 		return [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24T17:30:00Z' ];

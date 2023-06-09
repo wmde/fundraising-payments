@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use WMDE\Fundraising\PaymentContext\DataAccess\ScalarTypeConverter;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban as WMDEIban;
 
 class Iban extends Type {
@@ -26,8 +27,7 @@ class Iban extends Type {
 		if ( $value === null ) {
 			return null;
 		}
-
-		return new WMDEIban( strval( $value ) );
+		return new WMDEIban( ScalarTypeConverter::toString( $value ) );
 	}
 
 	public function convertToDatabaseValue( mixed $value, AbstractPlatform $platform ): ?string {

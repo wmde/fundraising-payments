@@ -25,7 +25,7 @@ class BookPaymentUseCase {
 
 	/**
 	 * @param int $paymentId
-	 * @param array<string,mixed> $transactionData
+	 * @param array<string,scalar> $transactionData
 	 *
 	 * @return SuccessResponse|FailureResponse
 	 */
@@ -66,7 +66,7 @@ class BookPaymentUseCase {
 
 	/**
 	 * @param Payment $payment
-	 * @param array<string,mixed> $transactionData
+	 * @param array<string,scalar> $transactionData
 	 *
 	 * @return VerificationResponse
 	 */
@@ -77,7 +77,7 @@ class BookPaymentUseCase {
 
 	/**
 	 * @param BookablePayment $payment
-	 * @param array<string,mixed> $transactionData
+	 * @param array<string,scalar> $transactionData
 	 * @return bool
 	 */
 	private function paymentWasAlreadyBooked( BookablePayment $payment, array $transactionData ): bool {
@@ -91,7 +91,7 @@ class BookPaymentUseCase {
 
 	/**
 	 * @param PayPalPayment $payment
-	 * @param array<string,mixed> $transactionData
+	 * @param array<string,scalar> $transactionData
 	 * @return bool
 	 */
 	private function paypalPaymentWasAlreadyBooked( PayPalPayment $payment, array $transactionData ): bool {

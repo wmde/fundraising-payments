@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use WMDE\Fundraising\PaymentContext\DataAccess\ScalarTypeConverter;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval as DomainPaymentInterval;
 
 class PaymentInterval extends Type {
@@ -23,7 +24,7 @@ class PaymentInterval extends Type {
 	}
 
 	public function convertToPHPValue( mixed $value, AbstractPlatform $platform ): DomainPaymentInterval {
-		return DomainPaymentInterval::from( intval( $value ) );
+		return DomainPaymentInterval::from( ScalarTypeConverter::toInt( $value ) );
 	}
 
 	public function convertToDatabaseValue( mixed $value, AbstractPlatform $platform ): int {

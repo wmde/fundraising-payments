@@ -65,7 +65,7 @@ class SofortPayment extends Payment implements BookablePayment {
 	}
 
 	/**
-	 * @param array<string,mixed> $transactionData Data from the payment provider
+	 * @param array<string,scalar> $transactionData Data from the payment provider
 	 * @param PaymentIdRepository $idGenerator Not used here since we don't have followup payments
 	 *
 	 * @return Payment

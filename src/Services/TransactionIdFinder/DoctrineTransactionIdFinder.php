@@ -4,6 +4,7 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 
 use Doctrine\DBAL\Connection;
+use WMDE\Fundraising\PaymentContext\DataAccess\ScalarTypeConverter;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
@@ -42,7 +43,7 @@ class DoctrineTransactionIdFinder implements TransactionIdFinder {
 	private function convertMixedTypes( array $dbResult ): array {
 		$transactionIds = [];
 		foreach ( $dbResult as $transactionId => $paymentId ) {
-			$transactionIds[strval( $transactionId )] = intval( $paymentId );
+			$transactionIds[ScalarTypeConverter::toString( $transactionId )] = ScalarTypeConverter::toInt( $paymentId );
 		}
 		return $transactionIds;
 	}
