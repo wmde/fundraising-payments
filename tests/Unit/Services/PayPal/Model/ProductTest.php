@@ -21,4 +21,13 @@ class ProductTest extends TestCase {
 		);
 	}
 
+	public function testNameMustNotBeEmptyString(): void {
+		$this->expectException( \UnexpectedValueException::class );
+		$product = new Product( '', 'bla', '' );
+	}
+
+	public function testIdMustNotBeEmptyString(): void {
+		$this->expectException( \UnexpectedValueException::class );
+		$product = new Product( 'bla', '', '' );
+	}
 }
