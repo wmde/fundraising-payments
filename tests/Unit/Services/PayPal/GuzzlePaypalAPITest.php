@@ -10,6 +10,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use RuntimeException;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
@@ -446,6 +447,9 @@ RESPONSE
 
 	private function createSubscriptionsResponse(): Response {
 		$validJSONResponseContent = file_get_contents( __DIR__ . '/../../../Data/PaypalAPI/list_plans_response.json' );
+		if ( $validJSONResponseContent === false ) {
+			throw new RuntimeException( ' could not read fixture file ' . __DIR__ . '/../../../Data/PaypalAPI/list_plans_response.json' );
+		}
 		return new Response(
 			200,
 			[],
