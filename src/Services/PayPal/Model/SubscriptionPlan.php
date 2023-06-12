@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Services\PayPal\Model;
 
+use UnexpectedValueException;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 
 class SubscriptionPlan {
@@ -36,14 +37,25 @@ class SubscriptionPlan {
 		if ( ( $frequency['interval_unit'] ?? '' ) !== 'MONTH' ) {
 			throw new PayPalAPIException( 'interval_unit must be MONTH' );
 		}
-		$monthlyInterval = intval( $frequency['interval_count'] );
+		$monthlyInterval = $frequency['interval_count'];
+		$description = $apiData['description'] ?? '';
+
+		// Make static typechecker happy, using strval on mixed throws errors
+		if (
+			!is_scalar( $apiData['name'] ) ||
+			!is_scalar( $apiData['product_id'] ) ||
+			!is_scalar( $apiData['id'] ) ||
+			!is_scalar( $description )
+		) {
+			throw new UnexpectedValueException( 'Scalar value expected' );
+		}
 
 		return new SubscriptionPlan(
 			strval( $apiData['name'] ),
 			strval( $apiData['product_id'] ),
-			$monthlyInterval,
+			intval( $monthlyInterval ),
 			strval( $apiData['id'] ),
-			strval( $apiData['description'] ?? '' ),
+			strval( $description ),
 		);
 	}
 

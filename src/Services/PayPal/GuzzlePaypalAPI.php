@@ -77,7 +77,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 
 		$products = [];
 		foreach ( $jsonProductResponse['products'] as $product ) {
-			$products[] = new Product( $product['name'], $product['id'], $product['description'] );
+			$products[] = new Product( $product['name'], $product['id'], $product['description'] ?? '' );
 		}
 		return $products;
 	}
