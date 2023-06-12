@@ -170,4 +170,16 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		return $plans;
 	}
 
+	/**
+	 * @param SubscriptionPlan $subscriptionPlans
+	 * @return SubscriptionPlan
+	 */
+	public function createSubscriptionPlanForProduct( SubscriptionPlan $subscriptionPlans ): SubscriptionPlan {
+		// TODO Create request object (with product filter parameter)
+		// TODO Get json response from guzzle with api call and request object
+		// TODO parse JSON response, throw if not parseable or server indicates error
+		// TODO create new subscription plan from JSON, pass through exceptions from SubscriptionPlan::createFromJSON
+		// TODO return new plan
+	}
+
 }

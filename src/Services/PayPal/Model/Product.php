@@ -8,9 +8,12 @@ class Product {
 
 	public function __construct(
 		public readonly string $name,
-		public readonly ?string $id = null,
+		public readonly string $id,
 		public readonly ?string $description = null,
 	) {
+		if ( trim( $this->name ) === '' || trim( $this->id ) === '' ) {
+			throw new \UnexpectedValueException( 'Name and Id must not be empty' );
+		}
 	}
 
 	public function toJSON(): string {

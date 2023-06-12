@@ -13,6 +13,7 @@ use Psr\Log\NullLogger;
 use RuntimeException;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 use WMDE\PsrLogTestDoubles\LoggerSpy;
 
@@ -217,7 +218,7 @@ RESPONSE;
 		$response = new Response( 200, [], $responseBody );
 		$client = $this->givenClientWithResponses( $response );
 		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
-		$product = new Product( 'WMDE_FUNNYDonation' );
+		$product = new Product( 'WMDE_FUNNYDonation', 'FD1' );
 
 		$createdProduct = $guzzlePaypalApi->createProduct( $product );
 
@@ -239,7 +240,7 @@ RESPONSE;
 		);
 
 		try {
-			$guzzlePaypalApi->createProduct( new Product( '' ) );
+			$guzzlePaypalApi->createProduct( new Product( 'Dummy', 'D1' ) );
 			$this->fail( 'createProduct should throw an exception' );
 		} catch ( PayPalAPIException $e ) {
 			$this->assertStringContainsString( "Malformed JSON", $e->getMessage() );
@@ -263,7 +264,7 @@ RESPONSE;
 		);
 
 		try {
-			$guzzlePaypalApi->createProduct( new Product( '' ) );
+			$guzzlePaypalApi->createProduct( new Product( 'Dummy', 'D1' ) );
 			$this->fail( 'createProduct should throw an exception' );
 		} catch ( PayPalAPIException $e ) {
 			$this->assertStringContainsString( "Server did not send product data back", $e->getMessage() );
@@ -349,6 +350,20 @@ RESPONSE;
 
 		$this->expectExceptionMessage( 'Paging is not supported because each product should not have more than 4 payment intervals!' );
 		$guzzlePaypalApi->listSubscriptionPlansForProduct( 'donation' );
+	}
+
+	public function testCreatesSubscriptionPlansForAProduct(): void {
+		$response = $this->createCreateSubscriptionsResponse();
+		$client = $this->givenClientWithResponses( $response );
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+		$testPlan = new SubscriptionPlan( 'monthly', 'ServerPRODUCT-42', 1 );
+
+		$createdPlan = $guzzlePaypalApi->createSubscriptionPlanForProduct( $testPlan );
+
+		$this->assertNotSame( $testPlan, $createdPlan, 'method should create a new subscription plan from server data' );
+		$this->assertSame( 'ABCD-SERVER-GENERATED', $createdPlan->id, );
+		$this->assertSame( 'ServerMonthly', $createdPlan->name );
+		$this->assertSame( 'ServerPRODUCT-42', $createdPlan->productId );
 	}
 
 	private function givenClientWithResponses( Response ...$responses ): Client {
@@ -447,6 +462,18 @@ RESPONSE
 
 	private function createSubscriptionsResponse(): Response {
 		$validJSONResponseContent = file_get_contents( __DIR__ . '/../../../Data/PaypalAPI/list_plans_response.json' );
+		if ( $validJSONResponseContent === false ) {
+			throw new RuntimeException( ' could not read fixture file ' . __DIR__ . '/../../../Data/PaypalAPI/list_plans_response.json' );
+		}
+		return new Response(
+			200,
+			[],
+			$validJSONResponseContent
+		);
+	}
+
+	private function createCreateSubscriptionsResponse(): Response {
+		$validJSONResponseContent = file_get_contents( __DIR__ . '/../../../Data/PaypalAPI/create_plans_response.json' );
 		if ( $validJSONResponseContent === false ) {
 			throw new RuntimeException( ' could not read fixture file ' . __DIR__ . '/../../../Data/PaypalAPI/list_plans_response.json' );
 		}
