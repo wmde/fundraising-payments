@@ -99,6 +99,9 @@ class SubscriptionPlanTest extends TestCase {
 		] );
 	}
 
+	/**
+	 * @return iterable<string,array{mixed,string}>
+	 */
 	public static function brokenBillingCycleDataProvider(): iterable {
 		yield 'passing null' => [ null, 'Wrong billing cycle data' ];
 		yield 'passing a string' => [ 'hallo', 'Wrong billing cycle data' ];
