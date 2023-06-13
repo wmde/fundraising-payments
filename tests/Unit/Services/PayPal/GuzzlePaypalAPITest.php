@@ -63,12 +63,7 @@ class GuzzlePaypalAPITest extends TestCase {
 			$guzzlePaypalApi->listProducts();
 			$this->fail( 'listProducts should throw an exception' );
 		} catch ( PayPalAPIException $e ) {
-			$this->assertStringContainsString( "Malformed JSON", $e->getMessage() );
-			$firstCall = $logger->getFirstLogCall();
-			$this->assertNotNull( $firstCall );
-			$this->assertStringContainsString( "Malformed JSON", $firstCall->getMessage() );
-			$this->assertArrayHasKey( 'serverResponse', $firstCall->getContext() );
-			$this->assertSame( $responseBody, $firstCall->getContext()['serverResponse'] );
+			$this->assertJSONException( $e, $logger, $responseBody );
 		}
 	}
 
@@ -243,21 +238,16 @@ RESPONSE;
 			$guzzlePaypalApi->createProduct( new Product( 'Dummy', 'D1' ) );
 			$this->fail( 'createProduct should throw an exception' );
 		} catch ( PayPalAPIException $e ) {
-			$this->assertStringContainsString( "Malformed JSON", $e->getMessage() );
-			$firstCall = $logger->getFirstLogCall();
-			$this->assertNotNull( $firstCall );
-			$this->assertStringContainsString( "Malformed JSON", $firstCall->getMessage() );
-			$this->assertArrayHasKey( 'serverResponse', $firstCall->getContext() );
-			$this->assertSame( $responseBody, $firstCall->getContext()['serverResponse'] );
+			$this->assertJSONException( $e, $logger, $responseBody );
 		}
 	}
 
 	public function testCreateProductFailsWhenServerResponseDoesNotContainProductData(): void {
 		$logger = new LoggerSpy();
 		$responseBody = '{"error": "access denied" }';
-		$malformedJsonResponse = new Response( 200, [], $responseBody );
+		$jsonResponseWithErrors = new Response( 200, [], $responseBody );
 		$guzzlePaypalApi = new GuzzlePaypalAPI(
-			$this->givenClientWithResponses( $malformedJsonResponse ),
+			$this->givenClientWithResponses( $jsonResponseWithErrors ),
 			'testUserName',
 			'testPassword',
 			$logger
@@ -323,13 +313,19 @@ RESPONSE;
 	}
 
 	public function testListSubscriptionPlansThrowsErrorOnMalformedJSON(): void {
+		$responseBody = 'br0ken';
 		$client = $this->givenClientWithResponses(
-			$this->createBrokenJSONResponse()
+			new Response( 200, [], $responseBody )
 		);
-		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+		$loggerSpy = new LoggerSpy();
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', $loggerSpy );
 
-		$this->expectExceptionMessage( 'Malformed JSON' );
-		$guzzlePaypalApi->listSubscriptionPlansForProduct( 'donation' );
+		try {
+			$guzzlePaypalApi->listSubscriptionPlansForProduct( 'donation' );
+			$this->fail( 'It should throw an Exception.' );
+		} catch ( PayPalAPIException $e ) {
+			$this->assertJSONException( $e, $loggerSpy, $responseBody );
+		}
 	}
 
 	public function testListSubscriptionPlansThrowsErrorOnMissingPlansProperty(): void {
@@ -364,6 +360,58 @@ RESPONSE;
 		$this->assertSame( 'ABCD-SERVER-GENERATED', $createdPlan->id, );
 		$this->assertSame( 'ServerMonthly', $createdPlan->name );
 		$this->assertSame( 'ServerPRODUCT-42', $createdPlan->productId );
+	}
+
+	public function testCreateSubscriptionForProductFailsWhenServerResponseHasMalformedJson(): void {
+		$logger = new LoggerSpy();
+		$responseBody = '{"sss_reserved": "0"';
+		$malformedJsonResponse = new Response( 200, [], $responseBody );
+		$guzzlePaypalApi = new GuzzlePaypalAPI(
+			$this->givenClientWithResponses( $malformedJsonResponse ),
+			'testUserName',
+			'testPassword',
+			$logger
+		);
+
+		try {
+			$guzzlePaypalApi->createSubscriptionPlanForProduct( new SubscriptionPlan( 'Dummy', 'D1', 6 ) );
+			$this->fail( 'createSubscriptionPlanForProduct should throw an exception' );
+		} catch ( PayPalAPIException $e ) {
+			$this->assertJSONException( $e, $logger, $responseBody );
+		}
+	}
+
+	private function assertJSONException( PayPalAPIException $e, LoggerSpy $logger, string $responseBody ): void {
+		$this->assertStringContainsString( "Malformed JSON", $e->getMessage() );
+		$firstCall = $logger->getFirstLogCall();
+		$this->assertNotNull( $firstCall );
+		$this->assertStringContainsString( "Malformed JSON", $firstCall->getMessage() );
+		$this->assertArrayHasKey( 'serverResponse', $firstCall->getContext() );
+		$this->assertSame( $responseBody, $firstCall->getContext()['serverResponse'] );
+	}
+
+	public function testCreateSubscriptionForProductFailsWhenServerResponseDoesNotContainSubscriptionData(): void {
+		$logger = new LoggerSpy();
+		$responseBody = '{"error": "access denied" }';
+		$malformedJsonResponse = new Response( 200, [], $responseBody );
+		$guzzlePaypalApi = new GuzzlePaypalAPI(
+			$this->givenClientWithResponses( $malformedJsonResponse ),
+			'testUserName',
+			'testPassword',
+			$logger
+		);
+
+		try {
+			$guzzlePaypalApi->createSubscriptionPlanForProduct( new SubscriptionPlan( 'Dummy', 'D1', 6 ) );
+			$this->fail( 'createSubscriptionPlanForProduct should throw an exception' );
+		} catch ( PayPalAPIException $e ) {
+			$this->assertStringContainsString( "Server returned faulty subscription plan data", $e->getMessage() );
+			$firstCall = $logger->getFirstLogCall();
+			$this->assertNotNull( $firstCall );
+			$this->assertStringContainsString( "Server returned faulty subscription plan data", $firstCall->getMessage() );
+			$this->assertArrayHasKey( 'serverResponse', $firstCall->getContext() );
+			$this->assertSame( $responseBody, $firstCall->getContext()['serverResponse'] );
+		}
 	}
 
 	private function givenClientWithResponses( Response ...$responses ): Client {
@@ -481,17 +529,6 @@ RESPONSE
 			200,
 			[],
 			$validJSONResponseContent
-		);
-	}
-
-	private function createBrokenJSONResponse(): Response {
-		return new Response(
-			200,
-			[],
-			<<<RESPONSE
-			{
-  				"br0ken
-RESPONSE
 		);
 	}
 

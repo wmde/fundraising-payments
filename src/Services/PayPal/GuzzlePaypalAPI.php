@@ -51,18 +51,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		);
 
 		$serverResponse = $productResponse->getBody()->getContents();
-		try {
-			$jsonProductResponse = json_decode( $serverResponse, true, 512, JSON_THROW_ON_ERROR );
-		} catch ( JsonException $e ) {
-			throw $this->createLoggedException(
-				"Malformed JSON",
-				[
-				"serverResponse" => $serverResponse,
-				"error" => $e->getMessage()
-				],
-				$e
-			);
-		}
+		$jsonProductResponse = $this->safelyDecodeJSON( $serverResponse );
 
 		if ( !is_array( $jsonProductResponse ) || !isset( $jsonProductResponse['products'] ) ) {
 			throw $this->createLoggedException( "Listing products failed!", [ "serverResponse" => $serverResponse ] );
@@ -98,18 +87,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		);
 
 		$serverResponse = $response->getBody()->getContents();
-		try {
-			$jsonProductResponse = json_decode( $serverResponse, true, 512, JSON_THROW_ON_ERROR );
-		} catch ( JsonException $e ) {
-			throw $this->createLoggedException(
-				"Malformed JSON",
-				[
-					"serverResponse" => $serverResponse,
-					"error" => $e->getMessage()
-				],
-				$e
-			);
-		}
+		$jsonProductResponse = $this->safelyDecodeJSON( $serverResponse );
 
 		if ( !is_array( $jsonProductResponse ) || empty( $jsonProductResponse['name'] ) || empty( $jsonProductResponse['id'] ) ) {
 			throw $this->createLoggedException(
@@ -139,18 +117,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		);
 
 		$serverResponse = $planResponse->getBody()->getContents();
-		try {
-			$jsonPlanResponse = json_decode( $serverResponse, true, 512, JSON_THROW_ON_ERROR );
-		} catch ( JsonException $e ) {
-			throw $this->createLoggedException(
-				"Malformed JSON",
-				[
-					"serverResponse" => $serverResponse,
-					"error" => $e->getMessage()
-				],
-				$e
-			);
-		}
+		$jsonPlanResponse = $this->safelyDecodeJSON( $serverResponse );
 
 		if ( !is_array( $jsonPlanResponse ) || !isset( $jsonPlanResponse['plans'] ) ) {
 			throw $this->createLoggedException( "Listing subscription plans failed!", [ "serverResponse" => $serverResponse ] );
@@ -171,15 +138,61 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	}
 
 	/**
-	 * @param SubscriptionPlan $subscriptionPlans
+	 * @param SubscriptionPlan $subscriptionPlan
 	 * @return SubscriptionPlan
 	 */
-	public function createSubscriptionPlanForProduct( SubscriptionPlan $subscriptionPlans ): SubscriptionPlan {
-		// TODO Create request object (with product filter parameter)
-		// TODO Get json response from guzzle with api call and request object
-		// TODO parse JSON response, throw if not parseable or server indicates error
-		// TODO create new subscription plan from JSON, pass through exceptions from SubscriptionPlan::createFromJSON
-		// TODO return new plan
+	public function createSubscriptionPlanForProduct( SubscriptionPlan $subscriptionPlan ): SubscriptionPlan {
+		$response = $this->client->request(
+			'POST',
+			self::ENDPOINT_SUBSCRIPTION_PLANS,
+			[
+				RequestOptions::HEADERS => [
+					'Authorization' => "Basic {$this->clientId}:{$this->clientSecret}",
+					'Content-Type' => "application/json",
+					'Accept' => "application/json",
+					'Prefer' => 'return=representation'
+				],
+				RequestOptions::BODY => $subscriptionPlan->toJSON()
+			]
+		);
+
+		$serverResponse = $response->getBody()->getContents();
+		$jsonSubscriptionPlanResponse = $this->safelyDecodeJSON( $serverResponse );
+
+		try {
+			return SubscriptionPlan::createFromJSON( $jsonSubscriptionPlanResponse );
+		} catch ( PayPalAPIException $e ) {
+			throw $this->createLoggedException(
+				"Server returned faulty subscription plan data: " . $e->getMessage(),
+				[
+					"serverResponse" => $serverResponse,
+					"error" => $e->getMessage()
+				],
+				$e
+			);
+		}
+	}
+
+	/**
+	 * @param string $serverResponse
+	 *
+	 * @return array decoded JSON
+	 */
+	private function safelyDecodeJSON( string $serverResponse ): array {
+		try {
+			$decodedJSONResponse = json_decode( $serverResponse, true, 512, JSON_THROW_ON_ERROR );
+		} catch ( JsonException $e ) {
+			throw $this->createLoggedException(
+				"Malformed JSON",
+				[
+					"serverResponse" => $serverResponse,
+					"error" => $e->getMessage()
+				],
+				$e
+			);
+		}
+
+		return $decodedJSONResponse;
 	}
 
 }

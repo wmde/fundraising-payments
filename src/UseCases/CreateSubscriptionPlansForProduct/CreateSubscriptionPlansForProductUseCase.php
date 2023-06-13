@@ -6,7 +6,7 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 
-class CreateSubscriptionPlansForProduct {
+class CreateSubscriptionPlansForProductUseCase {
 
 	public function __construct(
 		private PaypalAPI $api
