@@ -44,4 +44,8 @@ class FakePayPalAPI implements PaypalAPI {
 		return $this->subscriptionPlans;
 	}
 
+	public function createSubscriptionPlanForProduct( SubscriptionPlan $subscriptionPlan ): SubscriptionPlan {
+		$this->subscriptionPlans[] = $this->subscriptionPlans;
+		return $subscriptionPlan;
+	}
 }

@@ -25,4 +25,10 @@ interface PaypalAPI {
 	 */
 	public function listSubscriptionPlansForProduct( string $productId ): array;
 
+	/**
+	 * @param SubscriptionPlan $subscriptionPlan
+	 * @return SubscriptionPlan
+	 */
+	public function createSubscriptionPlanForProduct( SubscriptionPlan $subscriptionPlan ): SubscriptionPlan;
+
 }
