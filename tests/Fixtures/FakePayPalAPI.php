@@ -23,8 +23,8 @@ class FakePayPalAPI implements PaypalAPI {
 	 * @param SubscriptionPlan[] $subscriptionPlans
 	 */
 	public function __construct(
-		array $products,
-		array $subscriptionPlans
+		array $products = [],
+		array $subscriptionPlans = []
 	) {
 		foreach ( $products as $product ) {
 			$this->createProduct( $product );
@@ -34,6 +34,9 @@ class FakePayPalAPI implements PaypalAPI {
 		}
 	}
 
+	/**
+	 * @return Product[]
+	 */
 	public function listProducts(): array {
 		return $this->products;
 	}
@@ -60,6 +63,9 @@ class FakePayPalAPI implements PaypalAPI {
 		return $this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval] == $subscriptionPlan;
 	}
 
+	/**
+	 * @return SubscriptionPlan[]
+	 */
 	public function listSubscriptionPlansForProduct( string $productId ): array {
 		return $this->subscriptionPlans[$productId] ?? [];
 	}
