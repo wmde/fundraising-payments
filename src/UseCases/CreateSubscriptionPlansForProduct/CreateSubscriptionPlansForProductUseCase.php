@@ -16,7 +16,7 @@ class CreateSubscriptionPlansForProductUseCase {
 
 	public function create( CreateSubscriptionPlanRequest $request ): SuccessResult|ErrorResult {
 		try {
-			$resultProduct = $this->productAlreadyExists( $request->id );
+			$resultProduct = $this->productAlreadyExists( $request->productId );
 		} catch ( PayPalAPIException $e ) {
 			return new ErrorResult( $e->getMessage() );
 		}
@@ -24,7 +24,7 @@ class CreateSubscriptionPlansForProductUseCase {
 		if ( $resultProduct === null ) {
 			$productAlreadyExisted = false;
 			try {
-				$resultProduct = $this->api->createProduct( new Product( $request->productName, $request->id ) );
+				$resultProduct = $this->api->createProduct( new Product( $request->productName, $request->productId ) );
 			} catch ( \Exception $e ) {
 				return new ErrorResult( $e->getMessage() );
 			}
@@ -35,12 +35,12 @@ class CreateSubscriptionPlansForProductUseCase {
 		$planName = "Recurring " . $request->interval->name . " payment for " . $request->productName;
 		$subscriptionPlan = new SubscriptionPlan(
 			$planName,
-			$request->id,
+			$request->productId,
 			$request->interval->value
 		);
 
 		try {
-			$resultSubscriptionPlan = $this->planAlreadyExistsForThisProduct( $request->id, $subscriptionPlan );
+			$resultSubscriptionPlan = $this->planAlreadyExistsForThisProduct( $request->productId, $subscriptionPlan );
 		} catch ( PayPalAPIException $e ) {
 			return new ErrorResult( $e->getMessage() );
 		}
