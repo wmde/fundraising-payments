@@ -32,7 +32,7 @@ class CreateSubscriptionPlansForProductUseCase {
 			$productAlreadyExisted = true;
 		}
 
-		$planName = "Recurring " . $request->interval->name . "payment for " . $request->productName;
+		$planName = "Recurring " . $request->interval->name . " payment for " . $request->productName;
 		$subscriptionPlan = new SubscriptionPlan(
 			$planName,
 			$request->id,
@@ -70,9 +70,7 @@ class CreateSubscriptionPlansForProductUseCase {
 
 	public function planAlreadyExistsForThisProduct( string $productId, SubscriptionPlan $subscriptionPlan ): ?SubscriptionPlan {
 		foreach ( $this->api->listSubscriptionPlansForProduct( $productId ) as $plan ) {
-			if ( $plan->productId === $subscriptionPlan->productId &&
-				$plan->monthlyInterval === $subscriptionPlan->monthlyInterval
-			) {
+			if ( $plan->monthlyInterval === $subscriptionPlan->monthlyInterval ) {
 				return $subscriptionPlan;
 			}
 		}
