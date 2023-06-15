@@ -7,6 +7,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Dotenv\Dotenv;
 
 #[AsCommand(
 	name: 'app:list-subscription-plans',
@@ -15,13 +16,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class ListSubscriptionPlansCommand extends Command
 {
-	protected string $name = 'app:list-subscription-plans';
-
-
-
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$output->writeln("Hello world");
+
+		// initialize API with environment parameters (Paypal url, client id and secret)
+		// call listProducts on API
+		// output product name and id
+		// iterate over products, call getSubscriptionPlansForProduct on each product
+		// iterate over plans, output each plan id, name and monthly interval (slightly indented)
+
+		$url = getenv("PAYPAL_URL");
+		print_r($_ENV);
+		$output->writeln("Url is $url");
+
 		return Command::SUCCESS;
 	}
 

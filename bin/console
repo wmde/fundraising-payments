@@ -4,10 +4,14 @@
 require __DIR__.'/../vendor/autoload.php';
 
 use Symfony\Component\Console\Application;
+use Symfony\Component\Dotenv\Dotenv;
+
+$dotenv = new Dotenv();
+$dotenv->load( __DIR__ . '/../.env' );
 
 $application = new Application();
 
-$application->register( \WMDE\Fundraising\PaymentContext\Commands\ListSubscriptionPlansCommand::class );
+$application->add( new \WMDE\Fundraising\PaymentContext\Commands\ListSubscriptionPlansCommand(null) );
 
 
 $application->run();
