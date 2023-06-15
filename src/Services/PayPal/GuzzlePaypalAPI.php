@@ -177,6 +177,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	 * @param string $serverResponse
 	 *
 	 * @return array decoded JSON
+	 * @phpstan-ignore-next-line
 	 */
 	private function safelyDecodeJSON( string $serverResponse ): array {
 		try {
@@ -190,6 +191,10 @@ class GuzzlePaypalAPI implements PaypalAPI {
 				],
 				$e
 			);
+		}
+
+		if ( !is_array( $decodedJSONResponse ) ) {
+			throw new PayPalAPIException( 'array expected' );
 		}
 
 		return $decodedJSONResponse;

@@ -56,11 +56,11 @@ class FakePayPalAPI implements PaypalAPI {
 	}
 
 	public function hasSubscriptionPlan( SubscriptionPlan $subscriptionPlan ): bool {
-		if ( empty( $this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval] ) ) {
+		if ( empty( $this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval->value] ) ) {
 			return false;
 		}
 		// compare by value, not by reference
-		return $this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval] == $subscriptionPlan;
+		return $this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval->value] == $subscriptionPlan;
 	}
 
 	/**
@@ -72,9 +72,9 @@ class FakePayPalAPI implements PaypalAPI {
 
 	public function createSubscriptionPlanForProduct( SubscriptionPlan $subscriptionPlan ): SubscriptionPlan {
 		if ( empty( $this->subscriptionPlans[$subscriptionPlan->productId] ) ) {
-			$this->subscriptionPlans[$subscriptionPlan->productId] = [ $subscriptionPlan->monthlyInterval => $subscriptionPlan ];
+			$this->subscriptionPlans[$subscriptionPlan->productId] = [ $subscriptionPlan->monthlyInterval->value => $subscriptionPlan ];
 		} else {
-			$this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval] = $subscriptionPlan;
+			$this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval->value] = $subscriptionPlan;
 		}
 		return $subscriptionPlan;
 	}

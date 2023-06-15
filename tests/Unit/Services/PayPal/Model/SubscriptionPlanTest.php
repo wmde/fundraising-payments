@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal\Model;
 
 use PHPUnit\Framework\TestCase;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 
 /**
@@ -11,7 +12,13 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
  */
 class SubscriptionPlanTest extends TestCase {
 	public function testToJSONSerialization(): void {
-		$plan = new SubscriptionPlan( 'Monthly Membership Payment', 'membership-2023', 1, null, 'Membership Payment, billed monthly' );
+		$plan = new SubscriptionPlan(
+			'Monthly Membership Payment',
+			'membership-2023',
+			PaymentInterval::Monthly,
+			null,
+			'Membership Payment, billed monthly'
+		);
 
 		$serializedPlan = json_decode( $plan->toJSON(), true, 512, JSON_THROW_ON_ERROR );
 
@@ -73,7 +80,7 @@ class SubscriptionPlanTest extends TestCase {
 		$this->assertSame( 'FAKE_GENERATED_ID', $plan->id );
 		$this->assertSame( 'membership-2023', $plan->productId );
 		$this->assertSame( 'Membership Payment, billed yearly', $plan->description );
-		$this->assertSame( 12, $plan->monthlyInterval );
+		$this->assertSame( PaymentInterval::Yearly, $plan->monthlyInterval );
 	}
 
 	/**

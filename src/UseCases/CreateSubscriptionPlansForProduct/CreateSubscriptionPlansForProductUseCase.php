@@ -36,7 +36,7 @@ class CreateSubscriptionPlansForProductUseCase {
 		$subscriptionPlan = new SubscriptionPlan(
 			$planName,
 			$request->productId,
-			$request->interval->value
+			$request->interval
 		);
 
 		try {
