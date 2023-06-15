@@ -13,7 +13,8 @@
 		"doctrine/dbal": "^3.3",
 		"doctrine/migrations": "^3.5",
 		"sofort/sofortlib-php": "^3.2",
-		"symfony/cache": "^6.0",
+		"symfony/cache": "^6.3",
+		"symfony/console": "^6.3",
 		"guzzlehttp/guzzle": "^7.4"
 	},
 	"require-dev": {
