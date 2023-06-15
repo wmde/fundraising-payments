@@ -50,6 +50,9 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 		$this->assertSame( 'Failed to create product', $result->message );
 	}
 
+	/**
+	 * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanRequest
+	 */
 	public function testThrowsExceptionWhenRequestedWithOneTimePaymentInterval(): void {
 		$this->expectException( \UnexpectedValueException::class );
 		new CreateSubscriptionPlanRequest( '', '', PaymentInterval::OneTime );
@@ -83,7 +86,7 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	private static function createSubscriptionPlan( string $productId, PaymentInterval $interval ): SubscriptionPlan {
 		$product = self::createProduct( $productId );
 		$planName = "Recurring " . $interval->name . " payment for " . $product->name;
-		return new SubscriptionPlan( $planName, $product->id, $interval->value );
+		return new SubscriptionPlan( $planName, $product->id, $interval );
 	}
 
 	/**
@@ -101,7 +104,7 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 		$result = $useCase->create( new CreateSubscriptionPlanRequest(
 				$product->name,
 				$product->id,
-				PaymentInterval::from( $subscriptionPlan->monthlyInterval )
+				$subscriptionPlan->monthlyInterval
 			)
 		);
 

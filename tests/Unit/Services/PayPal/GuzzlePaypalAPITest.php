@@ -11,6 +11,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
@@ -352,7 +353,7 @@ RESPONSE;
 		$response = $this->createCreateSubscriptionsResponse();
 		$client = $this->givenClientWithResponses( $response );
 		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
-		$testPlan = new SubscriptionPlan( 'monthly', 'ServerPRODUCT-42', 1 );
+		$testPlan = new SubscriptionPlan( 'monthly', 'ServerPRODUCT-42', PaymentInterval::Monthly );
 
 		$createdPlan = $guzzlePaypalApi->createSubscriptionPlanForProduct( $testPlan );
 
@@ -374,7 +375,7 @@ RESPONSE;
 		);
 
 		try {
-			$guzzlePaypalApi->createSubscriptionPlanForProduct( new SubscriptionPlan( 'Dummy', 'D1', 6 ) );
+			$guzzlePaypalApi->createSubscriptionPlanForProduct( new SubscriptionPlan( 'Dummy', 'D1', PaymentInterval::HalfYearly ) );
 			$this->fail( 'createSubscriptionPlanForProduct should throw an exception' );
 		} catch ( PayPalAPIException $e ) {
 			$this->assertJSONException( $e, $logger, $responseBody );
@@ -402,7 +403,7 @@ RESPONSE;
 		);
 
 		try {
-			$guzzlePaypalApi->createSubscriptionPlanForProduct( new SubscriptionPlan( 'Dummy', 'D1', 6 ) );
+			$guzzlePaypalApi->createSubscriptionPlanForProduct( new SubscriptionPlan( 'Dummy', 'D1', PaymentInterval::HalfYearly ) );
 			$this->fail( 'createSubscriptionPlanForProduct should throw an exception' );
 		} catch ( PayPalAPIException $e ) {
 			$this->assertStringContainsString( "Server returned faulty subscription plan data", $e->getMessage() );
