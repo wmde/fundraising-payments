@@ -46,6 +46,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 			'GET',
 			self::ENDPOINT_PRODUCTS,
 			[ RequestOptions::HEADERS => [
+				// TODO this is wrong, we must base64 encode it, see https://stackoverflow.com/a/62002538/130121
 				'Authorization' => "Basic {$this->clientId}:{$this->clientSecret}"
 			] ]
 		);
