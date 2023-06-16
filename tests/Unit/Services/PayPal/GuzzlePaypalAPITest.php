@@ -106,7 +106,10 @@ class GuzzlePaypalAPITest extends TestCase {
 		$actualProducts = $guzzlePaypalApi->listProducts();
 
 		$this->assertEquals(
-			[ new Product( 'WMDE_Donation', 'ID-1', 'Description' ), new Product( 'WMDE_Membership', 'ID-2', null ) ],
+			[
+				new Product( 'ID-1', 'WMDE_Donation', 'Description' ),
+				new Product( 'ID-2', 'WMDE_Membership', null )
+			],
 			$actualProducts
 		);
 		/** @var Request $createRequest */
@@ -174,7 +177,7 @@ RESPONSE;
 		$response = new Response( 200, [], $responseBody );
 		$client = $this->givenClientWithResponses( $response );
 		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
-		$product = new Product( 'WMDE_FUNNYDonation', "someSpecificID", 'WMDE_FUNNYDonationDescription' );
+		$product = new Product( "someSpecificID", 'WMDE_FUNNYDonation', 'WMDE_FUNNYDonationDescription' );
 
 		$guzzlePaypalApi->createProduct( $product );
 
@@ -219,7 +222,7 @@ RESPONSE;
 		$response = new Response( 200, [], $responseBody );
 		$client = $this->givenClientWithResponses( $response );
 		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
-		$product = new Product( 'WMDE_FUNNYDonation', 'FD1' );
+		$product = new Product( 'FD1', 'WMDE_FUNNYDonation', );
 
 		$createdProduct = $guzzlePaypalApi->createProduct( $product );
 
@@ -241,7 +244,7 @@ RESPONSE;
 		);
 
 		try {
-			$guzzlePaypalApi->createProduct( new Product( 'Dummy', 'D1' ) );
+			$guzzlePaypalApi->createProduct( new Product( 'D1', 'Dummy', ) );
 			$this->fail( 'createProduct should throw an exception' );
 		} catch ( PayPalAPIException $e ) {
 			$this->assertJSONException( $e, $logger, $responseBody );
@@ -260,7 +263,7 @@ RESPONSE;
 		);
 
 		try {
-			$guzzlePaypalApi->createProduct( new Product( 'Dummy', 'D1' ) );
+			$guzzlePaypalApi->createProduct( new Product( 'D1', 'Dummy', ) );
 			$this->fail( 'createProduct should throw an exception' );
 		} catch ( PayPalAPIException $e ) {
 			$this->assertStringContainsString( "Server did not send product data back", $e->getMessage() );

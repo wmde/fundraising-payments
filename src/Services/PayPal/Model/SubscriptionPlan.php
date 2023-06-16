@@ -76,7 +76,15 @@ class SubscriptionPlan {
 			"product_id" => $this->productId,
 			"description" => $this->description,
 			"billing_cycles" => [ [
-				"sequence" => 0,
+				"sequence" => 1,
+				// pricing_scheme is required by the api, but value is set to 1 EUR
+				// subscriptions must override this with the actual value of the donation/membership fee
+				"pricing_scheme" => [
+					"fixed_price" => [
+						"value" => "1",
+						"currency_code" => "EUR"
+					]
+				],
 				"tenure_type" => "REGULAR",
 				"frequency" => [
 					"interval_unit" => "MONTH",

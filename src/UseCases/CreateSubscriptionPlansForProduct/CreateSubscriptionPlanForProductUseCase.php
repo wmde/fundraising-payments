@@ -7,7 +7,7 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 
-class CreateSubscriptionPlansForProductUseCase {
+class CreateSubscriptionPlanForProductUseCase {
 
 	public function __construct(
 		private PaypalAPI $api
@@ -24,7 +24,7 @@ class CreateSubscriptionPlansForProductUseCase {
 		if ( $resultProduct === null ) {
 			$productAlreadyExisted = false;
 			try {
-				$resultProduct = $this->api->createProduct( new Product( $request->productName, $request->productId ) );
+				$resultProduct = $this->api->createProduct( new Product( $request->productId, $request->productName ) );
 			} catch ( \Exception $e ) {
 				return new ErrorResult( $e->getMessage() );
 			}

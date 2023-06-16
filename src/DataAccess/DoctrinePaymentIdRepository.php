@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Doctrine\ORM\EntityManager;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
+use WMDE\Fundraising\PaymentContext\ScalarTypeConverter;
 
 class DoctrinePaymentIdRepository implements PaymentIdRepository {
 
