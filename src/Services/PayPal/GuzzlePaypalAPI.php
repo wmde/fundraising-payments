@@ -46,8 +46,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 			'GET',
 			self::ENDPOINT_PRODUCTS,
 			[ RequestOptions::HEADERS => [
-				// TODO this is wrong, we must base64 encode it, see https://stackoverflow.com/a/62002538/130121
-				'Authorization' => "Basic {$this->clientId}:{$this->clientSecret}"
+				'Authorization' => $this->getAuthHeader()
 			] ]
 		);
 
@@ -58,7 +57,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 			throw $this->createLoggedException( "Listing products failed!", [ "serverResponse" => $serverResponse ] );
 		}
 
-		if ( $jsonProductResponse['total_pages'] > 1 ) {
+		if ( isset( $jsonProductResponse['total_pages'] ) && $jsonProductResponse['total_pages'] > 1 ) {
 			throw $this->createLoggedException(
 				"Paging is not supported because we don't have that many products!",
 				[ "serverResponse" => $serverResponse ]
@@ -78,7 +77,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 			self::ENDPOINT_PRODUCTS,
 			[
 				RequestOptions::HEADERS => [
-					'Authorization' => "Basic {$this->clientId}:{$this->clientSecret}",
+					'Authorization' => $this->getAuthHeader(),
 					'Content-Type' => "application/json",
 					'Accept' => "application/json",
 					'Prefer' => 'return=representation'
@@ -109,7 +108,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 			self::ENDPOINT_SUBSCRIPTION_PLANS,
 			[
 				RequestOptions::HEADERS => [
-					'Authorization' => "Basic {$this->clientId}:{$this->clientSecret}",
+					'Authorization' => $this->getAuthHeader(),
 					'Accept' => "application/json",
 					'Prefer' => 'return=representation'
 				],
@@ -124,7 +123,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 			throw $this->createLoggedException( "Listing subscription plans failed!", [ "serverResponse" => $serverResponse ] );
 		}
 
-		if ( $jsonPlanResponse['total_pages'] > 1 ) {
+		if ( isset( $jsonPlanResponse['total_pages'] ) && $jsonPlanResponse['total_pages'] > 1 ) {
 			throw $this->createLoggedException(
 				"Paging is not supported because each product should not have more than 4 payment intervals!",
 				[ "serverResponse" => $serverResponse ]
@@ -148,7 +147,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 			self::ENDPOINT_SUBSCRIPTION_PLANS,
 			[
 				RequestOptions::HEADERS => [
-					'Authorization' => "Basic {$this->clientId}:{$this->clientSecret}",
+					'Authorization' => $this->getAuthHeader(),
 					'Content-Type' => "application/json",
 					'Accept' => "application/json",
 					'Prefer' => 'return=representation'
@@ -199,6 +198,10 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		}
 
 		return $decodedJSONResponse;
+	}
+
+	private function getAuthHeader(): string {
+		return 'Basic ' . base64_encode( $this->clientId . ':' . $this->clientSecret );
 	}
 
 }

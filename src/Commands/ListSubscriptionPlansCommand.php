@@ -19,16 +19,27 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
 class ListSubscriptionPlansCommand extends Command {
 
 	protected function execute( InputInterface $input, OutputInterface $output ): int {
-		// initialize API with environment parameters (Paypal url, client id and secret)
+		$clientId = $_ENV['PAYPAL_API_CLIENT_ID'] ?? '';
+		$secret = $_ENV['PAYPAL_API_CLIENT_SECRET'] ?? '';
+		$baseUri = $_ENV['PAYPAL_API_URL'] ?? '';
+		if ( !$clientId || !$secret || !$baseUri ) {
+			$output->writeln( 'You must put PAYPAL_API_URL, PAYPAL_API_CLIENT_ID and PAYPAL_API_CLIENT_SECRET' );
+			return Command::FAILURE;
+		}
+
 		$api = new GuzzlePaypalAPI(
-			new Client( [ 'base_uri' => $_ENV['PAYPAL_URL'] ] ),
-			$_ENV['PAYPAL_API_CLIENT_ID'],
-			$_ENV['PAYPAL_API_CLIENT_SECRET'],
+			new Client( [ 'base_uri' => $baseUri ] ),
+			$clientId,
+			$secret,
 			new NullLogger()
 		);
 
-		// call listProducts on API
 		$products = $api->listProducts();
+
+		if ( count( $products ) === 0 ) {
+			$output->writeln( 'No products and plans configured' );
+			return Command::SUCCESS;
+		}
 
 		// output product name and id
 
