@@ -4,10 +4,10 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\DataAccess;
 
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\PaymentContext\DataAccess\ScalarTypeConverter;
+use WMDE\Fundraising\PaymentContext\ScalarTypeConverter;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\DataAccess\ScalarTypeConverter
+ * @covers \WMDE\Fundraising\PaymentContext\ScalarTypeConverter
  */
 class ScalarTypeConverterTest extends TestCase {
 	/**

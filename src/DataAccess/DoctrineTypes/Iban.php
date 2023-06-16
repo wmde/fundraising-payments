@@ -6,8 +6,8 @@ namespace WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use WMDE\Fundraising\PaymentContext\DataAccess\ScalarTypeConverter;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban as WMDEIban;
+use WMDE\Fundraising\PaymentContext\ScalarTypeConverter;
 
 class Iban extends Type {
 

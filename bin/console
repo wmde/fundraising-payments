@@ -12,6 +12,7 @@ $dotenv->load( __DIR__ . '/../.env' );
 $application = new Application();
 
 $application->add( new \WMDE\Fundraising\PaymentContext\Commands\ListSubscriptionPlansCommand(null) );
+$application->add( new \WMDE\Fundraising\PaymentContext\Commands\CreateSubscriptionPlansCommand(null) );
 
 
 $application->run();
