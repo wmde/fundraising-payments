@@ -9,18 +9,18 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePayPalAPI;
+use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanForProductUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanRequest;
-use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlansForProductUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\ErrorResult;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\SuccessResult;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlansForProductUseCase
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanForProductUseCase
  */
 class CreateSubscriptionPlansForProductTest extends TestCase {
 
 	public function testPassingEmptyProductNameReturnsErrorResult(): void {
-		$useCase = new CreateSubscriptionPlansForProductUseCase( new FakePayPalAPI() );
+		$useCase = new CreateSubscriptionPlanForProductUseCase( new FakePayPalAPI() );
 
 		$result = $useCase->create( new CreateSubscriptionPlanRequest( '', '', PaymentInterval::HalfYearly ) );
 
@@ -31,9 +31,9 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	public function testReturnsErrorResultWhenListingProductIsNotSuccessful(): void {
 		$api = $this->createStub( PaypalAPI::class );
 		$api->method( 'listProducts' )->willThrowException( new PayPalAPIException( 'Listing products not allowed' ) );
-		$useCase = new CreateSubscriptionPlansForProductUseCase( $api );
+		$useCase = new CreateSubscriptionPlanForProductUseCase( $api );
 
-		$result = $useCase->create( new CreateSubscriptionPlanRequest( 'ProductName-1', 'ProductId-1', PaymentInterval::HalfYearly ) );
+		$result = $useCase->create( new CreateSubscriptionPlanRequest( 'ProductId-1', 'ProductName-1', PaymentInterval::HalfYearly ) );
 
 		$this->assertInstanceOf( ErrorResult::class, $result );
 		$this->assertSame( 'Listing products not allowed', $result->message );
@@ -42,9 +42,9 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	public function testReturnsErrorResultWhenCreatingProductIsNotSuccessful(): void {
 		$api = $this->createStub( PaypalAPI::class );
 		$api->method( 'createProduct' )->willThrowException( new PayPalAPIException( 'Failed to create product' ) );
-		$useCase = new CreateSubscriptionPlansForProductUseCase( $api );
+		$useCase = new CreateSubscriptionPlanForProductUseCase( $api );
 
-		$result = $useCase->create( new CreateSubscriptionPlanRequest( 'ProductName-2', 'ProductId-2', PaymentInterval::HalfYearly ) );
+		$result = $useCase->create( new CreateSubscriptionPlanRequest( 'ProductId-2', 'ProductName-2', PaymentInterval::HalfYearly ) );
 
 		$this->assertInstanceOf( ErrorResult::class, $result );
 		$this->assertSame( 'Failed to create product', $result->message );
@@ -80,7 +80,7 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	}
 
 	private static function createProduct( string $id ): Product {
-		return new Product( 'P1', $id, '' );
+		return new Product( $id, 'P1', '' );
 	}
 
 	private static function createSubscriptionPlan( string $productId, PaymentInterval $interval ): SubscriptionPlan {
@@ -99,11 +99,11 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 		$subscriptionPlan = self::createSubscriptionPlan( 'id1', PaymentInterval::HalfYearly );
 
 		$api = new FakePayPalAPI( $products, $subscriptionPlans );
-		$useCase = new CreateSubscriptionPlansForProductUseCase( $api );
+		$useCase = new CreateSubscriptionPlanForProductUseCase( $api );
 
 		$result = $useCase->create( new CreateSubscriptionPlanRequest(
-				$product->name,
 				$product->id,
+				$product->name,
 				$subscriptionPlan->monthlyInterval
 			)
 		);
@@ -122,9 +122,9 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	public function testThrowsErrorWhenCreatingPlanWasNotSuccessful(): void {
 		$api = $this->createStub( PaypalAPI::class );
 		$api->method( 'createSubscriptionPlanForProduct' )->willThrowException( new PayPalAPIException( 'Creation of subscription plan failed' ) );
-		$useCase = new CreateSubscriptionPlansForProductUseCase( $api );
+		$useCase = new CreateSubscriptionPlanForProductUseCase( $api );
 
-		$result = $useCase->create( new CreateSubscriptionPlanRequest( 'ProductName-3', 'ProductId-3', PaymentInterval::HalfYearly ) );
+		$result = $useCase->create( new CreateSubscriptionPlanRequest( 'ProductId-3', 'ProductName-3', PaymentInterval::HalfYearly ) );
 
 		$this->assertInstanceOf( ErrorResult::class, $result );
 		$this->assertSame( 'Creation of subscription plan failed', $result->message );
@@ -133,9 +133,9 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	public function testThrowsErrorWhenListingSubscriptionPlanWasNotSuccessful(): void {
 		$api = $this->createStub( PaypalAPI::class );
 		$api->method( 'listSubscriptionPlansForProduct' )->willThrowException( new PayPalAPIException( 'Listing of subscription plan failed' ) );
-		$useCase = new CreateSubscriptionPlansForProductUseCase( $api );
+		$useCase = new CreateSubscriptionPlanForProductUseCase( $api );
 
-		$result = $useCase->create( new CreateSubscriptionPlanRequest( 'ProductName-4', 'ProductId-4', PaymentInterval::HalfYearly ) );
+		$result = $useCase->create( new CreateSubscriptionPlanRequest( 'ProductId-4', 'ProductName-4', PaymentInterval::HalfYearly ) );
 
 		$this->assertInstanceOf( ErrorResult::class, $result );
 		$this->assertSame( 'Listing of subscription plan failed', $result->message );

@@ -4,10 +4,10 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 
 use Doctrine\DBAL\Connection;
-use WMDE\Fundraising\PaymentContext\DataAccess\ScalarTypeConverter;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\ScalarTypeConverter;
 use WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 
 class DoctrineTransactionIdFinder implements TransactionIdFinder {

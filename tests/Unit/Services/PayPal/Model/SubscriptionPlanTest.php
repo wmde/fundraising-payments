@@ -28,7 +28,13 @@ class SubscriptionPlanTest extends TestCase {
 				'product_id' => 'membership-2023',
 				'description' => 'Membership Payment, billed monthly',
 				'billing_cycles' => [ [
-					'sequence' => 0,
+					'sequence' => 1,
+					"pricing_scheme" => [
+						"fixed_price" => [
+							"value" => "1",
+							"currency_code" => "EUR"
+						]
+					],
 					'tenure_type' => 'REGULAR',
 					'frequency' => [
 						'interval_unit' => 'MONTH',

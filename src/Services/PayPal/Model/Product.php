@@ -7,8 +7,8 @@ namespace WMDE\Fundraising\PaymentContext\Services\PayPal\Model;
 class Product {
 
 	public function __construct(
-		public readonly string $name,
 		public readonly string $id,
+		public readonly string $name,
 		public readonly ?string $description = null,
 	) {
 		if ( trim( $this->name ) === '' || trim( $this->id ) === '' ) {

@@ -11,7 +11,7 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 class ProductTest extends TestCase {
 
 	public function testToJSONSerialization(): void {
-		$product = new Product( 'SerializationName', 'SerializationID', 'SerializationDescription' );
+		$product = new Product( 'SerializationID', 'SerializationName', 'SerializationDescription' );
 
 		$actualJSONOutput = $product->toJSON();
 
