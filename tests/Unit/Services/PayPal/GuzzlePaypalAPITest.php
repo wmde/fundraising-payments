@@ -24,6 +24,11 @@ use WMDE\PsrLogTestDoubles\LoggerSpy;
 class GuzzlePaypalAPITest extends TestCase {
 
 	/**
+	 * This is the base64 encoded value of 'testUsername:testPassword'
+	 */
+	private const BASIC_AUTH_HEADER = 'Basic dGVzdFVzZXJOYW1lOnRlc3RQYXNzd29yZA==';
+
+	/**
 	 * @var array<int,array<string,mixed>>
 	 */
 	private array $guzzleHistory;
@@ -44,7 +49,7 @@ class GuzzlePaypalAPITest extends TestCase {
 		/** @var Request $listRequest */
 		$listRequest = $this->guzzleHistory[ 0 ][ 'request' ];
 		$this->assertSame(
-			'Basic testUserName:testPassword',
+			self::BASIC_AUTH_HEADER,
 			$listRequest->getHeaderLine( 'authorization' )
 		);
 	}
@@ -187,7 +192,7 @@ REQUEST;
 		$createRequest = $this->guzzleHistory[ 0 ][ 'request' ];
 
 		$this->assertSame( 'POST', $createRequest->getMethod() );
-		$this->assertSame( 'Basic testUserName:testPassword', $createRequest->getHeaderLine( 'authorization' ) );
+		$this->assertSame( self::BASIC_AUTH_HEADER, $createRequest->getHeaderLine( 'authorization' ) );
 		$this->assertSame(
 			json_encode( json_decode( $expectedRequestBody ) ),
 			$createRequest->getBody()->getContents()
@@ -279,7 +284,7 @@ RESPONSE;
 		/** @var Request $listRequest */
 		$listRequest = $this->guzzleHistory[ 0 ][ 'request' ];
 		$this->assertSame(
-			'Basic testUserName:testPassword',
+			self::BASIC_AUTH_HEADER,
 			$listRequest->getHeaderLine( 'authorization' )
 		);
 	}
@@ -502,7 +507,6 @@ RESPONSE
 			<<<RESPONSE
 			{
   				"total_items": 0,
-  				"total_pages": 0,
   				"plans": []
 			}
 RESPONSE
@@ -540,7 +544,6 @@ RESPONSE
 			<<<RESPONSE
 			{
   				"total_items": 0,
-  				"total_pages": 0,
 			}
 RESPONSE
 		);
