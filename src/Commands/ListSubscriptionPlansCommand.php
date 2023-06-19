@@ -7,6 +7,8 @@ use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
@@ -41,16 +43,17 @@ class ListSubscriptionPlansCommand extends Command {
 			return Command::SUCCESS;
 		}
 
-		// output product name and id
+		$table = new Table( $output );
+		$table->setHeaders( [ 'Product ID', 'Subscription plan ID', 'Interval' ] );
 
 		foreach ( $products as $product ) {
-			print_r( $product );
+			foreach ( $api->listSubscriptionPlansForProduct( $product->id ) as $subscriptionPlanForProduct ) {
+				$table->addRow( [ $product->id, $subscriptionPlanForProduct->id, $subscriptionPlanForProduct->monthlyInterval->name ] );
+			}
+			$table->addRow( new TableSeparator() );
+
 		}
-
-		// iterate over products, call getSubscriptionPlansForProduct on each product
-		// iterate over plans, output each plan id, name and monthly interval (slightly indented)
-
+		$table->render();
 		return Command::SUCCESS;
 	}
-
 }

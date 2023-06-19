@@ -8,6 +8,8 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 
 class FakePayPalAPI implements PaypalAPI {
 
+	public const GENERATED_ID = 'P-GENERATED';
+
 	/**
 	 * @var Product[]
 	 */
@@ -59,8 +61,9 @@ class FakePayPalAPI implements PaypalAPI {
 		if ( empty( $this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval->value] ) ) {
 			return false;
 		}
-		// compare by value, not by reference
-		return $this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval->value] == $subscriptionPlan;
+		$subscriptionPlanFromStorage = $this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval->value];
+		return $subscriptionPlanFromStorage->productId === $subscriptionPlan->productId &&
+			$subscriptionPlanFromStorage->monthlyInterval === $subscriptionPlan->monthlyInterval;
 	}
 
 	/**
@@ -71,11 +74,12 @@ class FakePayPalAPI implements PaypalAPI {
 	}
 
 	public function createSubscriptionPlanForProduct( SubscriptionPlan $subscriptionPlan ): SubscriptionPlan {
+		$storedSubscriptionPlan = new SubscriptionPlan( $subscriptionPlan->name, $subscriptionPlan->productId, $subscriptionPlan->monthlyInterval, self::GENERATED_ID );
 		if ( empty( $this->subscriptionPlans[$subscriptionPlan->productId] ) ) {
-			$this->subscriptionPlans[$subscriptionPlan->productId] = [ $subscriptionPlan->monthlyInterval->value => $subscriptionPlan ];
+			$this->subscriptionPlans[$subscriptionPlan->productId] = [ $subscriptionPlan->monthlyInterval->value => $storedSubscriptionPlan ];
 		} else {
-			$this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval->value] = $subscriptionPlan;
+			$this->subscriptionPlans[ $subscriptionPlan->productId ][$subscriptionPlan->monthlyInterval->value] = $storedSubscriptionPlan;
 		}
-		return $subscriptionPlan;
+		return $storedSubscriptionPlan;
 	}
 }

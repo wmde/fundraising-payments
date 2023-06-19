@@ -9,8 +9,6 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 
 class SubscriptionPlan {
 
-	// TODO make monthly interval a PaymentInterval instead of integer
-
 	/**
 	 * @param string $name
 	 * @param string $productId

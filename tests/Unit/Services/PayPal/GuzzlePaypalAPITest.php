@@ -318,6 +318,7 @@ RESPONSE;
 		$plans = $guzzlePaypalApi->listSubscriptionPlansForProduct( 'donation' );
 
 		$this->assertCount( 2, $plans );
+		$this->assertSame( 'P-0HVWVNKK2LCV2VN57N79TLENELT78EKL', $plans[0]->id );
 		$this->assertEquals( 'monthly donation', $plans[0]->name );
 	}
 
