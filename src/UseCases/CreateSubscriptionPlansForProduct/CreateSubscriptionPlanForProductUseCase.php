@@ -71,7 +71,7 @@ class CreateSubscriptionPlanForProductUseCase {
 	public function planAlreadyExistsForThisProduct( string $productId, SubscriptionPlan $subscriptionPlan ): ?SubscriptionPlan {
 		foreach ( $this->api->listSubscriptionPlansForProduct( $productId ) as $plan ) {
 			if ( $plan->monthlyInterval === $subscriptionPlan->monthlyInterval ) {
-				return $subscriptionPlan;
+				return $plan;
 			}
 		}
 		return null;
