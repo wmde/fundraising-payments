@@ -89,15 +89,23 @@ class CreateSubscriptionPlansCommand extends Command {
 	}
 
 	private function conditionalOutput( SuccessResult $result ): string {
-		$alreadyExistedString = "already existed";
+		$alreadyExistedString = "already exists";
 		$wasCreatedString = "was created";
-		$productString = "The following product " .
-			( $result->productAlreadyExisted ? $alreadyExistedString : $wasCreatedString ) .
-			var_export( $result->successfullyCreatedProduct, true );
+		$productString = sprintf(
+			'The product %s with ID "%s" %s.',
+			$result->successfullyCreatedProduct->name,
+			$result->successfullyCreatedProduct->id,
+			$result->productAlreadyExisted ? $alreadyExistedString : $wasCreatedString
+		);
 
-		$subscriptionPlanString = "The following subscription plan " .
-			( $result->subscriptionPlanAlreadyExisted ? $alreadyExistedString : $wasCreatedString ) .
-			var_export( $result->successfullyCreatedSubscriptionPlan, true );
+		$subscriptionPlanString = sprintf(
+			'The %s subscription plan with ID "%s" for product ID "%s" %s.',
+			strtolower( $result->successfullyCreatedSubscriptionPlan->monthlyInterval->name ),
+			$result->successfullyCreatedSubscriptionPlan->id,
+			$result->successfullyCreatedSubscriptionPlan->productId,
+			$result->subscriptionPlanAlreadyExisted ? $alreadyExistedString : $wasCreatedString
+		);
 		return $productString . "\n" . $subscriptionPlanString;
 	}
+
 }

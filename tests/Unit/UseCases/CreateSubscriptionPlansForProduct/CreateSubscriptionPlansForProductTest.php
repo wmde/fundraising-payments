@@ -86,7 +86,7 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	private static function createSubscriptionPlan( string $productId, PaymentInterval $interval ): SubscriptionPlan {
 		$product = self::createProduct( $productId );
 		$planName = "Recurring " . $interval->name . " payment for " . $product->name;
-		return new SubscriptionPlan( $planName, $product->id, $interval );
+		return new SubscriptionPlan( $planName, $product->id, $interval, 'P-0HVWVNKK2LCV2VN57N79TLENELT78EKL' );
 	}
 
 	/**
@@ -108,10 +108,11 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 			)
 		);
 
+		$expectedSubscriptionPlan = new SubscriptionPlan( $subscriptionPlan->name, $subscriptionPlan->productId, $subscriptionPlan->monthlyInterval, FakePayPalAPI::GENERATED_ID );
 		$expectedResult = new SuccessResult(
 			$product,
 			$productExists,
-			$subscriptionPlan,
+			$expectedSubscriptionPlan,
 			$subscriptionPlanExists
 		);
 		$this->assertEquals( $expectedResult, $result );
@@ -140,12 +141,4 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 		$this->assertInstanceOf( ErrorResult::class, $result );
 		$this->assertSame( 'Listing of subscription plan failed', $result->message );
 	}
-
-	// example symphony commands / how the commands could look like:
-		// create-plan donation-1 "Recurring Donation" monthly
-		// create-plan [productId] [productName] [intervalName]
-	// command should assume that credentials (API URL, key and id) come from the environment (getenv /symfony getenv),
-	// in the variables PAYPAL_API_URL, PAYPAL_API_CLIENT_ID, PAYPAL_API_CLIENT_SECRET
-
-	// Q: Descriptions? If we want them (for products) we need to pass them in the requests and command
 }
