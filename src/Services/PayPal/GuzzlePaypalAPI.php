@@ -5,16 +5,21 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Services\PayPal;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\RequestOptions;
 use JsonException;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 
 class GuzzlePaypalAPI implements PaypalAPI {
 
 	private const ENDPOINT_PRODUCTS = '/v1/catalogs/products';
 	private const ENDPOINT_SUBSCRIPTION_PLANS = '/v1/billing/plans';
+	private const ENDPOINT_SUBSCRIPTION = '/v1/billing/subscriptions';
 
 	/**
 	 * @param Client $client client without auth configuration
@@ -72,19 +77,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	}
 
 	public function createProduct( Product $product ): Product {
-		$response = $this->client->request(
-			'POST',
-			self::ENDPOINT_PRODUCTS,
-			[
-				RequestOptions::HEADERS => [
-					'Authorization' => $this->getAuthHeader(),
-					'Content-Type' => "application/json",
-					'Accept' => "application/json",
-					'Prefer' => 'return=representation'
-				],
-				RequestOptions::BODY => $product->toJSON()
-			]
-		);
+		$response = $this->sendPOSTRequest( self::ENDPOINT_PRODUCTS, $product->toJSON() );
 
 		$serverResponse = $response->getBody()->getContents();
 		$jsonProductResponse = $this->safelyDecodeJSON( $serverResponse );
@@ -132,7 +125,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 
 		$plans = [];
 		foreach ( $jsonPlanResponse['plans'] as $plan ) {
-			$plans[] = SubscriptionPlan::createFromJSON( $plan );
+			$plans[] = SubscriptionPlan::from( $plan );
 		}
 		return $plans;
 	}
@@ -142,25 +135,13 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	 * @return SubscriptionPlan
 	 */
 	public function createSubscriptionPlanForProduct( SubscriptionPlan $subscriptionPlan ): SubscriptionPlan {
-		$response = $this->client->request(
-			'POST',
-			self::ENDPOINT_SUBSCRIPTION_PLANS,
-			[
-				RequestOptions::HEADERS => [
-					'Authorization' => $this->getAuthHeader(),
-					'Content-Type' => "application/json",
-					'Accept' => "application/json",
-					'Prefer' => 'return=representation'
-				],
-				RequestOptions::BODY => $subscriptionPlan->toJSON()
-			]
-		);
+		$response = $this->sendPOSTRequest( self::ENDPOINT_SUBSCRIPTION_PLANS,  $subscriptionPlan->toJSON() );
 
 		$serverResponse = $response->getBody()->getContents();
 		$jsonSubscriptionPlanResponse = $this->safelyDecodeJSON( $serverResponse );
 
 		try {
-			return SubscriptionPlan::createFromJSON( $jsonSubscriptionPlanResponse );
+			return SubscriptionPlan::from( $jsonSubscriptionPlanResponse );
 		} catch ( PayPalAPIException $e ) {
 			throw $this->createLoggedException(
 				"Server returned faulty subscription plan data: " . $e->getMessage(),
@@ -169,6 +150,61 @@ class GuzzlePaypalAPI implements PaypalAPI {
 					"error" => $e->getMessage()
 				],
 				$e
+			);
+		}
+	}
+
+	public function createSubscription( SubscriptionParameters $subscriptionParameters ): Subscription {
+		$jsonRequest = [
+			"plan_id" => $subscriptionParameters->subscriptionPlan->id,
+			"start_time" => $subscriptionParameters->startTime
+				->setTimezone( new \DateTimeZone( 'UTC' ) )
+				->format( 'Y-m-d\TH:i:s\Z' ),
+			"quantity" => "1",
+			"plan" => [
+				"billing_cycles" => SubscriptionPlan::getBillingCycle(
+					$subscriptionParameters->subscriptionPlan->monthlyInterval->value,
+					$subscriptionParameters->amount->getEuroString()
+				)
+			],
+			"application_context" => [
+				"brand_name" => "wikimedia germany",
+				"return_url" => $subscriptionParameters->returnUrl,
+				"cancel_url" => $subscriptionParameters->cancelUrl
+			]
+		];
+
+		$response = $this->sendPOSTRequest( self::ENDPOINT_SUBSCRIPTION, json_encode( $jsonRequest, JSON_THROW_ON_ERROR ) );
+
+		$serverResponse = $response->getBody()->getContents();
+		$jsonSubscriptionResponse = $this->safelyDecodeJSON( $serverResponse );
+
+		return Subscription::from( $jsonSubscriptionResponse );
+	}
+
+	private function sendPOSTRequest( string $endpointURI, string $requestBody ): ResponseInterface {
+		try {
+			return $this->client->request(
+				'POST',
+				$endpointURI,
+				[
+					RequestOptions::HEADERS => [
+						'Authorization' => $this->getAuthHeader(),
+						'Content-Type' => "application/json",
+						'Accept' => "application/json",
+						'Prefer' => 'return=representation'
+					],
+					RequestOptions::BODY => $requestBody
+				]
+			);
+		} catch ( BadResponseException $e ) {
+			throw $this->createLoggedException(
+				"Server rejected request: " . $e->getMessage(),
+				[
+					"serverResponse" => $e->getResponse()->getBody()->getContents(),
+					"error" => $e->getMessage(),
+					"requestBody" => $requestBody
+				],
 			);
 		}
 	}
