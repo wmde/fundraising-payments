@@ -3,6 +3,8 @@
 namespace WMDE\Fundraising\PaymentContext\Tests\Fixtures;
 
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 
@@ -82,4 +84,10 @@ class FakePayPalAPI implements PaypalAPI {
 		}
 		return $storedSubscriptionPlan;
 	}
+
+	public function createSubscription( SubscriptionParameters $subscriptionParameters ): Subscription {
+		// TODO implement when needed
+		throw new \LogicException( 'Not implemented yet, your tests should not use it' );
+	}
+
 }

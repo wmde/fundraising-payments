@@ -26,17 +26,17 @@ class SubscriptionPlan {
 	}
 
 	/**
-	 * @param array<string,mixed> $apiData A single plan item form the PayPal API request
+	 * @param array<string,mixed> $apiReponse A single plan item from the PayPal API response
 	 * @return SubscriptionPlan
 	 */
-	public static function createFromJSON( array $apiData ): SubscriptionPlan {
+	public static function from( array $apiReponse ): SubscriptionPlan {
 		// Theoretically, we'd want to check name, product_id, and id in $apiData,
 		// but the billing_cycles check should be sufficient to detect broken data from the PayPal API
 
-		if ( empty( $apiData['billing_cycles'] ) || !is_array( $apiData['billing_cycles'] ) || count( $apiData['billing_cycles'] ) !== 1 ) {
+		if ( empty( $apiReponse['billing_cycles'] ) || !is_array( $apiReponse['billing_cycles'] ) || count( $apiReponse['billing_cycles'] ) !== 1 ) {
 			throw new PayPalAPIException( 'Wrong billing cycle data' );
 		}
-		$billingCycle = $apiData['billing_cycles'][0];
+		$billingCycle = $apiReponse['billing_cycles'][0];
 
 		if ( !isset( $billingCycle['frequency'] ) || !isset( $billingCycle['frequency']['interval_count'] ) ) {
 			throw new PayPalAPIException( 'Wrong frequency data in billing cycle' );
@@ -47,25 +47,46 @@ class SubscriptionPlan {
 			throw new PayPalAPIException( 'interval_unit must be MONTH' );
 		}
 		$monthlyInterval = PaymentInterval::from( intval( $frequency['interval_count'] ) );
-		$description = $apiData['description'] ?? '';
+		$description = $apiReponse['description'] ?? '';
 
 		// Make static typechecker happy, using strval on mixed throws errors
 		if (
-			!is_scalar( $apiData['name'] ) ||
-			!is_scalar( $apiData['product_id'] ) ||
-			!is_scalar( $apiData['id'] ) ||
+			!is_scalar( $apiReponse['name'] ) ||
+			!is_scalar( $apiReponse['product_id'] ) ||
+			!is_scalar( $apiReponse['id'] ) ||
 			!is_scalar( $description )
 		) {
 			throw new UnexpectedValueException( 'Scalar value expected' );
 		}
 
 		return new SubscriptionPlan(
-			strval( $apiData['name'] ),
-			strval( $apiData['product_id'] ),
+			strval( $apiReponse['name'] ),
+			strval( $apiReponse['product_id'] ),
 			$monthlyInterval,
-			strval( $apiData['id'] ),
+			strval( $apiReponse['id'] ),
 			strval( $description ),
 		);
+	}
+
+	/**
+	 * @phpstan-ignore-next-line
+	 */
+	public static function getBillingCycle( int $monthlyInterval, string $amount ): array {
+		return [ [
+			"sequence" => 1,
+			"pricing_scheme" => [
+				"fixed_price" => [
+					"value" => $amount,
+					"currency_code" => "EUR"
+				]
+			],
+			"tenure_type" => "REGULAR",
+			"frequency" => [
+				"interval_unit" => "MONTH",
+				"interval_count" => $monthlyInterval
+			],
+			"total_cycles" => 0
+		] ];
 	}
 
 	public function toJSON(): string {
@@ -73,23 +94,9 @@ class SubscriptionPlan {
 			"name" => $this->name,
 			"product_id" => $this->productId,
 			"description" => $this->description,
-			"billing_cycles" => [ [
-				"sequence" => 1,
-				// pricing_scheme is required by the api, but value is set to 1 EUR
-				// subscriptions must override this with the actual value of the donation/membership fee
-				"pricing_scheme" => [
-					"fixed_price" => [
-						"value" => "1",
-						"currency_code" => "EUR"
-					]
-				],
-				"tenure_type" => "REGULAR",
-				"frequency" => [
-					"interval_unit" => "MONTH",
-					"interval_count" => $this->monthlyInterval->value
-				],
-				"total_cycles" => 0
-			] ],
+			// pricing_scheme with amount is required by the api, but value is set to 1 EUR
+			// subscriptions must override this with the actual value of the donation/membership fee
+			"billing_cycles" => self::getBillingCycle( $this->monthlyInterval->value, "1" ),
 			"payment_preferences" => [
 				"auto_bill_outstanding" => true,
 				"setup_fee_failure_action" => "CONTINUE",
