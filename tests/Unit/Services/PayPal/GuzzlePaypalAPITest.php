@@ -11,9 +11,11 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 use WMDE\PsrLogTestDoubles\LoggerSpy;
@@ -202,7 +204,6 @@ REQUEST;
 		);
 		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Content-Type' ) );
 		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Accept' ) );
-		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Accept' ) );
 	}
 
 	public function testNewProductIsCreatedFromServerData(): void {
@@ -359,7 +360,7 @@ RESPONSE;
 	}
 
 	public function testCreatesSubscriptionPlansForAProduct(): void {
-		$response = $this->createCreateSubscriptionsResponse();
+		$response = $this->createCreateSubscriptionPlanResponse();
 		$client = $this->givenClientWithResponses( $response );
 		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
 		$testPlan = new SubscriptionPlan( 'monthly', 'ServerPRODUCT-42', PaymentInterval::Monthly );
@@ -421,6 +422,62 @@ RESPONSE;
 			$this->assertStringContainsString( "Server returned faulty subscription plan data", $firstCall->getMessage() );
 			$this->assertArrayHasKey( 'serverResponse', $firstCall->getContext() );
 			$this->assertSame( $responseBody, $firstCall->getContext()['serverResponse'] );
+		}
+	}
+
+	public function testCreateSubscriptionBuildsJsonRequestFromSubscriptionParameters(): void {
+		$response = $this->createCreateSubscriptionResponse();
+		$client = $this->givenClientWithResponses( $response );
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+		$testPlan = new SubscriptionPlan( 'monthly', 'ServerPRODUCT-42', PaymentInterval::Monthly, 'P-5ML4271244454362WXNWU5NQ' );
+
+		$fixedTimeStamp = new \DateTimeImmutable( '2018-11-01T00:00:00Z' );
+
+		$guzzlePaypalApi->createSubscription(
+			new SubscriptionParameters(
+				$testPlan,
+				$fixedTimeStamp,
+				Euro::newFromCents( 4223 ),
+				'https://example.com/returnUrl',
+				'https://example.com/cancelUrl'
+			)
+		);
+
+		$this->assertCount( 1, $this->guzzleHistory, 'We expect a create subscription request' );
+
+		/** @var Request $createRequest */
+		$createRequest = $this->guzzleHistory[ 0 ][ 'request' ];
+
+		$this->assertSame( 'POST', $createRequest->getMethod() );
+		$this->assertSame( self::BASIC_AUTH_HEADER, $createRequest->getHeaderLine( 'authorization' ) );
+		$this->assertSame(
+			json_encode( json_decode( $this->readTestFixture( 'create_subscription_request.json' ) ), JSON_PRETTY_PRINT ),
+			json_encode( json_decode( $createRequest->getBody()->getContents() ), JSON_PRETTY_PRINT )
+		);
+		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Content-Type' ) );
+		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Accept' ) );
+	}
+
+	public function testApiConvertsBadResponseIntoApiException(): void {
+		$logger = new LoggerSpy();
+		$guzzlePaypalApi = new GuzzlePaypalAPI(
+			$this->givenClientWithResponses( new Response( 400, [], 'No Cookies or cupcakes in request! Cookie monster sad!' ) ),
+			'testUserName',
+			'testPassword',
+			$logger
+		);
+
+		try {
+			$guzzlePaypalApi->createProduct( new Product( 'D1', 'Dummy', ) );
+			$this->fail( 'createProduct should throw an exception' );
+		} catch ( PayPalAPIException $e ) {
+			$this->assertStringContainsString( 'Server rejected request', $e->getMessage() );
+			$log = $logger->getFirstLogCall();
+			$this->assertNotNull( $log );
+			$context = $log->getContext();
+			$this->assertArrayHasKey( 'serverResponse', $context );
+			$this->assertArrayHasKey( 'error', $context );
+			$this->assertArrayHasKey( 'requestBody', $context );
 		}
 	}
 
@@ -518,27 +575,19 @@ RESPONSE
 	}
 
 	private function createSubscriptionsResponse(): Response {
-		$validJSONResponseContent = file_get_contents( __DIR__ . '/../../../Data/PaypalAPI/list_plans_response.json' );
-		if ( $validJSONResponseContent === false ) {
-			throw new RuntimeException( ' could not read fixture file ' . __DIR__ . '/../../../Data/PaypalAPI/list_plans_response.json' );
-		}
-		return new Response(
-			200,
-			[],
-			$validJSONResponseContent
-		);
+		return new Response( 200, [], $this->readTestFixture( 'list_plans_response.json' ) );
 	}
 
-	private function createCreateSubscriptionsResponse(): Response {
-		$validJSONResponseContent = file_get_contents( __DIR__ . '/../../../Data/PaypalAPI/create_plans_response.json' );
+	private function readTestFixture( string $fileName ): string {
+		$validJSONResponseContent = file_get_contents( __DIR__ . '/../../../Data/PaypalAPI/' . $fileName );
 		if ( $validJSONResponseContent === false ) {
-			throw new RuntimeException( ' could not read fixture file ' . __DIR__ . '/../../../Data/PaypalAPI/list_plans_response.json' );
+			throw new RuntimeException( ' could not read fixture file ' . __DIR__ . '/../../../Data/PaypalAPI/' . $fileName );
 		}
-		return new Response(
-			200,
-			[],
-			$validJSONResponseContent
-		);
+		return $validJSONResponseContent;
+	}
+
+	private function createCreateSubscriptionPlanResponse(): Response {
+		return new Response( 200, [], $this->readTestFixture( 'create_plans_response.json' ) );
 	}
 
 	private function createUndefinedPlansPropertyResponse(): Response {
@@ -566,4 +615,27 @@ RESPONSE
 RESPONSE
 		);
 	}
+
+	private function createCreateSubscriptionResponse(): Response {
+		// Minimum response, the server will send more information
+		return new Response(
+			200,
+			[],
+			<<<RESPONSE
+			{
+				"id": "12345",
+				"start_time": "2023-12-24T01:02:03Z",
+				"links": [
+					{
+					
+					    "href": "https://www.paypal.com/webapps/billing/subscriptions?ba_token=BA-2M539689T3856352J",
+					    "rel": "approve",
+					    "method": "GET"
+					}
+				]
+			}
+RESPONSE
+		);
+	}
+
 }
