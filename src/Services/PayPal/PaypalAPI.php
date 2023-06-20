@@ -2,11 +2,9 @@
 
 namespace WMDE\Fundraising\PaymentContext\Services\PayPal;
 
-use DateTimeImmutable;
-use WMDE\Euro\Euro;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 
 interface PaypalAPI {
@@ -35,12 +33,6 @@ interface PaypalAPI {
 	 */
 	public function createSubscriptionPlanForProduct( SubscriptionPlan $subscriptionPlan ): SubscriptionPlan;
 
-	// TODO create value object for this (maybe with fluent interface / builder)
-	public function createSubscription(
-		SubscriptionPlan $subscriptionPlan,
-		DateTimeImmutable $startTime,
-		Euro $amount,
-		string $returnUrl,
-		string $cancelUrls
-	): Subscription;
+	public function createSubscription( SubscriptionParameters $subscriptionParameters ): Subscription;
+
 }

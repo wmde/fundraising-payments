@@ -57,7 +57,7 @@ class SubscriptionPlanTest extends TestCase {
 	}
 
 	public function testCreateFromJSON(): void {
-		$plan = SubscriptionPlan::createFromJSON( [
+		$plan = SubscriptionPlan::from( [
 				'id' => 'FAKE_GENERATED_ID',
 				'name' => 'Yearly Membership Payment',
 				'product_id' => 'membership-2023',
@@ -94,7 +94,7 @@ class SubscriptionPlanTest extends TestCase {
 	 */
 	public function testCreateFromJSONFailsOnReadingIntervalFromBillingCycle( mixed $testBillingCycleValues, string $exptectedExceptionmessage ): void {
 		$this->expectExceptionMessage( $exptectedExceptionmessage );
-		$plan = SubscriptionPlan::createFromJSON( [
+		$plan = SubscriptionPlan::from( [
 			'id' => 'FAKE_GENERATED_ID',
 			'name' => 'Yearly Membership Payment',
 			'product_id' => 'membership-2023',
