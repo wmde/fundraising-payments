@@ -440,10 +440,10 @@ RESPONSE;
 		$guzzlePaypalApi->createSubscription(
 			new SubscriptionParameters(
 				$testPlan,
-				$fixedTimeStamp,
 				Euro::newFromCents( 4223 ),
 				'https://example.com/returnUrl',
-				'https://example.com/cancelUrl'
+				'https://example.com/cancelUrl',
+				$fixedTimeStamp
 			)
 		);
 
@@ -687,7 +687,7 @@ RESPONSE
 					{
 					
 					    "href": "https://www.paypal.com/checkoutnow?token=5O190127TN364715T",
-					    "rel": "payer-action",
+					    "rel": "approve",
 					    "method": "GET"
 					}
 				]
