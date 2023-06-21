@@ -24,7 +24,7 @@ class Subscription {
 		}
 
 		if ( !is_string( $apiResponse['id'] ) ) {
-			throw new PayPalAPIException( "" );
+			throw new PayPalAPIException( "Id is not a valid string!" );
 		}
 
 		if ( !is_string( $apiResponse['start_time'] ) || $apiResponse['start_time'] === '' ) {
