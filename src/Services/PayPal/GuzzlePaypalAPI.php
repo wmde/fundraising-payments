@@ -10,6 +10,8 @@ use GuzzleHttp\RequestOptions;
 use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Order;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
@@ -155,31 +157,21 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	}
 
 	public function createSubscription( SubscriptionParameters $subscriptionParameters ): Subscription {
-		$jsonRequest = [
-			"plan_id" => $subscriptionParameters->subscriptionPlan->id,
-			"start_time" => $subscriptionParameters->startTime
-				->setTimezone( new \DateTimeZone( 'UTC' ) )
-				->format( 'Y-m-d\TH:i:s\Z' ),
-			"quantity" => "1",
-			"plan" => [
-				"billing_cycles" => SubscriptionPlan::getBillingCycle(
-					$subscriptionParameters->subscriptionPlan->monthlyInterval->value,
-					$subscriptionParameters->amount->getEuroString()
-				)
-			],
-			"application_context" => [
-				"brand_name" => "wikimedia germany",
-				"return_url" => $subscriptionParameters->returnUrl,
-				"cancel_url" => $subscriptionParameters->cancelUrl
-			]
-		];
-
-		$response = $this->sendPOSTRequest( self::ENDPOINT_SUBSCRIPTION, json_encode( $jsonRequest, JSON_THROW_ON_ERROR ) );
+		$response = $this->sendPOSTRequest( self::ENDPOINT_SUBSCRIPTION, $subscriptionParameters->toJSON() );
 
 		$serverResponse = $response->getBody()->getContents();
 		$jsonSubscriptionResponse = $this->safelyDecodeJSON( $serverResponse );
 
 		return Subscription::from( $jsonSubscriptionResponse );
+	}
+
+	public function createOrder( OrderParameters $orderParameters ): Order {
+		$response = $this->sendPOSTRequest( self::ENDPOINT_SUBSCRIPTION, $orderParameters->toJSON() );
+
+		$serverResponse = $response->getBody()->getContents();
+		$jsonOrderResponse = $this->safelyDecodeJSON( $serverResponse );
+
+		return Order::from( $jsonOrderResponse );
 	}
 
 	private function sendPOSTRequest( string $endpointURI, string $requestBody ): ResponseInterface {
