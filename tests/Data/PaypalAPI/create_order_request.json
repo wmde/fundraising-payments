@@ -1,0 +1,37 @@
+{
+  "purchase_units": [
+    {
+      "reference_id": "78945ABCD",
+      "invoice_id": "D-78945ABCD",
+      "items": [
+        {
+          "name": "Spende an Wikimedia Deutschland",
+          "quantity": "1",
+          "category": "DONATION",
+          "unit_amount": {
+            "currency_code": "EUR",
+            "value": "42.23"
+          }
+        }
+      ],
+      "amount": {
+        "currency_code": "EUR",
+        "value": "42.23",
+        "breakdown": {
+          "item_total": {
+            "currency_code": "EUR",
+            "value": "42.23"
+          }
+        }
+      }
+    }
+  ],
+  "intent": "CAPTURE",
+  "application_context": {
+    "brand_name": "Wikimedia Deutschland",
+    "landing_page": "LOGIN",
+    "user_action": "CONTINUE",
+    "return_url": "https://example.com/returnUrl",
+    "cancel_url": "https://example.com/cancelUrl"
+  }
+}
