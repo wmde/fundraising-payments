@@ -9,20 +9,22 @@ use WMDE\Euro\Euro;
 class SubscriptionParameters {
 	public function __construct(
 		public readonly SubscriptionPlan $subscriptionPlan,
-		public readonly DateTimeImmutable $startTime,
 		public readonly Euro $amount,
 		public readonly string $returnUrl,
-		public readonly string $cancelUrl
+		public readonly string $cancelUrl,
+		public readonly ?DateTimeImmutable $startTime = null
 	) {
 	}
 
 	public function toJSON(): string {
+		$start_time = $this->startTime === null ?
+			[] :
+			[ "start_time" => $this->startTime->setTimezone( new \DateTimeZone( 'UTC' ) )->format( 'Y-m-d\TH:i:s\Z' ) ];
+
 		return json_encode(
 			[
 				"plan_id" => $this->subscriptionPlan->id,
-				"start_time" => $this->startTime
-					->setTimezone( new \DateTimeZone( 'UTC' ) )
-					->format( 'Y-m-d\TH:i:s\Z' ),
+				...$start_time,
 				"quantity" => "1",
 				"plan" => [
 					"billing_cycles" => SubscriptionPlan::getBillingCycle(
@@ -31,7 +33,8 @@ class SubscriptionParameters {
 					)
 				],
 				"application_context" => [
-					"brand_name" => "wikimedia germany",
+					"brand_name" => "Wikimedia Deutschland",
+					"shipping_preference" => "NO_SHIPPING",
 					"return_url" => $this->returnUrl,
 					"cancel_url" => $this->cancelUrl
 				]

@@ -39,10 +39,10 @@ class Order {
 	 */
 	private static function getUrlFromLinks( array $links ): string {
 		foreach ( $links as $link ) {
-			if ( $link['rel'] === 'payer-action' ) {
+			if ( $link['rel'] === 'approve' ) {
 				return $link['href'];
 			}
 		}
-		throw new PayPalAPIException( "Link array did not contain payer-action link!" );
+		throw new PayPalAPIException( "Link array did not contain approve link!" );
 	}
 }
