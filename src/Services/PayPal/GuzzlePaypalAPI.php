@@ -22,6 +22,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	private const ENDPOINT_PRODUCTS = '/v1/catalogs/products';
 	private const ENDPOINT_SUBSCRIPTION_PLANS = '/v1/billing/plans';
 	private const ENDPOINT_SUBSCRIPTION = '/v1/billing/subscriptions';
+	private const ENDPOINT_ORDER = '/v2/checkout/orders';
 
 	/**
 	 * @param Client $client client without auth configuration
@@ -166,7 +167,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	}
 
 	public function createOrder( OrderParameters $orderParameters ): Order {
-		$response = $this->sendPOSTRequest( self::ENDPOINT_SUBSCRIPTION, $orderParameters->toJSON() );
+		$response = $this->sendPOSTRequest( self::ENDPOINT_ORDER, $orderParameters->toJSON() );
 
 		$serverResponse = $response->getBody()->getContents();
 		$jsonOrderResponse = $this->safelyDecodeJSON( $serverResponse );

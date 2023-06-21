@@ -22,7 +22,8 @@
     ]
   },
   "application_context": {
-    "brand_name": "wikimedia germany",
+    "brand_name": "Wikimedia Deutschland",
+    "shipping_preference": "NO_SHIPPING",
     "return_url": "https://example.com/returnUrl",
     "cancel_url": "https://example.com/cancelUrl"
   }
