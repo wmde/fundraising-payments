@@ -14,6 +14,7 @@ use RuntimeException;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
@@ -425,6 +426,9 @@ RESPONSE;
 		}
 	}
 
+	/**
+	 * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters
+	 */
 	public function testCreateSubscriptionBuildsJsonRequestFromSubscriptionParameters(): void {
 		$response = $this->createCreateSubscriptionResponse();
 		$client = $this->givenClientWithResponses( $response );
@@ -452,6 +456,39 @@ RESPONSE;
 		$this->assertSame( self::BASIC_AUTH_HEADER, $createRequest->getHeaderLine( 'authorization' ) );
 		$this->assertSame(
 			json_encode( json_decode( $this->readTestFixture( 'create_subscription_request.json' ) ), JSON_PRETTY_PRINT ),
+			json_encode( json_decode( $createRequest->getBody()->getContents() ), JSON_PRETTY_PRINT )
+		);
+		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Content-Type' ) );
+		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Accept' ) );
+	}
+
+	/**
+	 * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters
+	 */
+	public function testCreateOrderBuildsJsonRequestFromOrderParameters(): void {
+		$response = $this->createCreateOrderResponse();
+		$client = $this->givenClientWithResponses( $response );
+		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
+		$guzzlePaypalApi->createOrder(
+			new OrderParameters(
+				"D-78945ABCD",
+				"78945ABCD",
+				"Spende an Wikimedia Deutschland",
+				Euro::newFromCents( 4223 ),
+				'https://example.com/returnUrl',
+				'https://example.com/cancelUrl'
+			)
+		);
+
+		$this->assertCount( 1, $this->guzzleHistory, 'We expect a create order request' );
+
+		/** @var Request $createRequest */
+		$createRequest = $this->guzzleHistory[ 0 ][ 'request' ];
+
+		$this->assertSame( 'POST', $createRequest->getMethod() );
+		$this->assertSame( self::BASIC_AUTH_HEADER, $createRequest->getHeaderLine( 'authorization' ) );
+		$this->assertSame(
+			json_encode( json_decode( $this->readTestFixture( 'create_order_request.json' ) ), JSON_PRETTY_PRINT ),
 			json_encode( json_decode( $createRequest->getBody()->getContents() ), JSON_PRETTY_PRINT )
 		);
 		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Content-Type' ) );
@@ -630,6 +667,27 @@ RESPONSE
 					
 					    "href": "https://www.paypal.com/webapps/billing/subscriptions?ba_token=BA-2M539689T3856352J",
 					    "rel": "approve",
+					    "method": "GET"
+					}
+				]
+			}
+RESPONSE
+		);
+	}
+
+	private function createCreateOrderResponse(): Response {
+		// Minimum response, the server will send more information
+		return new Response(
+			200,
+			[],
+			<<<RESPONSE
+			{
+				"id": "78945",
+				"links": [
+					{
+					
+					    "href": "https://www.paypal.com/checkoutnow?token=5O190127TN364715T",
+					    "rel": "payer-action",
 					    "method": "GET"
 					}
 				]
