@@ -8,7 +8,7 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI as APIClient;
 
-class PayPalAPI implements PaymentProviderURLGenerator {
+class PayPalAPIURLGenerator implements PaymentProviderURLGenerator {
 
 	public function __construct(
 		public readonly APIClient $payPalApi,

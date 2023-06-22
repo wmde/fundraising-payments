@@ -9,7 +9,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort\Request;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort\SofortClient;
 
-class Sofort implements PaymentProviderURLGenerator {
+class SofortURLGenerator implements PaymentProviderURLGenerator {
 
 	private const CURRENCY = 'EUR';
 

@@ -5,11 +5,11 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 
 use PHPUnit\Framework\TestCase;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\LegacyPayPalConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\TranslatableDescription;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\LegacyPayPalConfig
  */
 class PayPalConfigTest extends TestCase {
 
@@ -18,33 +18,33 @@ class PayPalConfigTest extends TestCase {
 		$this->newIncompletePayPalUrlConfig();
 	}
 
-	private function newIncompletePayPalUrlConfig(): PayPalConfig {
-		return PayPalConfig::newFromConfig(
+	private function newIncompletePayPalUrlConfig(): LegacyPayPalConfig {
+		return LegacyPayPalConfig::newFromConfig(
 			[
-				PayPalConfig::CONFIG_KEY_BASE_URL => 'http://that.paymentprovider.com/?',
-				PayPalConfig::CONFIG_KEY_LOCALE => 'de_DE',
-				PayPalConfig::CONFIG_KEY_ACCOUNT_ADDRESS => 'some@email-adress.com',
-				PayPalConfig::CONFIG_KEY_NOTIFY_URL => 'http://my.donation.app/handler/paypal/',
-				PayPalConfig::CONFIG_KEY_RETURN_URL => 'http://my.donation.app/donation/confirm/',
-				PayPalConfig::CONFIG_KEY_CANCEL_URL => '',
+				LegacyPayPalConfig::CONFIG_KEY_BASE_URL => 'http://that.paymentprovider.com/?',
+				LegacyPayPalConfig::CONFIG_KEY_LOCALE => 'de_DE',
+				LegacyPayPalConfig::CONFIG_KEY_ACCOUNT_ADDRESS => 'some@email-adress.com',
+				LegacyPayPalConfig::CONFIG_KEY_NOTIFY_URL => 'http://my.donation.app/handler/paypal/',
+				LegacyPayPalConfig::CONFIG_KEY_RETURN_URL => 'http://my.donation.app/donation/confirm/',
+				LegacyPayPalConfig::CONFIG_KEY_CANCEL_URL => '',
 			],
 			$this->createMock( TranslatableDescription::class )
 		);
 	}
 
 	public function testGivenValidPayPalUrlConfig_payPalConfigIsReturned(): void {
-		$this->assertInstanceOf( PayPalConfig::class, $this->newPayPalUrlConfig() );
+		$this->assertInstanceOf( LegacyPayPalConfig::class, $this->newPayPalUrlConfig() );
 	}
 
-	private function newPayPalUrlConfig(): PayPalConfig {
-		return PayPalConfig::newFromConfig(
+	private function newPayPalUrlConfig(): LegacyPayPalConfig {
+		return LegacyPayPalConfig::newFromConfig(
 			[
-				PayPalConfig::CONFIG_KEY_BASE_URL => 'http://that.paymentprovider.com/?',
-				PayPalConfig::CONFIG_KEY_LOCALE => 'de_DE',
-				PayPalConfig::CONFIG_KEY_ACCOUNT_ADDRESS => 'some@email-adress.com',
-				PayPalConfig::CONFIG_KEY_NOTIFY_URL => 'http://my.donation.app/handler/paypal/',
-				PayPalConfig::CONFIG_KEY_RETURN_URL => 'http://my.donation.app/donation/confirm/',
-				PayPalConfig::CONFIG_KEY_CANCEL_URL => 'http://my.donation.app/donation/cancel/',
+				LegacyPayPalConfig::CONFIG_KEY_BASE_URL => 'http://that.paymentprovider.com/?',
+				LegacyPayPalConfig::CONFIG_KEY_LOCALE => 'de_DE',
+				LegacyPayPalConfig::CONFIG_KEY_ACCOUNT_ADDRESS => 'some@email-adress.com',
+				LegacyPayPalConfig::CONFIG_KEY_NOTIFY_URL => 'http://my.donation.app/handler/paypal/',
+				LegacyPayPalConfig::CONFIG_KEY_RETURN_URL => 'http://my.donation.app/donation/confirm/',
+				LegacyPayPalConfig::CONFIG_KEY_CANCEL_URL => 'http://my.donation.app/donation/cancel/',
 			],
 			$this->createMock( TranslatableDescription::class )
 		);
