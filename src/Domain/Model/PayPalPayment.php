@@ -105,11 +105,7 @@ class PayPalPayment extends Payment implements BookablePayment {
 	}
 
 	private function isBookedInitialPayment(): bool {
-		return $this->isBooked() && $this->parentPayment === null && $this->isRecurringPayment();
-	}
-
-	private function isRecurringPayment(): bool {
-		return $this->interval !== PaymentInterval::OneTime;
+		return $this->isBooked() && $this->parentPayment === null && $this->interval->isRecurring();
 	}
 
 	public function getDisplayValues(): array {
