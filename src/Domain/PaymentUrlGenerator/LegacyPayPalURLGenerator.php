@@ -10,17 +10,17 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 /**
  * @deprecated Use PayPalAPI instead. See https://phabricator.wikimedia.org/T329159
  */
-class PayPal implements PaymentProviderURLGenerator {
+class LegacyPayPalURLGenerator implements PaymentProviderURLGenerator {
 
 	private const PAYMENT_RECUR = '1';
 	private const PAYMENT_REATTEMPT = '1';
 	private const PAYMENT_CYCLE_INFINITE = '0';
 	private const PAYMENT_CYCLE_MONTHLY = 'M';
 
-	private PayPalConfig $config;
+	private LegacyPayPalConfig $config;
 	private PayPalPayment $payment;
 
-	public function __construct( PayPalConfig $config, PayPalPayment $payment ) {
+	public function __construct( LegacyPayPalConfig $config, PayPalPayment $payment ) {
 		$this->config = $config;
 		$this->payment = $payment;
 	}

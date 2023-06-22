@@ -11,16 +11,16 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort as SofortUrlGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\SofortConfig as SofortUrlConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\SofortURLGenerator as SofortUrlGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\TranslatableDescription;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\ExceptionThrowingSofortSofortClient;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SofortSofortClientSpy;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\SofortURLGenerator
  */
-class SofortTest extends TestCase {
+class SofortURLGeneratorTest extends TestCase {
 
 	public function testSofortUrlGeneratorPassesValuesInRequestToClient(): void {
 		$internalItemId = 44;
