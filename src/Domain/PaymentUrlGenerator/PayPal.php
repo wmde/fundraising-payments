@@ -7,6 +7,9 @@ namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
+/**
+ * @deprecated Use PayPalAPI instead. See https://phabricator.wikimedia.org/T329159
+ */
 class PayPal implements PaymentProviderURLGenerator {
 
 	private const PAYMENT_RECUR = '1';
