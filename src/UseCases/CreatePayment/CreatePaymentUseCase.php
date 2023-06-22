@@ -100,7 +100,7 @@ class CreatePaymentUseCase {
 	 */
 	private function createSofortPayment( PaymentCreationRequest $request ): SofortPayment {
 		$paymentInterval = PaymentInterval::from( $request->interval );
-		if ( $paymentInterval !== PaymentInterval::OneTime ) {
+		if ( $paymentInterval->isRecurring() ) {
 			throw new PaymentCreationException( "Sofort payment does not support recurring intervals (>0)." );
 		}
 

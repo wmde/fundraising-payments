@@ -9,4 +9,8 @@ enum PaymentInterval: int {
 	case Quarterly = 3;
 	case HalfYearly = 6;
 	case Yearly = 12;
+
+	public function isRecurring(): bool {
+		return $this !== self::OneTime;
+	}
 }

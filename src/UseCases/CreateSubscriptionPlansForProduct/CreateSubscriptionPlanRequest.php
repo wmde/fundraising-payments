@@ -16,7 +16,7 @@ class CreateSubscriptionPlanRequest {
 		public readonly string $productName,
 		public readonly PaymentInterval $interval
 	) {
-		if ( $this->interval === PaymentInterval::OneTime ) {
+		if ( !$this->interval->isRecurring() ) {
 			throw new \UnexpectedValueException( "Interval must be recurring" );
 		}
 	}
