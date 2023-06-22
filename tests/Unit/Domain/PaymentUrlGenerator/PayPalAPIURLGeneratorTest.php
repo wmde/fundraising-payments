@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPI as PayPalAPIUrlGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIURLGenerator as PayPalAPIUrlGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Order;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
@@ -18,9 +18,9 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPI
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIURLGenerator
  */
-class PayPalApiTest extends TestCase {
+class PayPalAPIURLGeneratorTest extends TestCase {
 	public function testGivenOneTimePaymentReturnsUrlFromOrder(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 800 ), PaymentInterval::OneTime );
 		$payPalApi = $this->createMock( PaypalAPI::class );

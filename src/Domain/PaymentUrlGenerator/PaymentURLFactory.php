@@ -15,14 +15,14 @@ class PaymentURLFactory implements UrlGeneratorFactory {
 
 	/**
 	 * @param CreditCardConfig $creditCardConfig
-	 * @param PayPalConfig|PayPalAPIConfig $payPalConfig Until we have activated the new API-based PayPal payments, this might be a legacy "PayPalConfig" and will use the legacy URL generator internally
+	 * @param LegacyPayPalConfig|PayPalAPIConfig $payPalConfig Until we have activated the new API-based PayPal payments, this might be a legacy "PayPalConfig" and will use the legacy URL generator internally
 	 * @param PayPalAPIClient $paypalAPIClient
 	 * @param SofortConfig $sofortConfig
 	 * @param SofortClient $sofortClient
 	 */
 	public function __construct(
 		private readonly CreditCardConfig $creditCardConfig,
-		private readonly PayPalConfig|PayPalAPIConfig $payPalConfig,
+		private readonly LegacyPayPalConfig|PayPalAPIConfig $payPalConfig,
 		private readonly PayPalAPIClient $paypalAPIClient,
 		private readonly SofortConfig $sofortConfig,
 		private readonly SofortClient $sofortClient,
@@ -31,11 +31,11 @@ class PaymentURLFactory implements UrlGeneratorFactory {
 
 	public function createURLGenerator( Payment $payment ): PaymentProviderURLGenerator {
 		return match ( true ) {
-			$payment instanceof SofortPayment => new Sofort( $this->sofortConfig, $this->sofortClient, $payment ),
-			$payment instanceof CreditCardPayment => new CreditCard( $this->creditCardConfig, $payment ),
+			$payment instanceof SofortPayment => new SofortURLGenerator( $this->sofortConfig, $this->sofortClient, $payment ),
+			$payment instanceof CreditCardPayment => new CreditCardURLGenerator( $this->creditCardConfig, $payment ),
 			$payment instanceof PayPalPayment => $this->payPalConfig instanceof PayPalAPIConfig ?
-				new PayPalAPI( $this->paypalAPIClient, $this->payPalConfig, $payment) :
-				new PayPal( $this->payPalConfig, $payment ),
+				new PayPalAPIURLGenerator( $this->paypalAPIClient, $this->payPalConfig, $payment ) :
+				new LegacyPayPalURLGenerator( $this->payPalConfig, $payment ),
 			default => new NullGenerator(),
 		};
 	}

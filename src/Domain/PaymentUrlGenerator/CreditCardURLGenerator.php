@@ -10,7 +10,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class CreditCard implements PaymentProviderURLGenerator {
+class CreditCardURLGenerator implements PaymentProviderURLGenerator {
 
 	private CreditCardConfig $config;
 	private CreditCardPayment $payment;
