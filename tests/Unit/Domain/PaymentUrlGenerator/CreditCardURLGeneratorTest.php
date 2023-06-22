@@ -8,15 +8,15 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCard;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardURLGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\TranslatableDescription;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCard
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardURLGenerator
  */
-class CreditCardTest extends TestCase {
+class CreditCardURLGeneratorTest extends TestCase {
 
 	/** @dataProvider donationProvider */
 	public function testUrlGeneration(
@@ -34,7 +34,7 @@ class CreditCardTest extends TestCase {
 		$translatableDescriptionMock = $this->createMock( TranslatableDescription::class );
 		$translatableDescriptionMock->method( 'getText' )->willReturn( $description );
 
-		$urlGenerator = new CreditCard(
+		$urlGenerator = new CreditCardURLGenerator(
 			CreditCardConfig::newFromConfig(
 				[
 					'base-url' => 'https://credit-card.micropayment.de/creditcard/event/index.php?',
@@ -66,7 +66,7 @@ class CreditCardTest extends TestCase {
 	public function testWhenTestModeIsEnabled_urlPassesProperParameter(): void {
 		$translatableDescriptionMock = $this->createStub( TranslatableDescription::class );
 		$translatableDescriptionMock->method( 'getText' )->willReturn( 'Ich spende einmalig' );
-		$urlGenerator = new CreditCard(
+		$urlGenerator = new CreditCardURLGenerator(
 			CreditCardConfig::newFromConfig(
 				[
 					'base-url' => 'https://credit-card.micropayment.de/creditcard/event/index.php?',

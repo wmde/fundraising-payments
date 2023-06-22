@@ -10,7 +10,7 @@ use RuntimeException;
  * @license GPL-2.0-or-later
  * @author Kai Nissen < kai.nissen@wikimedia.de >
  */
-class PayPalConfig {
+class LegacyPayPalConfig {
 
 	public const CONFIG_KEY_ACCOUNT_ADDRESS = 'account-address';
 	public const CONFIG_KEY_LOCALE = 'locale';
@@ -45,7 +45,7 @@ class PayPalConfig {
 	 * @param array{ 'account-address': string, 'locale' : string, 'base-url': string, 'notify-url': string, 'return-url': string, 'cancel-url': string, 'delay-in-days'?: int } $config
 	 * @param TranslatableDescription $translatableDescription
 	 *
-	 * @return PayPalConfig
+	 * @return LegacyPayPalConfig
 	 * @throws RuntimeException
 	 */
 	public static function newFromConfig( array $config, TranslatableDescription $translatableDescription ): self {

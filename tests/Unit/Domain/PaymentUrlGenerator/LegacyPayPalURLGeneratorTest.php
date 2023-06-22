@@ -8,16 +8,16 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPal as PaypalUrlGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\LegacyPayPalConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\LegacyPayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\TranslatableDescription;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPal
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\LegacyPayPalURLGenerator
  *
  */
-class PayPalTest extends TestCase {
+class LegacyPayPalURLGeneratorTest extends TestCase {
 
 	private const BASE_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr?';
 	private const LOCALE = 'de_DE';
@@ -43,7 +43,7 @@ class PayPalTest extends TestCase {
 			Euro::newFromString( '12.34' ),
 			PaymentInterval::Quarterly
 		);
-		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), $payment );
+		$generator = new LegacyPayPalURLGenerator( $this->newPayPalUrlConfig(), $payment );
 
 		$this->assertUrlValidForSubscriptions(
 			$generator->generateUrl( $this->testRequestContext )
@@ -61,7 +61,7 @@ class PayPalTest extends TestCase {
 			Euro::newFromString( '12.34' ),
 			PaymentInterval::OneTime
 		);
-		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfig(), $payment );
+		$generator = new LegacyPayPalURLGenerator( $this->newPayPalUrlConfig(), $payment );
 
 		$this->assertUrlValidForSinglePayments(
 			$generator->generateUrl( $this->testRequestContext )
@@ -73,10 +73,10 @@ class PayPalTest extends TestCase {
 		$this->assertSinglePaymentRelatedParamsSet( $generatedUrl );
 	}
 
-	private function newPayPalUrlConfig(): PayPalConfig {
+	private function newPayPalUrlConfig(): LegacyPayPalConfig {
 		$descriptionStub = $this->createStub( TranslatableDescription::class );
 		$descriptionStub->method( 'getText' )->willReturn( self::ITEM_NAME );
-		return PayPalConfig::newFromConfig(
+		return LegacyPayPalConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
 				'locale' => self::LOCALE,
@@ -94,9 +94,9 @@ class PayPalTest extends TestCase {
 		$this->newIncompletePayPalUrlConfig();
 	}
 
-	private function newIncompletePayPalUrlConfig(): PayPalConfig {
+	private function newIncompletePayPalUrlConfig(): LegacyPayPalConfig {
 		$descriptionStub = $this->createStub( TranslatableDescription::class );
-		return PayPalConfig::newFromConfig(
+		return LegacyPayPalConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
 				'locale' => self::LOCALE,
@@ -116,7 +116,7 @@ class PayPalTest extends TestCase {
 			PaymentInterval::Quarterly
 		);
 
-		$generator = new PayPalUrlGenerator( $this->newPayPalUrlConfigWithDelayedPayment(), $payment );
+		$generator = new LegacyPayPalURLGenerator( $this->newPayPalUrlConfigWithDelayedPayment(), $payment );
 
 		$this->assertUrlValidForDelayedSubscriptions(
 			$generator->generateUrl( $this->testRequestContext )
@@ -129,10 +129,10 @@ class PayPalTest extends TestCase {
 		$this->assertTrialPeriodRelatedParametersSet( $generatedUrl );
 	}
 
-	private function newPayPalUrlConfigWithDelayedPayment(): PayPalConfig {
+	private function newPayPalUrlConfigWithDelayedPayment(): LegacyPayPalConfig {
 		$descriptionStub = $this->createStub( TranslatableDescription::class );
 		$descriptionStub->method( 'getText' )->willReturn( 'Mentioning that awesome organization on the invoice' );
-		return PayPalConfig::newFromConfig(
+		return LegacyPayPalConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
 				'locale' => self::LOCALE,
