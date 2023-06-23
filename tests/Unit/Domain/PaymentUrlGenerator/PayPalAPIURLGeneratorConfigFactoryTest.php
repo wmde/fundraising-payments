@@ -6,15 +6,15 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIConfigFactory;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIURLGeneratorConfigFactory;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIConfigFactory;
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIURLGeneratorConfigFactory;
  */
-class PayPalAPIConfigFactoryTest extends TestCase {
+class PayPalAPIURLGeneratorConfigFactoryTest extends TestCase {
 	public function testCreateConfigForProductAndLanguage(): void {
-		$config = PayPalAPIConfigFactory::createConfig( $this->givenConfig(), 'donation', 'en' );
+		$config = PayPalAPIURLGeneratorConfigFactory::createConfig( $this->givenConfig(), 'donation', 'en' );
 
 		$this->assertSame( 'Donation', $config->productName );
 		$this->assertSame( 'https://example.com/return', $config->returnURL );
@@ -37,14 +37,14 @@ class PayPalAPIConfigFactoryTest extends TestCase {
 		$this->expectException( \LogicException::class );
 		$this->expectExceptionMessage( "'membership' does not exist in PayPal API configuration. Please check your configuration file." );
 
-		PayPalAPIConfigFactory::createConfig( $this->givenConfig(), 'membership', 'en' );
+		PayPalAPIURLGeneratorConfigFactory::createConfig( $this->givenConfig(), 'membership', 'en' );
 	}
 
 	public function testWhenLanguageKeyDoesNotExistAnExceptionIsThrown(): void {
 		$this->expectException( \LogicException::class );
 		$this->expectExceptionMessage( "'de' does not exist in PayPal API configuration for product 'donation'. Please check your configuration file." );
 
-		PayPalAPIConfigFactory::createConfig( $this->givenConfig(), 'donation', 'de' );
+		PayPalAPIURLGeneratorConfigFactory::createConfig( $this->givenConfig(), 'donation', 'de' );
 	}
 
 	/**
@@ -52,30 +52,28 @@ class PayPalAPIConfigFactoryTest extends TestCase {
 	 */
 	private function givenConfig(): array {
 		return [
-			'paypal_api' => [
-				'donation' => [
+			'donation' => [
+				// no 'de' language to test error checking
+				'en' => [
+					'product_id' => 'paypal_product_id_1',
+					'product_name' => 'Donation',
 					'return_url' => 'https://example.com/return',
 					'cancel_url' => 'https://example.com/cancel',
-					// no 'de' language to test error checking
-					'en' => [
-						'product_id' => 'paypal_product_id_1',
-						'product_name' => 'Donation',
-						'plans' => [
-							[
-								'id' => 'F00',
-								'name' => 'Monthly donation',
-								'interval' => 1
-							],
-							[
-								'id' => 'F11',
-								'name' => 'Yearly donation',
-								'interval' => 12
-							]
+					'plans' => [
+						[
+							'id' => 'F00',
+							'name' => 'Monthly donation',
+							'interval' => 1
+						],
+						[
+							'id' => 'F11',
+							'name' => 'Yearly donation',
+							'interval' => 12
 						]
 					]
-				],
-				// no memberships here to allow reuse of this fixture for error checking tests
-			]
+				]
+			],
+			// no memberships here to allow reuse of this fixture for error checking tests
 		];
 	}
 }

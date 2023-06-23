@@ -12,7 +12,7 @@ class PayPalAPIURLGenerator implements PaymentProviderURLGenerator {
 
 	public function __construct(
 		public readonly APIClient $payPalApi,
-		public readonly PayPalAPIConfig $config,
+		public readonly PayPalAPIURLGeneratorConfig $config,
 		public readonly PayPalPayment $payment
 	) {
 	}

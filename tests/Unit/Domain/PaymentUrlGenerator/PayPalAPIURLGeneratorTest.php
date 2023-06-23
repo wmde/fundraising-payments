@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIURLGenerator as PayPalAPIUrlGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Order;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
@@ -88,8 +88,8 @@ class PayPalAPIURLGeneratorTest extends TestCase {
 		$this->assertSame( 'https://example.com/paypal', $generatedURL );
 	}
 
-	private function givenApiConfig(): PayPalAPIConfig {
-		return new PayPalAPIConfig(
+	private function givenApiConfig(): PayPalAPIURLGeneratorConfig {
+		return new PayPalAPIURLGeneratorConfig(
 			'your donation',
 			'https://example.com/confirmed?id={{id}}&utoken={{updateToken}}&token={{accessToken}}',
 			'https://example.com/new?id={{id}}&utoken={{updateToken}}&token={{accessToken}}',

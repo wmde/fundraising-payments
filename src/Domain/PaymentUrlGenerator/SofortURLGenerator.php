@@ -13,14 +13,14 @@ class SofortURLGenerator implements PaymentProviderURLGenerator {
 
 	private const CURRENCY = 'EUR';
 
-	private SofortConfig $config;
+	private SofortURLGeneratorConfig $config;
 	private SofortClient $client;
 	private SofortPayment $payment;
 
 	public function __construct(
-			SofortConfig $config,
-			SofortClient $client,
-			SofortPayment $payment ) {
+		SofortURLGeneratorConfig $config,
+		SofortClient $client,
+		SofortPayment $payment ) {
 		$this->config = $config;
 		$this->client = $client;
 		$this->payment = $payment;
