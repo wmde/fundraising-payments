@@ -2,7 +2,7 @@ paypal_api:
     donation:
         de:
             product_id: 'paypal_product_id_1'
-            product_name: 'Spende'
+            product_name: 'Spende an Wikimedia'
             plans:
                 - id: '123'
                   name: 'Monatliche Spende'
@@ -18,7 +18,7 @@ paypal_api:
                   interval: 'Yearly'
         en:
             product_id: 'paypal_product_id_2'
-            product_name: 'Donation'
+            product_name: 'Donation to Wikimedia'
             plans:
                 - id: '786'
                   name: 'Monthly donation'
