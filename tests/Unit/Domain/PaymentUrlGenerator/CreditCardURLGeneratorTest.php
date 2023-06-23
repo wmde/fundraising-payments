@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\TranslatableDescription;
 
@@ -35,7 +35,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 		$translatableDescriptionMock->method( 'getText' )->willReturn( $description );
 
 		$urlGenerator = new CreditCardURLGenerator(
-			CreditCardConfig::newFromConfig(
+			CreditCardURLGeneratorConfig::newFromConfig(
 				[
 					'base-url' => 'https://credit-card.micropayment.de/creditcard/event/index.php?',
 					'project-id' => 'wikimedia',
@@ -67,7 +67,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 		$translatableDescriptionMock = $this->createStub( TranslatableDescription::class );
 		$translatableDescriptionMock->method( 'getText' )->willReturn( 'Ich spende einmalig' );
 		$urlGenerator = new CreditCardURLGenerator(
-			CreditCardConfig::newFromConfig(
+			CreditCardURLGeneratorConfig::newFromConfig(
 				[
 					'base-url' => 'https://credit-card.micropayment.de/creditcard/event/index.php?',
 					'project-id' => 'wikimedia',
