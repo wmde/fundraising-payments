@@ -9,6 +9,9 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIConfigFactory;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 
+/**
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIConfigFactory;
+ */
 class PayPalAPIConfigFactoryTest extends TestCase {
 	public function testCreateConfigForProductAndLanguage(): void {
 		$config = PayPalAPIConfigFactory::createConfig( $this->givenConfig(), 'donation', 'en' );
@@ -30,6 +33,20 @@ class PayPalAPIConfigFactoryTest extends TestCase {
 		// TODO check yearly plan
 	}
 
+	public function testWhenProductKeyDoesNotExistAnExceptionIsThrown(): void {
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( "'membership' does not exist in PayPal API configuration. Please check your configuration file." );
+
+		PayPalAPIConfigFactory::createConfig( $this->givenConfig(), 'membership', 'en' );
+	}
+
+	public function testWhenLanguageKeyDoesNotExistAnExceptionIsThrown(): void {
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( "'de' does not exist in PayPal API configuration for product 'donation'. Please check your configuration file." );
+
+		PayPalAPIConfigFactory::createConfig( $this->givenConfig(), 'donation', 'de' );
+	}
+
 	/**
 	 * @phpstan-ignore-next-line
 	 */
@@ -39,9 +56,7 @@ class PayPalAPIConfigFactoryTest extends TestCase {
 				'donation' => [
 					'return_url' => 'https://example.com/return',
 					'cancel_url' => 'https://example.com/cancel',
-					'de' => [
-						// left empty on purpose for error checking
-					],
+					// no 'de' language to test error checking
 					'en' => [
 						'product_id' => 'paypal_product_id_1',
 						'product_name' => 'Donation',
@@ -59,9 +74,7 @@ class PayPalAPIConfigFactoryTest extends TestCase {
 						]
 					]
 				],
-				'membership' => [
-					// left empty on purpose for error checking
-				]
+				// no memberships here to allow reuse of this fixture for error checking tests
 			]
 		];
 	}
