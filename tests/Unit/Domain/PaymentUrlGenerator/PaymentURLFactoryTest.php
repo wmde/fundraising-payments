@@ -13,16 +13,16 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardURLGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\LegacyPayPalConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\CreditCardURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\LegacyPayPalURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\LegacyPayPalURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\NullGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentURLFactory;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIURLGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\SofortConfig;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\SofortURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\SofortURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 
 /**
@@ -63,7 +63,7 @@ class PaymentURLFactoryTest extends TestCase {
 	}
 
 	public function testPaymentURLFactoryCreatesPayPalAPIURLGenerator(): void {
-		$urlFactory = $this->createTestURLFactory( PayPalAPIConfig::class );
+		$urlFactory = $this->createTestURLFactory( PayPalAPIURLGeneratorConfig::class );
 		$payment = new PayPalPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
 
 		$actualGenerator = $urlFactory->createURLGenerator( $payment );
@@ -82,12 +82,12 @@ class PaymentURLFactoryTest extends TestCase {
 	}
 
 	/**
-	 * @param class-string<LegacyPayPalConfig|PayPalAPIConfig> $paypalConfigClassName
+	 * @param class-string<LegacyPayPalURLGeneratorConfig|PayPalAPIURLGeneratorConfig> $paypalConfigClassName
 	 */
-	private function createTestURLFactory( string $paypalConfigClassName = LegacyPayPalConfig::class ): PaymentURLFactory {
-		$creditCardConfig = $this->createStub( CreditCardConfig::class );
+	private function createTestURLFactory( string $paypalConfigClassName = LegacyPayPalURLGeneratorConfig::class ): PaymentURLFactory {
+		$creditCardConfig = $this->createStub( CreditCardURLGeneratorConfig::class );
 		$payPalConfig = $this->createStub( $paypalConfigClassName );
-		$sofortConfig = $this->createStub( SofortConfig::class );
+		$sofortConfig = $this->createStub( SofortURLGeneratorConfig::class );
 		$sofortClient = $this->createStub( SofortClient::class );
 		$payPalApiClient = $this->createStub( PaypalAPI::class );
 		return new PaymentURLFactory(

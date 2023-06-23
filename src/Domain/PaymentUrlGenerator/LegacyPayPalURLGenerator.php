@@ -17,10 +17,10 @@ class LegacyPayPalURLGenerator implements PaymentProviderURLGenerator {
 	private const PAYMENT_CYCLE_INFINITE = '0';
 	private const PAYMENT_CYCLE_MONTHLY = 'M';
 
-	private LegacyPayPalConfig $config;
+	private LegacyPayPalURLGeneratorConfig $config;
 	private PayPalPayment $payment;
 
-	public function __construct( LegacyPayPalConfig $config, PayPalPayment $payment ) {
+	public function __construct( LegacyPayPalURLGeneratorConfig $config, PayPalPayment $payment ) {
 		$this->config = $config;
 		$this->payment = $payment;
 	}

@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
-class SofortConfig {
+class SofortURLGeneratorConfig {
 
 	public function __construct(
 		private string $locale,

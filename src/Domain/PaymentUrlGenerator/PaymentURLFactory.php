@@ -14,17 +14,17 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI as PayPalAPIClient
 class PaymentURLFactory implements UrlGeneratorFactory {
 
 	/**
-	 * @param CreditCardConfig $creditCardConfig
-	 * @param LegacyPayPalConfig|PayPalAPIConfig $payPalConfig Until we have activated the new API-based PayPal payments, this might be a legacy "PayPalConfig" and will use the legacy URL generator internally
+	 * @param CreditCardURLGeneratorConfig $creditCardConfig
+	 * @param LegacyPayPalURLGeneratorConfig|PayPalAPIURLGeneratorConfig $payPalConfig Until we have activated the new API-based PayPal payments, this might be a legacy "PayPalConfig" and will use the legacy URL generator internally
 	 * @param PayPalAPIClient $paypalAPIClient
-	 * @param SofortConfig $sofortConfig
+	 * @param SofortURLGeneratorConfig $sofortConfig
 	 * @param SofortClient $sofortClient
 	 */
 	public function __construct(
-		private readonly CreditCardConfig $creditCardConfig,
-		private readonly LegacyPayPalConfig|PayPalAPIConfig $payPalConfig,
+		private readonly CreditCardURLGeneratorConfig $creditCardConfig,
+		private readonly LegacyPayPalURLGeneratorConfig|PayPalAPIURLGeneratorConfig $payPalConfig,
 		private readonly PayPalAPIClient $paypalAPIClient,
-		private readonly SofortConfig $sofortConfig,
+		private readonly SofortURLGeneratorConfig $sofortConfig,
 		private readonly SofortClient $sofortClient,
 	) {
 	}
@@ -33,7 +33,7 @@ class PaymentURLFactory implements UrlGeneratorFactory {
 		return match ( true ) {
 			$payment instanceof SofortPayment => new SofortURLGenerator( $this->sofortConfig, $this->sofortClient, $payment ),
 			$payment instanceof CreditCardPayment => new CreditCardURLGenerator( $this->creditCardConfig, $payment ),
-			$payment instanceof PayPalPayment => $this->payPalConfig instanceof PayPalAPIConfig ?
+			$payment instanceof PayPalPayment => $this->payPalConfig instanceof PayPalAPIURLGeneratorConfig ?
 				new PayPalAPIURLGenerator( $this->paypalAPIClient, $this->payPalConfig, $payment ) :
 				new LegacyPayPalURLGenerator( $this->payPalConfig, $payment ),
 			default => new NullGenerator(),

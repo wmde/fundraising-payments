@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\LegacyPayPalConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\LegacyPayPalURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\LegacyPayPalURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\TranslatableDescription;
 
@@ -73,10 +73,10 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 		$this->assertSinglePaymentRelatedParamsSet( $generatedUrl );
 	}
 
-	private function newPayPalUrlConfig(): LegacyPayPalConfig {
+	private function newPayPalUrlConfig(): LegacyPayPalURLGeneratorConfig {
 		$descriptionStub = $this->createStub( TranslatableDescription::class );
 		$descriptionStub->method( 'getText' )->willReturn( self::ITEM_NAME );
-		return LegacyPayPalConfig::newFromConfig(
+		return LegacyPayPalURLGeneratorConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
 				'locale' => self::LOCALE,
@@ -94,9 +94,9 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 		$this->newIncompletePayPalUrlConfig();
 	}
 
-	private function newIncompletePayPalUrlConfig(): LegacyPayPalConfig {
+	private function newIncompletePayPalUrlConfig(): LegacyPayPalURLGeneratorConfig {
 		$descriptionStub = $this->createStub( TranslatableDescription::class );
-		return LegacyPayPalConfig::newFromConfig(
+		return LegacyPayPalURLGeneratorConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
 				'locale' => self::LOCALE,
@@ -129,10 +129,10 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 		$this->assertTrialPeriodRelatedParametersSet( $generatedUrl );
 	}
 
-	private function newPayPalUrlConfigWithDelayedPayment(): LegacyPayPalConfig {
+	private function newPayPalUrlConfigWithDelayedPayment(): LegacyPayPalURLGeneratorConfig {
 		$descriptionStub = $this->createStub( TranslatableDescription::class );
 		$descriptionStub->method( 'getText' )->willReturn( 'Mentioning that awesome organization on the invoice' );
-		return LegacyPayPalConfig::newFromConfig(
+		return LegacyPayPalURLGeneratorConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
 				'locale' => self::LOCALE,

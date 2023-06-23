@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator;
 
-class CreditCardConfig {
+class CreditCardURLGeneratorConfig {
 
 	private const CONFIG_KEY_BASE_URL = 'base-url';
 	private const CONFIG_KEY_PROJECT_ID = 'project-id';

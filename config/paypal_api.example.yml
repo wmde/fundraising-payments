@@ -16,6 +16,8 @@ paypal_api:
                 - id: 'ABC'
                   name: 'Jährliche Spende'
                   interval: 'Yearly'
+            return_url: 'https://test-spenden.wikimedia.de/show-donation-confirmation?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
+            cancel_url: 'https://test-spenden.wikimedia.de/new?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
         en:
             product_id: 'paypal_product_id_2'
             product_name: 'Donation to Wikimedia'
@@ -32,8 +34,8 @@ paypal_api:
                 - id: 'NMP'
                   name: 'Yearly donation'
                   interval: 'Yearly'
-        return_url: 'https://test-spenden.wikimedia.de/show-donation-confirmation?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
-        cancel_url: 'https://test-spenden.wikimedia.de/new?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
+            return_url: 'https://test-spenden.wikimedia.de/show-donation-confirmation?id={{id}}&utoken={{updateToken}}&token={{accessToken}}&lang=en'
+            cancel_url: 'https://test-spenden.wikimedia.de/new?id={{id}}&utoken={{updateToken}}&token={{accessToken}}&lang=en'
     membership:
         de:
             product_id: 'paypal_product_id_3'
@@ -51,6 +53,8 @@ paypal_api:
                 - id: 'MBB'
                   name: 'Jährlicher Mitgliedschaftsbeitrag'
                   interval: 'Yearly'
+            return_url: 'https://test-spenden.wikimedia.de/show-membership-confirmation?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
+            cancel_url: 'https://test-spenden.wikimedia.de/apply-for-membership?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
         en:
             product_id: 'paypal_product_id_4'
             product_name: 'Membership'
@@ -67,5 +71,5 @@ paypal_api:
                 - id: 'MNB'
                   name: 'Yearly membership fee'
                   interval: 'Yearly'
-        return_url: 'https://test-spenden.wikimedia.de/show-membership-confirmation?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
-        cancel_url: 'https://test-spenden.wikimedia.de/apply-for-membership?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
+            return_url: 'https://test-spenden.wikimedia.de/show-membership-confirmation?id={{id}}&utoken={{updateToken}}&token={{accessToken}}&lang=en'
+            cancel_url: 'https://test-spenden.wikimedia.de/apply-for-membership?id={{id}}&utoken={{updateToken}}&token={{accessToken}}&lang=en'
