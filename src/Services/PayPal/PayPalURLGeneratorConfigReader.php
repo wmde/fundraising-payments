@@ -29,7 +29,7 @@ class PayPalURLGeneratorConfigReader {
 		foreach ( $config as $currentProduct ) {
 			foreach ( $currentProduct as $currentConfig ) {
 				$allExistingProductIds[] = $currentConfig['product_id'];
-				foreach ( $currentConfig['plans'] as $currentPlanConfig ) {
+				foreach ( $currentConfig['subscription_plans'] as $currentPlanConfig ) {
 					$allExistingSubscriptionPlanIds[] = $currentPlanConfig['id'];
 				}
 			}

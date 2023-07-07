@@ -17,7 +17,7 @@ class PayPalURLGeneratorConfigSchema implements ConfigurationInterface {
 						->scalarNode( 'product_name' )->end()
 						->scalarNode( 'return_url' )->end()
 						->scalarNode( 'cancel_url' )->end()
-						->arrayNode( 'plans' )
+						->arrayNode( 'subscription_plans' )
 							->arrayPrototype()
 								->children()
 									->scalarNode( 'id' )->end()

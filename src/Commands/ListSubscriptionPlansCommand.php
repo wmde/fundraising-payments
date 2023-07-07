@@ -3,15 +3,13 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Commands;
 
-use GuzzleHttp\Client;
-use Psr\Log\NullLogger;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 
 #[AsCommand(
 	name: 'app:list-subscription-plans',
@@ -20,23 +18,14 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
 )]
 class ListSubscriptionPlansCommand extends Command {
 
+	public function __construct(
+		private readonly PaypalAPI $paypalAPI
+	) {
+		parent::__construct();
+	}
+
 	protected function execute( InputInterface $input, OutputInterface $output ): int {
-		$clientId = $_ENV['PAYPAL_API_CLIENT_ID'] ?? '';
-		$secret = $_ENV['PAYPAL_API_CLIENT_SECRET'] ?? '';
-		$baseUri = $_ENV['PAYPAL_API_URL'] ?? '';
-		if ( !$clientId || !$secret || !$baseUri ) {
-			$output->writeln( 'You must put PAYPAL_API_URL, PAYPAL_API_CLIENT_ID and PAYPAL_API_CLIENT_SECRET' );
-			return Command::FAILURE;
-		}
-
-		$api = new GuzzlePaypalAPI(
-			new Client( [ 'base_uri' => $baseUri ] ),
-			$clientId,
-			$secret,
-			new NullLogger()
-		);
-
-		$products = $api->listProducts();
+		$products = $this->paypalAPI->listProducts();
 
 		if ( count( $products ) === 0 ) {
 			$output->writeln( 'No products and plans configured' );
@@ -47,7 +36,7 @@ class ListSubscriptionPlansCommand extends Command {
 		$table->setHeaders( [ 'Product ID', 'Subscription plan ID', 'Interval' ] );
 
 		foreach ( $products as $product ) {
-			foreach ( $api->listSubscriptionPlansForProduct( $product->id ) as $subscriptionPlanForProduct ) {
+			foreach ( $this->paypalAPI->listSubscriptionPlansForProduct( $product->id ) as $subscriptionPlanForProduct ) {
 				$table->addRow( [ $product->id, $subscriptionPlanForProduct->id, $subscriptionPlanForProduct->monthlyInterval->name ] );
 			}
 			$table->addRow( new TableSeparator() );

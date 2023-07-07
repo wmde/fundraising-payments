@@ -18,7 +18,7 @@ class PayPalAPIURLGeneratorConfigFactory {
 		}
 
 		$subconfig = $allConfigs[$productKey][$languageKey];
-		$plans = self::createSubscriptionPlans( $subconfig['plans'], $subconfig['product_id'] );
+		$plans = self::createSubscriptionPlans( $subconfig['subscription_plans'], $subconfig['product_id'] );
 		return new PayPalAPIURLGeneratorConfig(
 			$subconfig['product_name'],
 			$subconfig['return_url'],
