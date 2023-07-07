@@ -23,6 +23,9 @@ class SubscriptionPlan {
 		public readonly ?string $id = null,
 		public readonly ?string $description = null
 	) {
+		if ( trim( $this->name ) === '' ) {
+			throw new \UnexpectedValueException( 'Subscription plan name must not be empty' );
+		}
 	}
 
 	/**

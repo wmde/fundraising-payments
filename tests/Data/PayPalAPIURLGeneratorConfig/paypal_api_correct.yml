@@ -2,7 +2,7 @@ donation:
     de:
         product_id: 'paypal_product_id_1'
         product_name: 'Spende an Wikimedia'
-        plans:
+        subscription_plans:
             - id: '123'
               name: 'Monatliche Spende'
               interval: 'Monthly'
@@ -20,7 +20,7 @@ donation:
     en:
         product_id: 'paypal_product_id_2'
         product_name: 'Donation to Wikimedia'
-        plans:
+        subscription_plans:
             - id: '786'
               name: 'Monthly donation'
               interval: 'Monthly'
@@ -39,7 +39,7 @@ membership:
     de:
         product_id: 'paypal_product_id_3'
         product_name: 'Mitgliedschaftsbeitrag'
-        plans:
+        subscription_plans:
             - id: '333'
               name: 'Monatlicher Mitgliedschaftsbeitrag'
               interval: 'Monthly'
@@ -57,7 +57,7 @@ membership:
     en:
         product_id: 'paypal_product_id_4'
         product_name: 'Membership'
-        plans:
+        subscription_plans:
             - id: '716'
               name: 'Monthly membership fee'
               interval: 'Monthly'

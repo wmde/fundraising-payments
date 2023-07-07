@@ -2,6 +2,7 @@
 
 namespace WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct;
 
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
@@ -10,11 +11,12 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 class CreateSubscriptionPlanForProductUseCase {
 
 	public function __construct(
-		private PaypalAPI $api
+		private readonly PaypalAPI $api
 	) {
 	}
 
 	public function create( CreateSubscriptionPlanRequest $request ): SuccessResult|ErrorResult {
+		// Create product if needed
 		try {
 			$resultProduct = $this->productAlreadyExists( $request->productId );
 		} catch ( PayPalAPIException $e ) {
@@ -32,23 +34,24 @@ class CreateSubscriptionPlanForProductUseCase {
 			$productAlreadyExisted = true;
 		}
 
-		$planName = "Recurring " . $request->interval->name . " payment for " . $request->productName;
-		$subscriptionPlan = new SubscriptionPlan(
-			$planName,
-			$request->productId,
-			$request->interval
-		);
-
+		// get plan, if it exists
 		try {
-			$resultSubscriptionPlan = $this->planAlreadyExistsForThisProduct( $request->productId, $subscriptionPlan );
+			$resultSubscriptionPlan = $this->getPlanForProductAndInterval( $request->productId, $request->interval );
 		} catch ( PayPalAPIException $e ) {
 			return new ErrorResult( $e->getMessage() );
 		}
 
+		// Create plan if it doesn't exist
 		if ( $resultSubscriptionPlan === null ) {
 			$planAlreadyExistsForThisProduct = false;
 			try {
-				$resultSubscriptionPlan = $this->api->createSubscriptionPlanForProduct( $subscriptionPlan );
+				$resultSubscriptionPlan = $this->api->createSubscriptionPlanForProduct(
+					new SubscriptionPlan(
+						$request->planName,
+						$request->productId,
+						$request->interval
+					)
+				);
 			} catch ( \Exception $e ) {
 				return new ErrorResult( $e->getMessage() );
 			}
@@ -59,7 +62,7 @@ class CreateSubscriptionPlanForProductUseCase {
 		return new SuccessResult( $resultProduct, $productAlreadyExisted, $resultSubscriptionPlan, $planAlreadyExistsForThisProduct );
 	}
 
-	public function productAlreadyExists( string $id ): ?Product {
+	private function productAlreadyExists( string $id ): ?Product {
 		foreach ( $this->api->listProducts() as $retrievedProduct ) {
 			if ( $retrievedProduct->id === $id ) {
 				return $retrievedProduct;
@@ -68,9 +71,9 @@ class CreateSubscriptionPlanForProductUseCase {
 		return null;
 	}
 
-	public function planAlreadyExistsForThisProduct( string $productId, SubscriptionPlan $subscriptionPlan ): ?SubscriptionPlan {
+	private function getPlanForProductAndInterval( string $productId, PaymentInterval $interval ): ?SubscriptionPlan {
 		foreach ( $this->api->listSubscriptionPlansForProduct( $productId ) as $plan ) {
-			if ( $plan->monthlyInterval === $subscriptionPlan->monthlyInterval ) {
+			if ( $plan->monthlyInterval === $interval ) {
 				return $plan;
 			}
 		}
