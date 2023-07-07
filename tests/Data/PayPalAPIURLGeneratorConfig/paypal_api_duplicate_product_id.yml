@@ -2,7 +2,7 @@ donation:
     de:
         product_id: 'PRODUCT_ID'
         product_name: 'Spende an Wikimedia'
-        plans:
+        subscription_plans:
             - id: '123'
               name: 'Monatliche Spende'
               interval: 'Monthly'
@@ -14,7 +14,7 @@ donation:
     en:
         product_id: 'PRODUCT_ID'
         product_name: 'Donation to Wikimedia'
-        plans:
+        subscription_plans:
             - id: '786'
               name: 'Monthly donation'
               interval: 'Monthly'

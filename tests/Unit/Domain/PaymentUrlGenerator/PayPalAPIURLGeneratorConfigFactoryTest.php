@@ -59,7 +59,7 @@ class PayPalAPIURLGeneratorConfigFactoryTest extends TestCase {
 					'product_name' => 'Donation',
 					'return_url' => 'https://example.com/return',
 					'cancel_url' => 'https://example.com/cancel',
-					'plans' => [
+					'subscription_plans' => [
 						[
 							'id' => 'F00',
 							'name' => 'Monthly donation',

@@ -3,8 +3,6 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Commands;
 
-use GuzzleHttp\Client;
-use Psr\Log\NullLogger;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,100 +10,96 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\ScalarTypeConverter;
-use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalURLGeneratorConfigReader;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanForProductUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\ErrorResult;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\SuccessResult;
 
 #[AsCommand(
-	name: 'app:create-subscription-plan',
+	name: 'app:create-subscription-plans',
 	description: 'Create subscription plan for recurring payments with PayPal.',
 	hidden: false,
 )]
 class CreateSubscriptionPlansCommand extends Command {
 
+	private const ALREADY_EXISTS_SNIPPET = 'already exists';
+	private const WAS_CREATED_SNIPPET = 'was created';
+
 	private const ALLOWED_INTERVALS = [
-		'monthly' => PaymentInterval::Monthly,
-		'quarterly' => PaymentInterval::Quarterly,
-		'half-yearly' => PaymentInterval::HalfYearly,
-		'yearly' => PaymentInterval::Yearly,
+		'Monthly' => PaymentInterval::Monthly,
+		'Quarterly' => PaymentInterval::Quarterly,
+		'HalfYearly' => PaymentInterval::HalfYearly,
+		'Yearly' => PaymentInterval::Yearly,
 	];
 
-	protected function configure(): void {
-		$intervalNames = array_keys( self::ALLOWED_INTERVALS );
+	public function __construct(
+		private readonly PaypalAPI $paypalAPI
+	) {
+		parent::__construct();
+	}
 
+	protected function configure(): void {
 		$this->addArgument(
-			'productId',
+			'configFile',
 			InputArgument::REQUIRED,
-			'Id of the Product. Ex.: Donation-1 or Membership-1'
-		)->addArgument(
-			'productName',
-			InputArgument::REQUIRED,
-			'Name of the Product'
-		)->addArgument(
-			'interval',
-			InputArgument::REQUIRED,
-			'Payment interval name for a product. Allowed values: ' . implode( ', ', $intervalNames )
+			'File name of PayPal subscription plan configuration'
 		);
 	}
 
 	protected function execute( InputInterface $input, OutputInterface $output ): int {
-		$clientId = $_ENV['PAYPAL_API_CLIENT_ID'] ?? '';
-		$secret = $_ENV['PAYPAL_API_CLIENT_SECRET'] ?? '';
-		$baseUri = $_ENV['PAYPAL_API_URL'] ?? '';
-		if ( !$clientId || !$secret || !$baseUri ) {
-			$output->writeln( 'You must put PAYPAL_API_URL, PAYPAL_API_CLIENT_ID and PAYPAL_API_CLIENT_SECRET' );
-			return Command::FAILURE;
-		}
+		$useCase = new CreateSubscriptionPlanForProductUseCase( $this->paypalAPI );
 
-		$api = new GuzzlePaypalAPI(
-			new Client( [ 'base_uri' => $baseUri ] ),
-			$clientId,
-			$secret,
-			new NullLogger()
+		$configuration = PayPalURLGeneratorConfigReader::readConfig(
+			ScalarTypeConverter::toString( $input->getArgument( 'configFile' ) )
 		);
 
-		$intervalName = strtolower(
-			ScalarTypeConverter::toString( $input->getArgument( 'interval' ) )
-		);
-		if ( !isset( self::ALLOWED_INTERVALS[$intervalName] ) ) {
-			$output->writeln( "$intervalName is not an allowed interval name" );
-			return Command::INVALID;
-		}
+		foreach ( $configuration as $productConfiguration ) {
+			foreach ( $productConfiguration as $languageSpecificConfiguration ) {
+				foreach ( $languageSpecificConfiguration['subscription_plans'] as $idx => $planConfiguration ) {
+					$intervalName = ScalarTypeConverter::toString( $planConfiguration['interval'] );
+					if ( !isset( self::ALLOWED_INTERVALS[$intervalName] ) ) {
+						$output->writeln( "$intervalName is not an allowed interval name" );
+						return Command::INVALID;
+					}
+					$result = $useCase->create( new CreateSubscriptionPlanRequest(
+						$languageSpecificConfiguration['product_id'],
+						$languageSpecificConfiguration['product_name'],
+						self::ALLOWED_INTERVALS[$intervalName],
+						$planConfiguration['name']
+					) );
 
-		$useCase = new CreateSubscriptionPlanForProductUseCase( $api );
-		$result = $useCase->create( new CreateSubscriptionPlanRequest(
-			ScalarTypeConverter::toString( $input->getArgument( 'productId' ) ),
-			ScalarTypeConverter::toString( $input->getArgument( 'productName' ) ),
-			self::ALLOWED_INTERVALS[$intervalName]
-		) );
-		if ( $result instanceof ErrorResult ) {
-			$output->writeln( $result->message );
-			return Command::FAILURE;
+					if ( $result instanceof ErrorResult ) {
+						$output->writeln( $result->message );
+						return Command::FAILURE;
+					}
+					if ( $idx === 0 ) {
+						$output->writeln( $this->formattedOutputForProduct( $result ) );
+					}
+					$output->writeln( $this->formattedOutputForSubscriptionPlan( $result ) );
+				}
+			}
 		}
-		$output->writeln( $this->conditionalOutput( $result ) );
 		return Command::SUCCESS;
 	}
 
-	private function conditionalOutput( SuccessResult $result ): string {
-		$alreadyExistedString = "already exists";
-		$wasCreatedString = "was created";
-		$productString = sprintf(
-			'The product %s with ID "%s" %s.',
+	private function formattedOutputForProduct( SuccessResult $result ): string {
+		return sprintf(
+			"Product '%s' (ID %s) %s",
 			$result->successfullyCreatedProduct->name,
 			$result->successfullyCreatedProduct->id,
-			$result->productAlreadyExisted ? $alreadyExistedString : $wasCreatedString
+			$result->productAlreadyExisted ? self::ALREADY_EXISTS_SNIPPET : self::WAS_CREATED_SNIPPET
 		);
-
-		$subscriptionPlanString = sprintf(
-			'The %s subscription plan with ID "%s" for product ID "%s" %s.',
-			strtolower( $result->successfullyCreatedSubscriptionPlan->monthlyInterval->name ),
-			$result->successfullyCreatedSubscriptionPlan->id,
-			$result->successfullyCreatedSubscriptionPlan->productId,
-			$result->subscriptionPlanAlreadyExisted ? $alreadyExistedString : $wasCreatedString
-		);
-		return $productString . "\n" . $subscriptionPlanString;
 	}
 
+	private function formattedOutputForSubscriptionPlan( SuccessResult $result ): string {
+		return sprintf(
+			'    The %s subscription plan "%s" (ID "%s") %s.',
+			strtolower( $result->successfullyCreatedSubscriptionPlan->monthlyInterval->name ),
+			$result->successfullyCreatedSubscriptionPlan->name,
+			$result->successfullyCreatedSubscriptionPlan->id,
+			$result->subscriptionPlanAlreadyExisted ? self::ALREADY_EXISTS_SNIPPET : self::WAS_CREATED_SNIPPET
+		);
+	}
 }

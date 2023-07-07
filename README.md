@@ -5,7 +5,7 @@
 [![Code Coverage](https://scrutinizer-ci.com/g/wmde/fundraising-payments/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/wmde/fundraising-payments/?branch=master)
 
 Bounded Context for the Wikimedia Deutschland fundraising payment (sub-)domain. Used by the
-[user facing donation application](https://github.com/wmde/FundraisingFrontend) and the
+[user facing donation application](https://github.com/wmde/fundraising-application) and the
 "Fundraising Operations Center" (which is not public software).
 
 ## Installation
@@ -21,6 +21,19 @@ file that just defines a dependency on Fundraising Payments 1.x:
     }
 }
 ```
+
+## Setting up the PayPal API
+The payment context calls the PayPal REST API to create payments.
+These API calls need credentials and a one-time setup of subscription plans 
+(i.e. definition of recurring payments) on the PayPal server.
+There is a command line tool to do the subscription plan setup.
+You can call this command (`create-subscription-plans`) from the console in [Fundraising Application](https://github.com/wmde/fundraising-application)
+or from the `bin/console` file in this bounded context. 
+
+There is another command, `list-subscription-plans` that lists all the configured plans.
+
+See [Configuring the PayPal API](docs/paypal_api.md) for more details on these commands and their configuration.
+
 
 ## Development
 

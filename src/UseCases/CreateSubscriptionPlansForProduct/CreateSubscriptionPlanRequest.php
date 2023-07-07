@@ -14,7 +14,8 @@ class CreateSubscriptionPlanRequest {
 	public function __construct(
 		public readonly string $productId,
 		public readonly string $productName,
-		public readonly PaymentInterval $interval
+		public readonly PaymentInterval $interval,
+		public readonly string $planName
 	) {
 		if ( !$this->interval->isRecurring() ) {
 			throw new \UnexpectedValueException( "Interval must be recurring" );
