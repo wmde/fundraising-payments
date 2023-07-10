@@ -10,7 +10,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIURLGener
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIURLGeneratorConfigFactory;
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalAPIURLGeneratorConfigFactory
  */
 class PayPalAPIURLGeneratorConfigFactoryTest extends TestCase {
 	public function testCreateConfigForProductAndLanguage(): void {
