@@ -18,7 +18,8 @@ use WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\
 class PayPalVerificationServiceTest extends TestCase {
 
 	private const VALID_ACCOUNT_EMAIL = 'foerderpp@wikimedia.de';
-	private const INVALID_ACCOUNT_EMAIL = 'this.is.not@my.email.address';
+	// TODO uncomment when we activate the feature again
+	// private const INVALID_ACCOUNT_EMAIL = 'this.is.not@my.email.address';
 	private const DUMMY_API_URL = 'https://dummy-url.com';
 	private const VALID_PAYMENT_STATUS = 'Completed';
 	private const INVALID_PAYMENT_STATUS = 'Unknown';
@@ -42,17 +43,11 @@ class PayPalVerificationServiceTest extends TestCase {
 	}
 
 	public function testReceiverAddressMismatches_returnsFailureResponse(): void {
-		$response = $this->makeVerificationService( new Client() )->validate( [
-			'receiver_email' => self::INVALID_ACCOUNT_EMAIL
-		] );
-
-		$this->assertEquals( PayPalVerificationService::ERROR_WRONG_RECEIVER, $response->getMessage() );
+		$this->markTestSkipped( 'Disabled test because we disabled the feature. We need allow multiple receivers' );
 	}
 
 	public function testReceiverAddressNotGiven_returnsFailureResponse(): void {
-		$response = $this->makeVerificationService( new Client() )->validate( [] );
-
-		$this->assertEquals( PayPalVerificationService::ERROR_WRONG_RECEIVER, $response->getMessage() );
+		$this->markTestSkipped( 'Disabled test because we disabled the feature.' );
 	}
 
 	public function testPaymentStatusNotConfirmable_returnsFailureResponse(): void {

@@ -38,6 +38,8 @@ class PayPalVerificationService implements VerificationService {
 
 	/**
 	 * @var string Email address of our PayPal account
+	 * @todo Convert to array and remove phpstan-ignore when we allow multiple receivers
+	 * @phpstan-ignore-next-line
 	 */
 	private string $accountEmailAddress;
 
@@ -97,8 +99,10 @@ class PayPalVerificationService implements VerificationService {
 	 * @return bool
 	 */
 	private function matchesReceiverAddress( array $request ): bool {
-		return array_key_exists( 'receiver_email', $request ) &&
-			$request['receiver_email'] === $this->accountEmailAddress;
+		return true;
+		// TODO allow for multiple receivers for legacy recurring payments
+		// return array_key_exists( 'receiver_email', $request ) &&
+		//	$request['receiver_email'] === $this->accountEmailAddress;
 	}
 
 	/**
