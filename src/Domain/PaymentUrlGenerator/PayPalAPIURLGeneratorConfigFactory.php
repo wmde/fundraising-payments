@@ -28,14 +28,14 @@ class PayPalAPIURLGeneratorConfigFactory {
 	}
 
 	/**
-	 * @param array{"interval":int, "name":string, "id":string}[] $subscriptionPlansConfig
+	 * @param array{"interval":string, "name":string, "id":string}[] $subscriptionPlansConfig
 	 * @param string $productId
 	 * @return array<SubscriptionPlan>
 	 */
 	private static function createSubscriptionPlans( array $subscriptionPlansConfig, string $productId ): array {
 		$plans = [];
 		foreach ( $subscriptionPlansConfig as $subscriptionPlanValues ) {
-			$interval = PaymentInterval::from( $subscriptionPlanValues['interval'] );
+			$interval = PaymentInterval::fromString( $subscriptionPlanValues['interval'] );
 			$plans[$interval->name] = new SubscriptionPlan(
 				$subscriptionPlanValues['name'],
 				$productId,
