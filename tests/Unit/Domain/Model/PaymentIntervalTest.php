@@ -31,4 +31,17 @@ class PaymentIntervalTest extends TestCase {
 		yield [ PaymentInterval::HalfYearly ];
 		yield [ PaymentInterval::Yearly ];
 	}
+
+	public function testCreatesFromString(): void {
+		$this->assertSame( PaymentInterval::OneTime, PaymentInterval::fromString( "OneTime" ) );
+		$this->assertSame( PaymentInterval::Monthly, PaymentInterval::fromString( "Monthly" ) );
+		$this->assertSame( PaymentInterval::Quarterly, PaymentInterval::fromString( "Quarterly" ) );
+		$this->assertSame( PaymentInterval::HalfYearly, PaymentInterval::fromString( "HalfYearly" ) );
+		$this->assertSame( PaymentInterval::Yearly, PaymentInterval::fromString( "Yearly" ) );
+	}
+
+	public function testGivenNonExistingIntervalFromStringThrowsException(): void {
+		$this->expectException( \OutOfBoundsException::class );
+		PaymentInterval::fromString( "every blue moon" );
+	}
 }
