@@ -27,13 +27,6 @@ class CreateSubscriptionPlansCommand extends Command {
 	private const ALREADY_EXISTS_SNIPPET = 'already exists';
 	private const WAS_CREATED_SNIPPET = 'was created';
 
-	private const ALLOWED_INTERVALS = [
-		'Monthly' => PaymentInterval::Monthly,
-		'Quarterly' => PaymentInterval::Quarterly,
-		'HalfYearly' => PaymentInterval::HalfYearly,
-		'Yearly' => PaymentInterval::Yearly,
-	];
-
 	public function __construct(
 		private readonly PaypalAPI $paypalAPI
 	) {
@@ -59,14 +52,16 @@ class CreateSubscriptionPlansCommand extends Command {
 			foreach ( $productConfiguration as $languageSpecificConfiguration ) {
 				foreach ( $languageSpecificConfiguration['subscription_plans'] as $idx => $planConfiguration ) {
 					$intervalName = ScalarTypeConverter::toString( $planConfiguration['interval'] );
-					if ( !isset( self::ALLOWED_INTERVALS[$intervalName] ) ) {
+					try {
+						$parsedInterval = PaymentInterval::fromString( $intervalName );
+					} catch ( \OutOfBoundsException ) {
 						$output->writeln( "$intervalName is not an allowed interval name" );
 						return Command::INVALID;
 					}
 					$result = $useCase->create( new CreateSubscriptionPlanRequest(
 						$languageSpecificConfiguration['product_id'],
 						$languageSpecificConfiguration['product_name'],
-						self::ALLOWED_INTERVALS[$intervalName],
+						$parsedInterval,
 						$planConfiguration['name']
 					) );
 

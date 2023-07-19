@@ -63,12 +63,12 @@ class PayPalAPIURLGeneratorConfigFactoryTest extends TestCase {
 						[
 							'id' => 'F00',
 							'name' => 'Monthly donation',
-							'interval' => 1
+							'interval' => 'Monthly'
 						],
 						[
 							'id' => 'F11',
 							'name' => 'Yearly donation',
-							'interval' => 12
+							'interval' => 'Yearly'
 						]
 					]
 				]
