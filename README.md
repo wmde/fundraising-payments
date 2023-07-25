@@ -55,3 +55,15 @@ To run a subset of PHPUnit tests or otherwise pass flags to PHPUnit, run
 This Bounded context follows the architecture rules outlined in [Clean Architecture + Bounded Contexts](https://www.entropywins.wtf/blog/2018/08/14/clean-architecture-bounded-contexts/).
 
 ![Architecture diagram](https://user-images.githubusercontent.com/146040/44942179-6bd68080-adac-11e8-9506-179a9470113b.png)
+
+You can also look at [the dependency graph of the different namespaces](docs/dependency-graph.svg).
+
+To regenerate the dependency graph, you can either use `deptrac` directly (on a system or container that has both PHP 
+and [GraphViz](https://graphviz.org/) available):
+
+    docker-compose run --rm --no-deps app php ./vendor/bin/deptrac --formatter=graphviz-image --output=docs/dependency-graph.svg
+
+Or you can use `deptrac` to generate the input file inside the Docker container and use `dot` to create the SVG:
+    
+    docker-compose run --rm --no-deps app php ./vendor/bin/deptrac --formatter=graphviz-dot --output=docs/dependency-graph.dot 
+    dot -odocs/dependency-graph.svg -Tsvg docs/dependency-graph.dot
