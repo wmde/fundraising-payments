@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\UseCases\BookPayment;
 
-use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
+use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookablePayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;

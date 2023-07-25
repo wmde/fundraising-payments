@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\UseCases\CancelPayment;
 
-use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
+use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CancellablePayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 

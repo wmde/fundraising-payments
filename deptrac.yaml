@@ -1,0 +1,73 @@
+deptrac:
+  paths:
+    - ./src
+  exclude_files:
+    - '#.*tests.*#'
+  layers:
+    - name: Domain
+      collectors:
+        - type: classLike
+          value: WMDE\\Fundraising\\PaymentContext\\Domain\\.*
+    - name: UseCase
+      collectors:
+        - type: classLike
+          value: WMDE\\Fundraising\\PaymentContext\\UseCases.*
+    - name: DataAccess
+      collectors:
+        - type: classLike
+          value: WMDE\\Fundraising\\PaymentContext\\DataAccess.*
+    - name: ServiceInterface
+      collectors:
+        - type: interface
+          value: WMDE\\Fundraising\\PaymentContext\\Services.*
+    - name: Service
+      collectors:
+        - type: class
+          value: WMDE\\Fundraising\\PaymentContext\\Services.*
+    # Domain libraries from WMDE
+    - name: DomainLibrary
+      collectors:
+        - type: classNameRegex
+          value: /WMDE\\Euro\\.*/
+        - type: classNameRegex
+          value: /WMDE\\FunValidators\\.*/
+    # External Vendor libraries
+    - name: Doctrine
+      collectors:
+        - type: classNameRegex
+          value: /Doctrine\\.*/
+    - name: Guzzle
+      collectors:
+        - type: classNameRegex
+          value: /GuzzleHttp\\.*/
+    - name: Sofort
+      collectors:
+        - type: classNameRegex
+          value: /^Sofort\\.*/
+  ruleset:
+    Domain:
+      - DomainLibrary
+    UseCase:
+      - Domain
+      - DataAccess
+      - ServiceInterface
+      - DomainLibrary
+      - DomainValidators
+    DataAccess:
+      - Domain
+      - DomainLibrary
+      - Doctrine
+    Service:
+      - DomainLibrary
+      - Domain
+      - UseCase # This dependency on UseCase is unfortunate, and we might need to look into it
+      - DataAccess
+      - ServiceInterface
+      - Doctrine
+      - Guzzle
+      - Sofort
+    ServiceInterface:
+      - Domain
+      - DomainLibrary
+
+

@@ -4,8 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\UseCases\GetPayment;
 
-use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;

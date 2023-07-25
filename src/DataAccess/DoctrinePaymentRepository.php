@@ -6,6 +6,8 @@ namespace WMDE\Fundraising\PaymentContext\DataAccess;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\EntityIdentityCollisionException;
+use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentNotFoundException;
+use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentOverrideException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 
