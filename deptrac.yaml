@@ -60,14 +60,31 @@ deptrac:
     Service:
       - DomainLibrary
       - Domain
-      - UseCase # This dependency on UseCase is unfortunate, and we might need to look into it
+      # This dependency is too broad, as services should not depend on whole use cases.
+      # At the moment the dependency is necessary, because the Services\ExternalVerificationService implementations
+      # depend both on the ExternalVerificationService interface and the value objects (request, response) it defines.
+      # A solution here would be its own namespace and layer for "UseCaseDomain" or moving the external verification
+      # into the Domain layer.
+      - UseCase
       - DataAccess
       - ServiceInterface
+      # Maybe the Services should not directly depend on Doctrine but should go through the `DataAccess` layer
+      # TODO: Move  DoctrineTransactionIdFinder.php and UniquePaymentReferenceCodeGenerator.php into DataAccess
       - Doctrine
       - Guzzle
       - Sofort
     ServiceInterface:
       - Domain
       - DomainLibrary
+  formatters:
+    graphviz:
+      groups:
+        Service:
+          - Service
+          - ServiceInterface
+        Vendor:
+          - Doctrine
+          - Guzzle
+          - Sofort
 
 
