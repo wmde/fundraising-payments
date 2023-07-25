@@ -12,9 +12,9 @@ install-php:
 update-php:
 	docker run --rm $(DOCKER_FLAGS) --volume $(BUILD_DIR):/app -w /app --volume ~/.composer:/composer --user $(current_user):$(current_group) composer update $(COMPOSER_FLAGS)
 
-ci: phpunit cs stan
+ci: phpunit cs stan check-dependencies
 
-ci-with-coverage: phpunit-with-coverage cs stan
+ci-with-coverage: phpunit-with-coverage cs stan check-dependencies
 
 test: phpunit
 
@@ -32,6 +32,9 @@ fix-cs:
 
 stan:
 	docker-compose run --rm --no-deps app php -d memory_limit=1G ./vendor/bin/phpstan analyse --level=9 --no-progress src/ tests/
+
+check-dependencies:
+	docker-compose run --rm --no-deps app php ./vendor/bin/deptrac --no-progress --fail-on-uncovered --report-uncovered
 
 generate-test-inspectors:
 	docker-compose run --rm --no-deps app php ./tests/generate_inspectors
