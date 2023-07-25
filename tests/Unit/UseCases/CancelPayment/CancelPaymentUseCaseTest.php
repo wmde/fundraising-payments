@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CancelPayment;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
+use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;

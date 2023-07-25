@@ -6,8 +6,6 @@ namespace WMDE\Fundraising\PaymentContext\Domain;
 
 /**
  * Calculate a one-character checksum for a payment reference code
- *
- * @internal
  */
 class ChecksumGenerator {
 

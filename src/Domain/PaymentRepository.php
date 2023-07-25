@@ -3,8 +3,8 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain;
 
-use WMDE\Fundraising\PaymentContext\DataAccess\PaymentNotFoundException;
-use WMDE\Fundraising\PaymentContext\DataAccess\PaymentOverrideException;
+use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentNotFoundException;
+use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentOverrideException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 
 interface PaymentRepository {

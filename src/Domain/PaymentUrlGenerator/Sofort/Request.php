@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer;
+namespace WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort;
 
 use WMDE\Euro\Euro;
 
