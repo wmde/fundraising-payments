@@ -1,0 +1,3 @@
+# Broken test configuration to test checks for missing configuration for a language item
+donation:
+  de_DE:
