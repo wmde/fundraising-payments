@@ -11,6 +11,10 @@ class PayPalURLGeneratorConfigReader {
 	public static function readConfig( string $fileName ): array {
 		$config = Yaml::parseFile( $fileName );
 
+		if ( !is_array( $config ) ) {
+			throw new \DomainException( 'Configuration file must contain a nested array structure!' );
+		}
+
 		$processor = new Processor();
 		$schema = new PayPalURLGeneratorConfigSchema();
 		$processor->processConfiguration(
