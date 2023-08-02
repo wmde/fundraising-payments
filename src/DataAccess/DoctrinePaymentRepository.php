@@ -17,7 +17,9 @@ class DoctrinePaymentRepository implements PaymentRepository {
 		$this->entityManager->persist( $payment );
 		try {
 			$this->entityManager->flush();
-		} catch ( UniqueConstraintViolationException $ex ) {
+			// TODO Remove allowing \RuntimeException when the discussion on https://github.com/doctrine/orm/pull/10785
+			//      has been resolved. Hopefully, they'll re-introduce UniqueConstraintViolationException in a patch release
+		} catch ( UniqueConstraintViolationException|\RuntimeException $ex ) {
 			throw new PaymentOverrideException( $ex->getMessage(), $ex->getCode(), $ex );
 		}
 	}
