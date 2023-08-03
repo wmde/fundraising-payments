@@ -65,10 +65,24 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( '{"transactionId":"badcaffee","amount":"9900"}', $insertedPayment['booking_data'] );
 	}
 
-	public function testRepositoryPreventsOverridingPaymentsWithTheSameId(): void {
+	public function testRepositoryCatchesORMErrorsFromPaymentsWithTheSameId(): void {
 		$firstPayment = new CreditCardPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
 		$firstPayment->bookPayment( [ 'transactionId' => 'badcaffee', 'amount' => 9900 ], new DummyPaymentIdRepository() );
 		$secondPayment = new CreditCardPayment( 1, Euro::newFromInt( 42 ), PaymentInterval::Monthly );
+		$this->entityManager->getConfiguration()->setRejectIdCollisionInIdentityMap( true );
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$repo->storePayment( $firstPayment );
+
+		$this->expectException( PaymentOverrideException::class );
+
+		$repo->storePayment( $secondPayment );
+	}
+
+	public function testRepositoryCatchesDatabaseErrorsFromPaymentsWithTheSameId(): void {
+		$firstPayment = new CreditCardPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
+		$firstPayment->bookPayment( [ 'transactionId' => 'badcaffee', 'amount' => 9900 ], new DummyPaymentIdRepository() );
+		$secondPayment = new CreditCardPayment( 1, Euro::newFromInt( 42 ), PaymentInterval::Monthly );
+		$this->entityManager->getConfiguration()->setRejectIdCollisionInIdentityMap( false );
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 		$repo->storePayment( $firstPayment );
 
