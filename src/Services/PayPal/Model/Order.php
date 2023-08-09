@@ -39,7 +39,7 @@ class Order {
 	 */
 	private static function getUrlFromLinks( array $links ): string {
 		foreach ( $links as $link ) {
-			if ( $link['rel'] === 'approve' ) {
+			if ( $link['rel'] === 'payer-action' ) {
 				return $link['href'];
 			}
 		}

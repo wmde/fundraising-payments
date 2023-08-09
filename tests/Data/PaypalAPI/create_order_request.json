@@ -27,11 +27,15 @@
     }
   ],
   "intent": "CAPTURE",
-  "application_context": {
-    "brand_name": "Wikimedia Deutschland",
-    "landing_page": "LOGIN",
-    "user_action": "CONTINUE",
-    "return_url": "https://example.com/returnUrl",
-    "cancel_url": "https://example.com/cancelUrl"
+  "payment_source": {
+    "paypal": {
+      "experience_context": {
+        "brand_name": "Wikimedia Deutschland",
+        "user_action": "PAY_NOW",
+        "shipping_preference": "NO_SHIPPING",
+        "return_url": "https:\/\/example.com\/returnUrl",
+        "cancel_url": "https:\/\/example.com\/cancelUrl"
+      }
+    }
   }
 }

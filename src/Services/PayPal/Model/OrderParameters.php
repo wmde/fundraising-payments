@@ -50,14 +50,17 @@ class OrderParameters {
 						],
 					],
 				'intent' => 'CAPTURE',
-				'application_context' =>
-					[
-						'brand_name' => 'Wikimedia Deutschland',
-						'landing_page' => 'LOGIN',
-						'user_action' => 'CONTINUE',
-						'return_url' => $this->returnUrl,
-						'cancel_url' => $this->cancelUrl,
-					],
+				'payment_source' => [
+					'paypal' => [
+						'experience_context' => [
+							'brand_name' => 'Wikimedia Deutschland',
+							'user_action' => 'PAY_NOW',
+							"shipping_preference" => 'NO_SHIPPING',
+							'return_url' => $this->returnUrl,
+							'cancel_url' => $this->cancelUrl,
+						]
+					]
+				]
 			],
 		 JSON_THROW_ON_ERROR );
 	}
