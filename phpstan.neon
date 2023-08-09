@@ -5,7 +5,7 @@ parameters:
 	ignoreErrors:
 		# A workaround for Doctrine not specifying an UniqueConstraintViolationException being thrown
 		# See https://github.com/doctrine/orm/issues/7780
-		# This rule might be unneccessary in the future with a fixe discussed in
+		# This rule might be unneccessary in the future with a fix discussed in
 		# https://github.com/phpstan/phpstan-doctrine/issues/295
 		- message: /Doctrine\\DBAL\\Exception\\UniqueConstraintViolationException is never thrown in the try block/
 		  path: src/DataAccess/DoctrinePaymentRepository.php

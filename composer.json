@@ -9,7 +9,7 @@
 		"wmde/fun-validators": "~v4.0.0",
 		"wmde/freezable-value-object": "~2.0",
 
-		"doctrine/orm": "^2.11",
+		"doctrine/orm": "^2.16.1",
 		"doctrine/dbal": "^3.3",
 		"doctrine/migrations": "^3.5",
 		"sofort/sofortlib-php": "^3.2",
