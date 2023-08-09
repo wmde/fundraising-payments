@@ -687,7 +687,7 @@ RESPONSE
 					{
 					
 					    "href": "https://www.paypal.com/checkoutnow?token=5O190127TN364715T",
-					    "rel": "approve",
+					    "rel": "payer-action",
 					    "method": "GET"
 					}
 				]
