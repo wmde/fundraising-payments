@@ -6,7 +6,6 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\PaymentUrlGenerator;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\PaymentContext\DataAccess\Sofort\Transfer\SofortClient;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
@@ -20,6 +19,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentURLFactory
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPal;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PayPalConfig;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort\SofortClient;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\SofortConfig;
 
 /**

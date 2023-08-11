@@ -1,0 +1,90 @@
+deptrac:
+  paths:
+    - ./src
+  exclude_files:
+    - '#.*tests.*#'
+  layers:
+    - name: Domain
+      collectors:
+        - type: classLike
+          value: WMDE\\Fundraising\\PaymentContext\\Domain\\.*
+    - name: UseCase
+      collectors:
+        - type: classLike
+          value: WMDE\\Fundraising\\PaymentContext\\UseCases.*
+    - name: DataAccess
+      collectors:
+        - type: classLike
+          value: WMDE\\Fundraising\\PaymentContext\\DataAccess.*
+    - name: ServiceInterface
+      collectors:
+        - type: interface
+          value: WMDE\\Fundraising\\PaymentContext\\Services.*
+    - name: Service
+      collectors:
+        - type: class
+          value: WMDE\\Fundraising\\PaymentContext\\Services.*
+    # Domain libraries from WMDE
+    - name: DomainLibrary
+      collectors:
+        - type: classNameRegex
+          value: /WMDE\\Euro\\.*/
+        - type: classNameRegex
+          value: /WMDE\\FunValidators\\.*/
+    # External Vendor libraries
+    - name: Doctrine
+      collectors:
+        - type: classNameRegex
+          value: /Doctrine\\.*/
+    - name: Guzzle
+      collectors:
+        - type: classNameRegex
+          value: /GuzzleHttp\\.*/
+    - name: Sofort
+      collectors:
+        - type: classNameRegex
+          value: /^Sofort\\.*/
+  ruleset:
+    Domain:
+      - DomainLibrary
+    UseCase:
+      - Domain
+      - DataAccess
+      - ServiceInterface
+      - DomainLibrary
+      - DomainValidators
+    DataAccess:
+      - Domain
+      - DomainLibrary
+      - Doctrine
+    Service:
+      - DomainLibrary
+      - Domain
+      # This dependency is too broad, as services should not depend on whole use cases.
+      # At the moment the dependency is necessary, because the Services\ExternalVerificationService implementations
+      # depend both on the ExternalVerificationService interface and the value objects (request, response) it defines.
+      # A solution here would be its own namespace and layer for "UseCaseDomain" or moving the external verification
+      # into the Domain layer.
+      - UseCase
+      - DataAccess
+      - ServiceInterface
+      # Maybe the Services should not directly depend on Doctrine but should go through the `DataAccess` layer
+      # TODO: Move  DoctrineTransactionIdFinder.php and UniquePaymentReferenceCodeGenerator.php into DataAccess
+      - Doctrine
+      - Guzzle
+      - Sofort
+    ServiceInterface:
+      - Domain
+      - DomainLibrary
+  formatters:
+    graphviz:
+      groups:
+        Service:
+          - Service
+          - ServiceInterface
+        Vendor:
+          - Doctrine
+          - Guzzle
+          - Sofort
+
+
