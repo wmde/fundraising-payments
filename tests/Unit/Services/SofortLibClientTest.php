@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Sofort\SofortLib\Sofortueberweisung;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort\Request;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\Request;
 use WMDE\Fundraising\PaymentContext\Services\SofortLibClient;
 
 /**

@@ -3,7 +3,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\UseCases\CreatePayment;
 
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
 
 class SuccessResponse {
 	public function __construct(

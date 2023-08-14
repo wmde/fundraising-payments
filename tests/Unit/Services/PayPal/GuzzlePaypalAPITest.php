@@ -15,10 +15,10 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\PayPalAPIException;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
-use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 use WMDE\PsrLogTestDoubles\LoggerSpy;
 
 /**

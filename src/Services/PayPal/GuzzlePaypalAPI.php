@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Order;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\PayPalAPIException;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;

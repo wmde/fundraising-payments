@@ -6,9 +6,9 @@ namespace WMDE\Fundraising\PaymentContext\Services;
 
 use RuntimeException;
 use Sofort\SofortLib\Sofortueberweisung;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort\Request;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort\Response;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort\SofortClient;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\Request;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\Response;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\SofortClient;
 
 /**
  * Facade in front of Sofortueberweisung, an API to generate URLs of Sofort's checkout process

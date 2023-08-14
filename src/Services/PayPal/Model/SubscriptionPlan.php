@@ -5,7 +5,6 @@ namespace WMDE\Fundraising\PaymentContext\Services\PayPal\Model;
 
 use UnexpectedValueException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 
 class SubscriptionPlan {
 

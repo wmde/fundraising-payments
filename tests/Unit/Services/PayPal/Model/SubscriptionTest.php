@@ -4,8 +4,8 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal\Model;
 
 use PHPUnit\Framework\TestCase;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\PayPalAPIException;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
-use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription

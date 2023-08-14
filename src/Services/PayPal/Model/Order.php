@@ -3,8 +3,6 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Services\PayPal\Model;
 
-use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
-
 class Order {
 
 	public function __construct(

@@ -5,7 +5,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal\Model;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Order;
-use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\PayPalAPIException;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Order
