@@ -16,14 +16,28 @@ deptrac:
       collectors:
         - type: classLike
           value: WMDE\\Fundraising\\PaymentContext\\DataAccess.*
-    - name: ServiceInterface
+        - type: class
+          value: WMDE\\Fundraising\\PaymentContext\\ScalarTypeConverter
+    # Interfaces and value objects for services
+    - name: ServiceModel
       collectors:
         - type: interface
           value: WMDE\\Fundraising\\PaymentContext\\Services.*
+        - type: class
+          value: WMDE\\Fundraising\\PaymentContext\\Services\\Paypal\\Model.*
+        - type: classLike
+          value: WMDE\\Fundraising\\PaymentContext\\Services\\PaymentUrlGenerator\\Sofort.*
     - name: Service
       collectors:
-        - type: class
-          value: WMDE\\Fundraising\\PaymentContext\\Services.*
+        - type: bool
+          must:
+            - type: class
+              value: WMDE\\Fundraising\\PaymentContext\\Services.*
+          must_not:
+            - type: class
+              value: WMDE\\Fundraising\\PaymentContext\\Services\\Paypal\\Model.*
+            - type: class
+              value: WMDE\\Fundraising\\PaymentContext\\Services\\PaymentUrlGenerator\\Sofort.*
     # Domain libraries from WMDE
     - name: DomainLibrary
       collectors:
@@ -44,6 +58,14 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: /^Sofort\\.*/
+    - name: Psr
+      collectors:
+        - type: classNameRegex
+          value: /^Psr\\.*/
+    - name: Symfony Config
+      collectors:
+        - type: classNameRegex
+          value: /^Symfony\\Component\\(Config|Yaml)\\.*/
   ruleset:
     Domain:
       - DomainLibrary
@@ -53,6 +75,7 @@ deptrac:
       - ServiceInterface
       - DomainLibrary
       - DomainValidators
+      - ServiceModel
     DataAccess:
       - Domain
       - DomainLibrary
@@ -67,24 +90,29 @@ deptrac:
       # into the Domain layer.
       - UseCase
       - DataAccess
-      - ServiceInterface
+      - ServiceModel
       # Maybe the Services should not directly depend on Doctrine but should go through the `DataAccess` layer
       # TODO: Move  DoctrineTransactionIdFinder.php and UniquePaymentReferenceCodeGenerator.php into DataAccess
       - Doctrine
       - Guzzle
       - Sofort
-    ServiceInterface:
+      - Psr
+      - Symfony Config
+    ServiceModel:
       - Domain
       - DomainLibrary
+      - ServiceInterface
   formatters:
     graphviz:
       groups:
         Service:
           - Service
-          - ServiceInterface
+          - ServiceModel
         Vendor:
           - Doctrine
           - Guzzle
           - Sofort
+          - Psr
+          - Symfony Config
 
 

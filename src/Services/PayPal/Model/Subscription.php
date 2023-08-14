@@ -4,7 +4,6 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\Services\PayPal\Model;
 
 use DateTimeImmutable;
-use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 
 class Subscription {
 	public function __construct(

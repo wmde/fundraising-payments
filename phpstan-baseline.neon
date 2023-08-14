@@ -11,9 +11,9 @@ parameters:
         # Workaround for loading the Paypal configuration YAML file (mixed content) and assuming a certain array shape (validated with Symfony config)
         # In the future, Symfony Config might generate PHPStan types that would allow us to at least type the input to PayPalAPIURLGeneratorConfigFactory
         # and the output of PayPalURLGeneratorConfigReader
-        - message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Domain\\\\PaymentUrlGenerator\\\\PayPalAPIURLGeneratorConfigFactory\\:\\:createConfig\\(\\) has parameter \\$allConfigs with no value type specified in iterable type array\\.$#"
+        - message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Services\\\\PaymentUrlGenerator\\\\PayPalAPIURLGeneratorConfigFactory\\:\\:createConfig\\(\\) has parameter \\$allConfigs with no value type specified in iterable type array\\.$#"
           count: 1
-          path: src/Domain/PaymentUrlGenerator/PayPalAPIURLGeneratorConfigFactory.php
+          path: src/Services/PaymentUrlGenerator/PayPalAPIURLGeneratorConfigFactory.php
         - message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Services\\\\PayPal\\\\PayPalURLGeneratorConfigReader\\:\\:checkProductAndSubscriptionPlanIdsAreUnique\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
           count: 1
           path: src/Services/PayPal/PayPalURLGeneratorConfigReader.php

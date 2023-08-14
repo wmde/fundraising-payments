@@ -3,10 +3,10 @@
 namespace WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct;
 
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\PayPalAPIException;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
-use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPIException;
 
 class CreateSubscriptionPlanForProductUseCase {
 
