@@ -40,7 +40,7 @@ class TestPaymentContextFactory {
 	}
 
 	public function newEntityManager(): EntityManager {
-		return EntityManager::create( $this->newConnection(), $this->doctrineConfig );
+		return new EntityManager( $this->newConnection(), $this->doctrineConfig );
 	}
 
 	public function newSchemaCreator(): SchemaCreator {
