@@ -9,9 +9,11 @@ use Doctrine\ORM\Exception\EntityIdentityCollisionException;
 use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentOverrideException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPaymentIdentifier;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
+use WMDE\Fundraising\PaymentContext\Domain\PayPalPaymentIdentifierRepository;
 
-class DoctrinePaymentRepository implements PaymentRepository {
+class DoctrinePaymentRepository implements PaymentRepository, PayPalPaymentIdentifierRepository {
 
 	public function __construct( private EntityManager $entityManager ) {
 	}
@@ -39,6 +41,11 @@ class DoctrinePaymentRepository implements PaymentRepository {
 			throw new PaymentNotFoundException( sprintf( "Payment with id %d not found", $id ) );
 		}
 		return $payment;
+	}
+
+	public function storePayPalIdentifier( PayPalPaymentIdentifier $identifier ): void {
+		$this->entityManager->persist( $identifier );
+		$this->entityManager->flush();
 	}
 
 }

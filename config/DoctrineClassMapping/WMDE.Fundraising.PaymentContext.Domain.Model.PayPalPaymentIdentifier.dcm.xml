@@ -7,6 +7,10 @@
             <discriminator-mapping value="O" class="WMDE\Fundraising\PaymentContext\Domain\Model\PayPalOrder"/>
         </discriminator-map>
         <id name="payment" association-key="true" />
-        <one-to-one field="payment" target-entity="WMDE\Fundraising\PaymentContext\Domain\Model\Payment" />
+        <one-to-one field="payment" target-entity="WMDE\Fundraising\PaymentContext\Domain\Model\Payment" >
+            <cascade>
+                <cascade-persist />
+            </cascade>
+        </one-to-one>
     </entity>
 </doctrine-mapping>
