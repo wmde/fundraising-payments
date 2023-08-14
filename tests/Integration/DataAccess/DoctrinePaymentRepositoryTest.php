@@ -4,6 +4,7 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Integration\DataAccess;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
@@ -17,7 +18,9 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalOrder;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalSubscription;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
@@ -412,6 +415,28 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$repo->storePayment( $payment );
 	}
 
+	public function testStorePayPalIdentifierForRecurringPayment(): void {
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$payment = new PayPalPayment( 5, Euro::newFromInt( 8 ), PaymentInterval::Yearly );
+		$repo->storePayPalIdentifier( new PayPalSubscription( $payment, 'SID-1' ) );
+
+		$identifier = $this->fetchRawPayPalIdentifier( 5 );
+		$this->assertSame( 5, $identifier['payment_id'] );
+		$this->assertSame( 'SID-1', $identifier['subscription_id'] );
+		$this->assertSame( 'S', $identifier['process_name'] );
+	}
+
+	public function testStorePayPalIdentifierForOneTimePayment(): void {
+		$repo = new DoctrinePaymentRepository( $this->entityManager );
+		$payment = new PayPalPayment( 9, Euro::newFromInt( 87 ), PaymentInterval::OneTime );
+		$repo->storePayPalIdentifier( new PayPalOrder( $payment, 'TXN-9' ) );
+
+		$identifier = $this->fetchRawPayPalIdentifier( 9 );
+		$this->assertSame( 9, $identifier['payment_id'] );
+		$this->assertSame( 'TXN-9', $identifier['transaction_id'] );
+		$this->assertSame( 'O', $identifier['process_name'] );
+	}
+
 	/**
 	 * @return array<string,mixed>
 	 * @throws \Doctrine\DBAL\Exception
@@ -606,6 +631,23 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			->fetchAssociative();
 		if ( $data === false ) {
 			throw new AssertionFailedError( "Expected Payment Reference Code was not found!" );
+		}
+		return $data;
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 * @throws \Doctrine\DBAL\Exception
+	 */
+	private function fetchRawPayPalIdentifier( int $paymentId ): array {
+		$data = $this->connection->createQueryBuilder()
+			->select( 'p.subscription_id', 'p.transaction_id', 'p.payment_id', 'p.process_name' )
+			->from( 'payment_paypal_identifier', 'p' )
+			->where( 'p.payment_id = :payment_id' )
+			->setParameter( 'payment_id', $paymentId, ParameterType::INTEGER )
+			->fetchAssociative();
+		if ( $data === false ) {
+			throw new AssertionFailedError( "Expected Paypal ID was not found!" );
 		}
 		return $data;
 	}
