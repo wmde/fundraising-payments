@@ -11,8 +11,9 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapter
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfig;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DefaultPaymentProviderAdapter;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapterFactory;
 
-class PaymentProviderAdapterFactory {
+class PaymentProviderAdapterFactoryImplementation implements PaymentProviderAdapterFactory {
 	public function __construct(
 		private readonly PaypalAPI $paypalAPI,
 		private readonly PayPalPaymentProviderAdapterConfig $payPalAdapterConfig,
@@ -20,7 +21,7 @@ class PaymentProviderAdapterFactory {
 	) {
 	}
 
-	public function createAdapter( Payment $payment ): PaymentProviderAdapter {
+	public function createProvider( Payment $payment ): PaymentProviderAdapter {
 		if ( $payment instanceof PayPalPayment ) {
 			return new PayPalPaymentProviderAdapter(
 				$this->paypalAPI,
