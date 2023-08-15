@@ -15,15 +15,13 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Services\PaymentURLFactory;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGeneratorConfig;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\IncompletePayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\NullGenerator;
-use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalAPIURLGenerator;
-use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalAPIURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\SofortClient;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGeneratorConfig;
-use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentURLFactory
@@ -53,8 +51,16 @@ class PaymentURLFactoryTest extends TestCase {
 		self::assertInstanceOf( CreditCardURLGenerator::class, $actualGenerator );
 	}
 
+	/**
+	 * This test check the creation of the legacy URL generator,
+	 * remove when the application has switched completely to the PayPal API,
+	 * and we don't need the feature flag any more
+	 * (see https://phabricator.wikimedia.org/T329159 )
+	 *
+	 * @deprecated This test runs with the legacy feature flag
+	 */
 	public function testPaymentURLFactoryCreatesLegacyPayPalURLGenerator(): void {
-		$urlFactory = $this->createTestURLFactory();
+		$urlFactory = $this->createTestURLFactory( true );
 		$payment = new PayPalPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
 
 		$actualGenerator = $urlFactory->createURLGenerator( $payment );
@@ -62,13 +68,14 @@ class PaymentURLFactoryTest extends TestCase {
 		self::assertInstanceOf( LegacyPayPalURLGenerator::class, $actualGenerator );
 	}
 
-	public function testPaymentURLFactoryCreatesPayPalAPIURLGenerator(): void {
-		$urlFactory = $this->createTestURLFactory( PayPalAPIURLGeneratorConfig::class );
+	public function testPaymentURLFactoryCreatesIncompletePayPalURLGenerator(): void {
+		$urlFactory = $this->createTestURLFactory();
 		$payment = new PayPalPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
 
 		$actualGenerator = $urlFactory->createURLGenerator( $payment );
 
-		self::assertInstanceOf( PayPalAPIURLGenerator::class, $actualGenerator );
+		// The IncompletePayPalURLGenerator will be replaced inside the use case, we just need a default for PayPal
+		self::assertInstanceOf( IncompletePayPalURLGenerator::class, $actualGenerator );
 	}
 
 	public function testPaymentURLFactoryCreatesNullURLGenerator(): void {
@@ -81,21 +88,17 @@ class PaymentURLFactoryTest extends TestCase {
 		self::assertInstanceOf( NullGenerator::class, $actualGenerator );
 	}
 
-	/**
-	 * @param class-string<LegacyPayPalURLGeneratorConfig|PayPalAPIURLGeneratorConfig> $paypalConfigClassName
-	 */
-	private function createTestURLFactory( string $paypalConfigClassName = LegacyPayPalURLGeneratorConfig::class ): PaymentURLFactory {
+	private function createTestURLFactory( bool $useLegacyPayPalUrlGenerator = false ): PaymentURLFactory {
 		$creditCardConfig = $this->createStub( CreditCardURLGeneratorConfig::class );
-		$payPalConfig = $this->createStub( $paypalConfigClassName );
+		$payPalConfig = $this->createStub( LegacyPayPalURLGeneratorConfig::class );
 		$sofortConfig = $this->createStub( SofortURLGeneratorConfig::class );
 		$sofortClient = $this->createStub( SofortClient::class );
-		$payPalApiClient = $this->createStub( PaypalAPI::class );
 		return new PaymentURLFactory(
 			$creditCardConfig,
 			$payPalConfig,
-			$payPalApiClient,
 			$sofortConfig,
-			$sofortClient
+			$sofortClient,
+			$useLegacyPayPalUrlGenerator
 		);
 	}
 }
