@@ -1,14 +1,14 @@
 <?php
 declare( strict_types=1 );
 
-namespace WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator;
+namespace WMDE\Fundraising\PaymentContext\Services\PayPal;
 
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 
-class PayPalAPIURLGeneratorConfigFactory {
+class PayPalPaymentProviderAdapterConfigFactory {
 
-	public static function createConfig( array $allConfigs, string $productKey, string $languageKey ): PayPalAPIURLGeneratorConfig {
+	public static function createConfig( array $allConfigs, string $productKey, string $languageKey ): PayPalPaymentProviderAdapterConfig {
 		if ( !isset( $allConfigs[$productKey] ) ) {
 			throw new \LogicException( "'$productKey' does not exist in PayPal API configuration. Please check your configuration file." );
 		}
@@ -19,7 +19,7 @@ class PayPalAPIURLGeneratorConfigFactory {
 
 		$subconfig = $allConfigs[$productKey][$languageKey];
 		$plans = self::createSubscriptionPlans( $subconfig['subscription_plans'], $subconfig['product_id'] );
-		return new PayPalAPIURLGeneratorConfig(
+		return new PayPalPaymentProviderAdapterConfig(
 			$subconfig['product_name'],
 			$subconfig['return_url'],
 			$subconfig['cancel_url'],
