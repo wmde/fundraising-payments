@@ -423,7 +423,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$identifier = $this->fetchRawPayPalIdentifier( 5 );
 		$this->assertSame( 5, $identifier['payment_id'] );
 		$this->assertSame( 'SID-1', $identifier['subscription_id'] );
-		$this->assertSame( 'S', $identifier['process_name'] );
+		$this->assertSame( 'S', $identifier['identifier_type'] );
 	}
 
 	public function testStorePayPalIdentifierForOneTimePayment(): void {
@@ -434,7 +434,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$identifier = $this->fetchRawPayPalIdentifier( 9 );
 		$this->assertSame( 9, $identifier['payment_id'] );
 		$this->assertSame( 'TXN-9', $identifier['transaction_id'] );
-		$this->assertSame( 'O', $identifier['process_name'] );
+		$this->assertSame( 'O', $identifier['identifier_type'] );
 	}
 
 	/**
@@ -641,7 +641,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	 */
 	private function fetchRawPayPalIdentifier( int $paymentId ): array {
 		$data = $this->connection->createQueryBuilder()
-			->select( 'p.subscription_id', 'p.transaction_id', 'p.payment_id', 'p.process_name' )
+			->select( 'p.subscription_id', 'p.transaction_id', 'p.payment_id', 'p.identifier_type' )
 			->from( 'payment_paypal_identifier', 'p' )
 			->where( 'p.payment_id = :payment_id' )
 			->setParameter( 'payment_id', $paymentId, ParameterType::INTEGER )

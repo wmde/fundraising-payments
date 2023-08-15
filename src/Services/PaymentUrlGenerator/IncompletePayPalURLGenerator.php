@@ -17,7 +17,6 @@ class IncompletePayPalURLGenerator implements PaymentProviderURLGenerator {
 		throw new \LogicException( sprintf(
 			'This instance should be replaced with an instance of %s, using %s',
 			PayPalURLGenerator::class,
-			// TODO replace interface name with PayPal class name implementation
 			PaymentProviderAdapter::class
 		) );
 	}
