@@ -9,6 +9,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalSubscription;
 use WMDE\Fundraising\PaymentContext\Domain\PayPalPaymentIdentifierRepository;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\IncompletePayPalURLGenerator;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalAPIURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
@@ -43,7 +44,7 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 	}
 
 	public function modifyPaymentUrlGenerator( PaymentProviderURLGenerator $paymentProviderURLGenerator ): PaymentProviderURLGenerator {
-		if ( !( $paymentProviderURLGenerator instanceof IncompletePayPalURLGenerator ) ) {
+		if ( !( $paymentProviderURLGenerator instanceof IncompletePayPalURLGenerator ) && !( $paymentProviderURLGenerator instanceof PayPalAPIURLGenerator ) ) {
 			throw new \LogicException( sprintf(
 				'Expected instance of %s, got %s',
 				IncompletePayPalURLGenerator::class,

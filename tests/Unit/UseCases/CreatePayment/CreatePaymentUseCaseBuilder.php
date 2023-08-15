@@ -19,6 +19,9 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FixedPaymentReferenceCodeGene
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingIbanValidator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DefaultPaymentProviderAdapter;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapterFactory;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 
 class CreatePaymentUseCaseBuilder {
@@ -28,6 +31,7 @@ class CreatePaymentUseCaseBuilder {
 	private UrlGeneratorFactory $urlGeneratorFactory;
 	private ValidateIbanUseCase $validateIbanUseCase;
 	private PaymentValidator $paymentValidator;
+	private PaymentProviderAdapterFactory $paymentProviderAdapterFactory;
 
 	public function __construct() {
 		$this->idGenerator = $this->makeIdGeneratorStub();
@@ -36,6 +40,7 @@ class CreatePaymentUseCaseBuilder {
 		$this->urlGeneratorFactory = $this->makePaymentURLFactoryStub();
 		$this->validateIbanUseCase = $this->makeFailingIbanUseCase();
 		$this->paymentValidator = $this->makePaymentValidator();
+		$this->paymentProviderAdapterFactory = $this->makePaymentProviderAdapterFactory();
 	}
 
 	public function build(): CreatePaymentUseCase {
@@ -45,7 +50,8 @@ class CreatePaymentUseCaseBuilder {
 			$this->paymentReferenceCodeGenerator,
 			$this->paymentValidator,
 			$this->validateIbanUseCase,
-			$this->urlGeneratorFactory
+			$this->urlGeneratorFactory,
+			$this->paymentProviderAdapterFactory
 		);
 	}
 
@@ -138,4 +144,25 @@ class CreatePaymentUseCaseBuilder {
 
 		};
 	}
+
+	private function makePaymentProviderAdapterFactory(): PaymentProviderAdapterFactory {
+		return new class implements PaymentProviderAdapterFactory {
+			public function createProvider( Payment $payment ): PaymentProviderAdapter {
+				return new DefaultPaymentProviderAdapter();
+			}
+		};
+	}
+
+	public function withPaymentProviderAdapter( PaymentProviderAdapter $paymentProviderAdapter ): self {
+		$this->paymentProviderAdapterFactory = new class( $paymentProviderAdapter ) implements PaymentProviderAdapterFactory {
+			public function __construct( private readonly PaymentProviderAdapter $paymentProviderAdapter ) {
+			}
+
+			public function createProvider( Payment $payment ): PaymentProviderAdapter {
+				return $this->paymentProviderAdapter;
+			}
+		};
+		return $this;
+	}
+
 }

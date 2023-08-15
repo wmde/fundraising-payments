@@ -13,7 +13,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PayPalPaymentIdentifierRepository;
-use WMDE\Fundraising\PaymentContext\Services\PaymentProviderAdapterFactory;
+use WMDE\Fundraising\PaymentContext\Services\PaymentProviderAdapterFactoryImplementation;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapter;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfig;
@@ -22,30 +22,30 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DefaultPaymentProviderAdapter;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentProviderAdapterFactory
+ * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentProviderAdapterFactoryImplementation
  */
-class PaymentProviderAdapterFactoryTest extends TestCase {
+class PaymentProviderAdapterFactoryImplementationTest extends TestCase {
 	/**
 	 * @dataProvider allPaymentsExceptPayPal
 	 */
 	public function testItCreatesDefaultAdapterForAllPaymentTypesExceptPayPal( Payment $payment ): void {
-		$factory = new PaymentProviderAdapterFactory(
+		$factory = new PaymentProviderAdapterFactoryImplementation(
 			$this->createStub( PaypalAPI::class ),
 			$this->createStub( PayPalPaymentProviderAdapterConfig::class ),
 			$this->createStub( PayPalPaymentIdentifierRepository::class )
 		);
-		$adapter = $factory->createAdapter( $payment );
+		$adapter = $factory->createProvider( $payment );
 		$this->assertInstanceOf( DefaultPaymentProviderAdapter::class, $adapter );
 	}
 
 	public function testItCreatedPayPalAdapterForPayPalPayments(): void {
-		$factory = new PaymentProviderAdapterFactory(
+		$factory = new PaymentProviderAdapterFactoryImplementation(
 			$this->createStub( PaypalAPI::class ),
 			$this->createStub( PayPalPaymentProviderAdapterConfig::class ),
 			$this->createStub( PayPalPaymentIdentifierRepository::class )
 		);
 		$payment = new PayPalPayment( 5, Euro::newFromCents( 10000 ), PaymentInterval::Yearly );
-		$adapter = $factory->createAdapter( $payment );
+		$adapter = $factory->createProvider( $payment );
 		$this->assertInstanceOf( PayPalPaymentProviderAdapter::class, $adapter );
 	}
 

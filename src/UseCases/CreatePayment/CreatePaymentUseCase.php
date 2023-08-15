@@ -29,7 +29,8 @@ class CreatePaymentUseCase {
 		private PaymentReferenceCodeGenerator $paymentReferenceCodeGenerator,
 		private PaymentValidator $paymentValidator,
 		private ValidateIbanUseCase $validateIbanUseCase,
-		private UrlGeneratorFactory $paymentURLFactory
+		private UrlGeneratorFactory $paymentURLFactory,
+		private PaymentProviderAdapterFactory $paymentProviderAdapterFactory
 	) {
 	}
 
@@ -45,9 +46,17 @@ class CreatePaymentUseCase {
 			return new FailureResponse( $e->getMessage() );
 		}
 
-		$paymentProviderURLGenerator = $this->createPaymentProviderURLGenerator( $payment );
+		$paymentProvider = $this->paymentProviderAdapterFactory->createProvider( $payment );
+
+		// payment providers may modify the payment or store payment-adjacent data
+		// (e.g. PayPal payment IDs)
+		$payment = $paymentProvider->fetchAndStoreAdditionalData( $payment );
 
 		$this->paymentRepository->storePayment( $payment );
+
+		$paymentProviderURLGenerator = $this->createPaymentProviderURLGenerator( $payment );
+		$paymentProviderURLGenerator = $paymentProvider->modifyPaymentUrlGenerator( $paymentProviderURLGenerator );
+
 		return new SuccessResponse( $payment->getId(), $paymentProviderURLGenerator, $payment->isCompleted() );
 	}
 
