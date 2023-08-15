@@ -30,20 +30,12 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 	}
 
 	public function fetchAndStoreAdditionalData( Payment $payment ): Payment {
-		if ( !( $payment instanceof PayPalPayment ) ) {
-			throw new \LogicException( sprintf(
-				'%s only accepts %s, got %s',
-				self::class,
-				PayPalPayment::class,
-				get_class( $payment )
-			) );
-		}
+		$this->checkIfPaymentIsPayPalPayment( $payment );
 
 		if ( $payment->getInterval()->isRecurring() ) {
-			$this->paymentIdentifierRepository->storePayPalIdentifier( new PayPalSubscription(
-				$payment,
-				$this->fetchSubscriptionFromAPI( $payment )->id
-			) );
+			$subscription = $this->createSubscriptionWithAPI( $payment );
+			$identifier = new PayPalSubscription( $payment, $subscription->id );
+			$this->paymentIdentifierRepository->storePayPalIdentifier( $identifier );
 		}
 		// We don't store the order id for one-time payments, because we don't need it.
 		// It'll be passed in the `token` parameter of the URL when the user returns from PayPal, together with the donation ID
@@ -60,7 +52,8 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 		}
 		$payment = $paymentProviderURLGenerator->payment;
 		if ( $payment->getInterval()->isRecurring() ) {
-			return new PayPalURLGenerator( $this->fetchSubscriptionFromAPI( $payment )->confirmationLink );
+			$subscription = $this->createSubscriptionWithAPI( $payment );
+			return new PayPalURLGenerator( $subscription->confirmationLink );
 		} else {
 			// TODO When implementing one-time-payments, pass a context value object to this method (similar to UrlGenerator\RequestContext)
 			//      and take invoice id and order id from there.
@@ -73,9 +66,9 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 	}
 
 	/**
-	 * Fetch subscription from API, but use subscription property as cache, to avoid multiple API calls
+	 * Create subscription with API, but use subscription property as cache, to avoid multiple API calls
 	 */
-	private function fetchSubscriptionFromAPI( PayPalPayment $payment ): Subscription {
+	private function createSubscriptionWithAPI( PayPalPayment $payment ): Subscription {
 		if ( $this->subscription === null ) {
 			$subscriptionPlan = $this->config->subscriptionPlanMap[ $payment->getInterval()->name ];
 			// TODO When implementing membership payments that need this, we'll need to get the start time from somewhere
@@ -87,6 +80,20 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 			$this->subscription = $this->paypalAPI->createSubscription( $params );
 		}
 		return $this->subscription;
+	}
+
+	/**
+	 * @phpstan-assert PayPalPayment $payment
+	 */
+	private function checkIfPaymentIsPayPalPayment( Payment $payment ): void {
+		if ( !( $payment instanceof PayPalPayment ) ) {
+			throw new \LogicException( sprintf(
+				'%s only accepts %s, got %s',
+				self::class,
+				PayPalPayment::class,
+				get_class( $payment )
+			) );
+		}
 	}
 
 }
