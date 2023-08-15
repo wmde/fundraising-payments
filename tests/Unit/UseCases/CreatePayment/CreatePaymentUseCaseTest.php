@@ -23,6 +23,7 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIdRepository
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
 
 /**
@@ -264,11 +265,60 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 100,
 			interval: 0,
-			paymentType: 'PPL',
+			paymentType: 'MCP',
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
 		$this->assertSame( $urlGenerator, $result->paymentProviderURLGenerator );
+	}
+
+	public function testPaymentProviderAdapterCanReplaceUrlGenerator(): void {
+		$urlGeneratorFactory = $this->givenUrlGeneratorFactory();
+		$urlGeneratorFromAdapter = $this->createStub( PaymentProviderURLGenerator::class );
+		$adapterStub = $this->createStub( PaymentProviderAdapter::class );
+		$adapterStub->method( 'modifyPaymentUrlGenerator' )->willReturn( $urlGeneratorFromAdapter );
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
+			->withPaymentRepositorySpy()
+			->withUrlGeneratorFactory( $urlGeneratorFactory )
+			->withPaymentProviderAdapter( $adapterStub )
+			->build();
+
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
+			amountInEuroCents: 100,
+			interval: 0,
+			paymentType: 'MCP',
+		) );
+
+		$this->assertInstanceOf( SuccessResponse::class, $result );
+		$this->assertSame( $urlGeneratorFromAdapter, $result->paymentProviderURLGenerator );
+	}
+
+	public function testPaymentProviderCanReplacePaymentBeforeStoring(): void {
+		$replacementPaymentId = 123;
+		$paymentFromAdapter = new CreditCardPayment( $replacementPaymentId, Euro::newFromCents( 789 ), PaymentInterval::OneTime );
+		$adapter = $this->createMock( PaymentProviderAdapter::class );
+		$adapter->expects( $this->once() )
+			->method( 'fetchAndStoreAdditionalData' )
+			->willReturn( $paymentFromAdapter );
+
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
+			->withPaymentRepositorySpy()
+			->withPaymentProviderAdapter( $adapter )
+			->build();
+
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
+			amountInEuroCents: 100,
+			interval: 0,
+			paymentType: 'MCP',
+		) );
+
+		$this->assertInstanceOf( SuccessResponse::class, $result );
+		$this->assertSame( $replacementPaymentId, $result->paymentId );
+		$repositorySpy = $this->useCaseBuilder->getPaymentRepository();
+		$storedPayment = $repositorySpy->getPaymentById( $replacementPaymentId );
+		$this->assertSame( $paymentFromAdapter, $storedPayment );
 	}
 
 	private function newPaymentCreationRequest(
@@ -298,5 +348,13 @@ class CreatePaymentUseCaseTest extends TestCase {
 	private function assertPaymentWasStored( Payment $expectedPayment ): void {
 		$actualPayment = $this->useCaseBuilder->getPaymentRepository()->getPaymentById( self::PAYMENT_ID );
 		$this->assertEquals( $expectedPayment, $actualPayment );
+	}
+
+	private function givenUrlGeneratorFactory(): UrlGeneratorFactory {
+		$urlGenerator = $this->createStub( PaymentProviderURLGenerator::class );
+		$urlGenerator->method( 'generateURL' )->willThrowException( new \LogicException( 'The "original" URL generator should be replaced by the payment provider adapter' ) );
+		$urlGeneratorFactory = $this->createStub( UrlGeneratorFactory::class );
+		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( $urlGenerator );
+		return $urlGeneratorFactory;
 	}
 }

@@ -10,7 +10,13 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 
-class FakePayPalAPI implements PaypalAPI {
+/**
+ * This API implementation is for tests that call the "setup" functionality of the PayPal API
+ * (creating subscription plans and products for the subscription plans).
+ *
+ * Use {@see FakePayPalAPIForPayments} in tests that need the API to create payments
+ */
+class FakePayPalAPIForSetup implements PaypalAPI {
 
 	public const GENERATED_ID = 'P-GENERATED';
 
@@ -88,12 +94,10 @@ class FakePayPalAPI implements PaypalAPI {
 	}
 
 	public function createSubscription( SubscriptionParameters $subscriptionParameters ): Subscription {
-		// TODO implement when needed
 		throw new \LogicException( 'Not implemented yet, your tests should not use it' );
 	}
 
 	public function createOrder( OrderParameters $orderParameters ): Order {
-		// TODO implement when needed
 		throw new \LogicException( 'Not implemented yet, your tests should not use it' );
 	}
 

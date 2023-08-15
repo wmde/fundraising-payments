@@ -8,7 +8,7 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\PayPalAPIException;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePayPalAPI;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePayPalAPIForSetup;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanForProductUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\ErrorResult;
@@ -22,7 +22,7 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	private const SUBSCRIPTION_PLAN_ID = 'P-0HVWVNKK2LCV2VN57N79TLENELT78EKL';
 
 	public function testPassingEmptyProductNameReturnsErrorResult(): void {
-		$useCase = new CreateSubscriptionPlanForProductUseCase( new FakePayPalAPI() );
+		$useCase = new CreateSubscriptionPlanForProductUseCase( new FakePayPalAPIForSetup() );
 
 		$result = $useCase->create( new CreateSubscriptionPlanRequest( '', '', PaymentInterval::HalfYearly, 'blabla' ) );
 
@@ -31,7 +31,7 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	}
 
 	public function testPassingEmptySubscriptionPlanReturnsErrorResult(): void {
-		$useCase = new CreateSubscriptionPlanForProductUseCase( new FakePayPalAPI() );
+		$useCase = new CreateSubscriptionPlanForProductUseCase( new FakePayPalAPIForSetup() );
 
 		$result = $useCase->create( new CreateSubscriptionPlanRequest( 'bla', 'blabla', PaymentInterval::HalfYearly, '' ) );
 
@@ -101,9 +101,9 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	 */
 	public function testFetchesOrCreatesNewProductsAndPlansAndGivesSuccessResult( array $products, array $subscriptionPlans, bool $productExists, bool $subscriptionPlanExists ): void {
 		$product = self::createProduct( "id1" );
-		$expectedSubscriptionPlan = new SubscriptionPlan( 'A test plan', 'id1', PaymentInterval::HalfYearly, FakePayPalAPI::GENERATED_ID );
+		$expectedSubscriptionPlan = new SubscriptionPlan( 'A test plan', 'id1', PaymentInterval::HalfYearly, FakePayPalAPIForSetup::GENERATED_ID );
 
-		$api = new FakePayPalAPI( $products, $subscriptionPlans );
+		$api = new FakePayPalAPIForSetup( $products, $subscriptionPlans );
 		$useCase = new CreateSubscriptionPlanForProductUseCase( $api );
 
 		$result = $useCase->create( new CreateSubscriptionPlanRequest(
