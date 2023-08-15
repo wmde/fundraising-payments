@@ -10,6 +10,13 @@ use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenera
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
 
 /**
+ * URL generator that passes the PayPal parameters to the PayPal page via URL parameters
+ * instead of calling the PayPal API.
+ *
+ * Until we support one-time payments with the PayPal API, we also use this legacy class for
+ * one-time-payments, even when the PayPal API is used for recurring payments
+ * (see https://phabricator.wikimedia.org/T344263 and {@see PaymentURLFactory})
+ *
  * @deprecated Use PayPalAPI instead. See https://phabricator.wikimedia.org/T329159
  */
 class LegacyPayPalURLGenerator implements PaymentProviderURLGenerator {

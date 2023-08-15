@@ -2,19 +2,19 @@
 
 declare( strict_types = 1 );
 
-namespace Unit\Services\PaymentUrlGenerator;
+namespace Unit\Services\PayPal;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalAPIURLGeneratorConfigFactory;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfigFactory;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalAPIURLGeneratorConfigFactory
+ * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfigFactory
  */
-class PayPalAPIURLGeneratorConfigFactoryTest extends TestCase {
+class PayPalPaymentProviderAdapterConfigFactoryTest extends TestCase {
 	public function testCreateConfigForProductAndLanguage(): void {
-		$config = PayPalAPIURLGeneratorConfigFactory::createConfig( $this->givenConfig(), 'donation', 'en' );
+		$config = PayPalPaymentProviderAdapterConfigFactory::createConfig( $this->givenConfig(), 'donation', 'en' );
 
 		$this->assertSame( 'Donation', $config->productName );
 		$this->assertSame( 'https://example.com/return', $config->returnURL );
@@ -37,14 +37,14 @@ class PayPalAPIURLGeneratorConfigFactoryTest extends TestCase {
 		$this->expectException( \LogicException::class );
 		$this->expectExceptionMessage( "'membership' does not exist in PayPal API configuration. Please check your configuration file." );
 
-		PayPalAPIURLGeneratorConfigFactory::createConfig( $this->givenConfig(), 'membership', 'en' );
+		PayPalPaymentProviderAdapterConfigFactory::createConfig( $this->givenConfig(), 'membership', 'en' );
 	}
 
 	public function testWhenLanguageKeyDoesNotExistAnExceptionIsThrown(): void {
 		$this->expectException( \LogicException::class );
 		$this->expectExceptionMessage( "'de' does not exist in PayPal API configuration for product 'donation'. Please check your configuration file." );
 
-		PayPalAPIURLGeneratorConfigFactory::createConfig( $this->givenConfig(), 'donation', 'de' );
+		PayPalPaymentProviderAdapterConfigFactory::createConfig( $this->givenConfig(), 'donation', 'de' );
 	}
 
 	/**
