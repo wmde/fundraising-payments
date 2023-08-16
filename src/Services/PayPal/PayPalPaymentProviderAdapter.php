@@ -34,7 +34,7 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 		$this->checkIfPaymentIsPayPalPayment( $payment );
 
 		if ( $payment->getInterval()->isRecurring() ) {
-			$subscription = $this->createSubscriptionWithAPI( $payment );
+			$subscription = $this->createSubscriptionWithAPI( $payment, $domainSpecificContext );
 			$identifier = new PayPalSubscription( $payment, $subscription->id );
 			$this->paymentIdentifierRepository->storePayPalIdentifier( $identifier );
 		}
@@ -51,16 +51,21 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 				get_class( $paymentProviderURLGenerator )
 			) );
 		}
+
 		$payment = $paymentProviderURLGenerator->payment;
 		if ( $payment->getInterval()->isRecurring() ) {
-			$subscription = $this->createSubscriptionWithAPI( $payment );
+			$subscription = $this->createSubscriptionWithAPI( $payment, $domainSpecificContext );
 			return new PayPalURLGenerator( $subscription->confirmationLink );
 		} else {
-			// TODO When implementing one-time-payments, pass a context value object to this method (similar to UrlGenerator\RequestContext)
-			//      and take invoice id and order id from there.
-			//      See https://phabricator.wikimedia.org/T344271 (refactoring URL generation logic)
-			//          and https://phabricator.wikimedia.org/T344263 (implementing one-time payments)
-			$params = new OrderParameters( (string)$payment->getId(), (string)$payment->getId(), $this->config->productName, $payment->getAmount(), $this->config->returnURL, $this->config->cancelURL );
+			$urlTemplate = new DomainUrlTemplate( $domainSpecificContext );
+			$params = new OrderParameters(
+				(string)$domainSpecificContext->itemId,
+				$domainSpecificContext->invoiceId,
+				$this->config->productName,
+				$payment->getAmount(),
+				$urlTemplate->replacePlaceholders( $this->config->returnURL ),
+				$urlTemplate->replacePlaceholders( $this->config->cancelURL )
+			);
 			$order = $this->paypalAPI->createOrder( $params );
 			return new PayPalURLGenerator( $order->confirmationLink );
 		}
@@ -69,15 +74,17 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 	/**
 	 * Create subscription with API, but use subscription property as cache, to avoid multiple API calls
 	 */
-	private function createSubscriptionWithAPI( PayPalPayment $payment ): Subscription {
+	private function createSubscriptionWithAPI( PayPalPayment $payment, DomainSpecificContext $domainSpecificContext ): Subscription {
 		if ( $this->subscription === null ) {
+			$urlTemplate = new DomainUrlTemplate( $domainSpecificContext );
 			$subscriptionPlan = $this->config->subscriptionPlanMap[ $payment->getInterval()->name ];
-			// TODO When implementing membership payments that need this, we'll need to get the start time from somewhere
-			//      and replace the 'null' start time with value from the context.
-			//      Recommendation: Replace UrlGenerator\RequestContext with a `PaymentContextParams` that contains the start time.
-			//      Pass the context to fetchAndStoreAdditionalData and modifyPaymentUrlGenerator
-			//      See https://phabricator.wikimedia.org/T344271 (refactoring URL generation logic), as a requirement for this
-			$params = new SubscriptionParameters( $subscriptionPlan, $payment->getAmount(), $this->config->returnURL, $this->config->cancelURL, null );
+			$params = new SubscriptionParameters(
+				$subscriptionPlan,
+				$payment->getAmount(),
+				$urlTemplate->replacePlaceholders( $this->config->returnURL ),
+				$urlTemplate->replacePlaceholders( $this->config->cancelURL ),
+				$domainSpecificContext->startTimeForRecurringPayment
+			);
 			$this->subscription = $this->paypalAPI->createSubscription( $params );
 		}
 		return $this->subscription;

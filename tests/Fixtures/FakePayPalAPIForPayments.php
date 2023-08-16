@@ -18,6 +18,16 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 class FakePayPalAPIForPayments implements PaypalAPI {
 
 	/**
+	 * @var SubscriptionParameters[]
+	 */
+	private array $subscriptionParameters = [];
+
+	/**
+	 * @var OrderParameters[]
+	 */
+	private array $orderParameters = [];
+
+	/**
 	 * @param Subscription[] $subscriptions
 	 * @param Order[] $orders
 	 */
@@ -62,6 +72,7 @@ class FakePayPalAPIForPayments implements PaypalAPI {
 		if ( $subscription === false ) {
 			throw new \OutOfBoundsException( 'Your test setup did not add enough subscriptions to the fake API implementation' );
 		}
+		$this->subscriptionParameters[] = $subscriptionParameters;
 		next( $this->subscriptions );
 		return $subscription;
 	}
@@ -71,8 +82,23 @@ class FakePayPalAPIForPayments implements PaypalAPI {
 		if ( $order === false ) {
 			throw new \OutOfBoundsException( 'Your test setup did not add enough orders to the fake API implementation' );
 		}
+		$this->orderParameters[] = $orderParameters;
 		next( $this->orders );
 		return $order;
+	}
+
+	/**
+	 * @return SubscriptionParameters[]
+	 */
+	public function getSubscriptionParameters(): array {
+		return $this->subscriptionParameters;
+	}
+
+	/**
+	 * @return OrderParameters[]
+	 */
+	public function getOrderParameters(): array {
+		return $this->orderParameters;
 	}
 
 }
