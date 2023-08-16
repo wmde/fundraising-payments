@@ -13,6 +13,7 @@ use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalURLGenera
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
 
 class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
@@ -29,7 +30,7 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 	) {
 	}
 
-	public function fetchAndStoreAdditionalData( Payment $payment ): Payment {
+	public function fetchAndStoreAdditionalData( Payment $payment, DomainSpecificContext $domainSpecificContext ): Payment {
 		$this->checkIfPaymentIsPayPalPayment( $payment );
 
 		if ( $payment->getInterval()->isRecurring() ) {
@@ -42,7 +43,7 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 		return $payment;
 	}
 
-	public function modifyPaymentUrlGenerator( PaymentProviderURLGenerator $paymentProviderURLGenerator ): PaymentProviderURLGenerator {
+	public function modifyPaymentUrlGenerator( PaymentProviderURLGenerator $paymentProviderURLGenerator, DomainSpecificContext $domainSpecificContext ): PaymentProviderURLGenerator {
 		if ( !( $paymentProviderURLGenerator instanceof IncompletePayPalURLGenerator ) ) {
 			throw new \LogicException( sprintf(
 				'Expected instance of %s, got %s',

@@ -4,6 +4,7 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CreatePayment;
 
 use PHPUnit\Framework\TestCase;
+use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
@@ -15,9 +16,10 @@ class PaymentCreationRequestTest extends TestCase {
 	public function testRequestCanBeStringified(): void {
 		$request = new PaymentCreationRequest( 9876, 1, 'BEZ', 'DE88100900001234567892', 'BEVODEBB', 'D' );
 		$request->setDomainSpecificPaymentValidator( new SucceedingDomainSpecificValidator() );
+		$request->setDomainSpecificContext( DomainSpecificContextForTesting::create() );
 
 		$this->assertSame(
-			'{"domainSpecificPaymentValidator":"WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Fixtures\\\\SucceedingDomainSpecificValidator","amountInEuroCents":9876,"interval":1,"paymentType":"BEZ","iban":"DE88100900001234567892","bic":"BEVODEBB","transferCodePrefix":"D"}',
+			'{"domainSpecificPaymentValidator":"WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Fixtures\\\\SucceedingDomainSpecificValidator","domainSpecificContext":{"itemId":1,"userAccessToken":"U-LETMEIN","systemAccessToken":"S-LETMEOUT","startTimeForRecurringPayment":null,"invoiceId":"D-1","firstName":"Hubert J.","lastName":"Farnsworth"},"amountInEuroCents":9876,"interval":1,"paymentType":"BEZ","iban":"DE88100900001234567892","bic":"BEVODEBB","transferCodePrefix":"D"}',
 			(string)$request
 		);
 	}

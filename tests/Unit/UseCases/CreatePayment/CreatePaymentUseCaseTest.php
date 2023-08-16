@@ -18,6 +18,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
+use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
@@ -333,6 +334,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 			$amountInEuroCents, $interval, $paymentType, $iban, $bic, $transferCodePrefix
 		);
 		$request->setDomainSpecificPaymentValidator( new SucceedingDomainSpecificValidator() );
+		$request->setDomainSpecificContext( DomainSpecificContextForTesting::create() );
 		return $request;
 	}
 
