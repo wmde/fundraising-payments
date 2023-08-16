@@ -3,12 +3,10 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\UseCases\CreatePayment;
 
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
-
 class SuccessResponse {
 	public function __construct(
 		public readonly int $paymentId,
-		public readonly PaymentProviderURLGenerator $paymentProviderURLGenerator,
+		public readonly string $externalPaymentCompletionUrl,
 		public readonly bool $paymentComplete
 	) {
 	}
