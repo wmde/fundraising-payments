@@ -50,12 +50,12 @@ class CreatePaymentUseCase {
 
 		// payment providers may modify the payment or store payment-adjacent data
 		// (e.g. PayPal payment IDs)
-		$payment = $paymentProvider->fetchAndStoreAdditionalData( $payment );
+		$payment = $paymentProvider->fetchAndStoreAdditionalData( $payment, $request->getDomainSpecificContext() );
 
 		$this->paymentRepository->storePayment( $payment );
 
 		$paymentProviderURLGenerator = $this->createPaymentProviderURLGenerator( $payment );
-		$paymentProviderURLGenerator = $paymentProvider->modifyPaymentUrlGenerator( $paymentProviderURLGenerator );
+		$paymentProviderURLGenerator = $paymentProvider->modifyPaymentUrlGenerator( $paymentProviderURLGenerator, $request->getDomainSpecificContext() );
 
 		return new SuccessResponse( $payment->getId(), $paymentProviderURLGenerator, $payment->isCompleted() );
 	}

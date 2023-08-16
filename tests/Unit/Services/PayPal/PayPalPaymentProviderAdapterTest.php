@@ -19,6 +19,7 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapter;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfig;
+use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePaymentReferenceCode;
 
 /**
@@ -34,7 +35,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		);
 		$payment = new PayPalPayment( 6, Euro::newFromInt( 100 ), PaymentInterval::Quarterly );
 
-		$urlGenerator = $adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $payment ) );
+		$urlGenerator = $adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $payment ), DomainSpecificContextForTesting::create() );
 
 		$this->assertSame( 'https://sandbox.paypal.com/confirm-subscription', $urlGenerator->generateURL( new RequestContext( 6 ) ) );
 	}
@@ -47,7 +48,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		);
 		$payment = new PayPalPayment( 4, Euro::newFromInt( 27 ), PaymentInterval::OneTime );
 
-		$urlGenerator = $adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $payment ) );
+		$urlGenerator = $adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $payment ), DomainSpecificContextForTesting::create() );
 
 		$this->assertSame( 'https://sandbox.paypal.com/confirm-order', $urlGenerator->generateURL( new RequestContext( 4 ) ) );
 	}
@@ -58,7 +59,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$api = $this->createStub( PaypalAPI::class );
 		$adapter = new PayPalPaymentProviderAdapter( $api, $this->givenAdapterConfig(), $this->givenRepositoryStub() );
 
-		$adapter->modifyPaymentUrlGenerator( new PayPalURLGenerator( 'https://example.com' ) );
+		$adapter->modifyPaymentUrlGenerator( new PayPalURLGenerator( 'https://example.com' ), DomainSpecificContextForTesting::create() );
 	}
 
 	public function testGivenRecurringPaymentAdapterStoresPayPalSubscription(): void {
@@ -72,7 +73,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 			$repo
 		);
 
-		$returnedPayment = $adapter->fetchAndStoreAdditionalData( $payment );
+		$returnedPayment = $adapter->fetchAndStoreAdditionalData( $payment, DomainSpecificContextForTesting::create() );
 
 		$this->assertSame( $payment, $returnedPayment );
 	}
@@ -87,7 +88,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 			$repo
 		);
 
-		$returnedPayment = $adapter->fetchAndStoreAdditionalData( $payment );
+		$returnedPayment = $adapter->fetchAndStoreAdditionalData( $payment, DomainSpecificContextForTesting::create() );
 
 		$this->assertSame( $payment, $returnedPayment );
 	}
@@ -99,7 +100,8 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$adapter = new PayPalPaymentProviderAdapter( $api, $this->givenAdapterConfig(), $this->givenRepositoryStub() );
 
 		$adapter->fetchAndStoreAdditionalData(
-			SofortPayment::create( 5, Euro::newFromCents( 4775 ), PaymentInterval::OneTime, new FakePaymentReferenceCode() )
+			SofortPayment::create( 5, Euro::newFromCents( 4775 ), PaymentInterval::OneTime, new FakePaymentReferenceCode() ),
+			DomainSpecificContextForTesting::create()
 		);
 	}
 
@@ -111,10 +113,11 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 			$repo
 		);
 		$payment = new PayPalPayment( 6, Euro::newFromInt( 100 ), PaymentInterval::Quarterly );
+		$context = DomainSpecificContextForTesting::create();
 
-		$adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $payment ) );
-		$adapter->fetchAndStoreAdditionalData( $payment );
-		$adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $payment ) );
+		$adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $payment ), $context );
+		$adapter->fetchAndStoreAdditionalData( $payment, $context );
+		$adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $payment ), $context );
 	}
 
 	private function givenAdapterConfig(): PayPalPaymentProviderAdapterConfig {

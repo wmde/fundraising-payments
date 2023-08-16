@@ -8,6 +8,7 @@ use WMDE\Fundraising\PaymentContext\Domain\DomainSpecificPaymentValidator;
 class PaymentCreationRequest implements \JsonSerializable, \Stringable {
 
 	private DomainSpecificPaymentValidator $domainSpecificPaymentValidator;
+	private ?DomainSpecificContext $domainSpecificContext = null;
 
 	public function __construct(
 		public readonly int $amountInEuroCents,
@@ -25,6 +26,17 @@ class PaymentCreationRequest implements \JsonSerializable, \Stringable {
 
 	public function setDomainSpecificPaymentValidator( DomainSpecificPaymentValidator $domainSpecificPaymentValidator ): void {
 		$this->domainSpecificPaymentValidator = $domainSpecificPaymentValidator;
+	}
+
+	public function getDomainSpecificContext(): DomainSpecificContext {
+		if ( $this->domainSpecificContext === null ) {
+			throw new \LogicException( 'Domain specific context was not set before calling use case' );
+		}
+		return $this->domainSpecificContext;
+	}
+
+	public function setDomainSpecificContext( DomainSpecificContext $domainSpecificContext ): void {
+		$this->domainSpecificContext = $domainSpecificContext;
 	}
 
 	public function jsonSerialize(): mixed {

@@ -12,11 +12,14 @@ use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenera
  * It returns the input unchanged.
  */
 class DefaultPaymentProviderAdapter implements PaymentProviderAdapter {
-	public function fetchAndStoreAdditionalData( Payment $payment ): Payment {
+	public function fetchAndStoreAdditionalData( Payment $payment, DomainSpecificContext $domainSpecificContext ): Payment {
 		return $payment;
 	}
 
-	public function modifyPaymentUrlGenerator( PaymentProviderURLGenerator $paymentProviderURLGenerator ): PaymentProviderURLGenerator {
+	public function modifyPaymentUrlGenerator(
+		PaymentProviderURLGenerator $paymentProviderURLGenerator,
+		DomainSpecificContext $domainSpecificContext
+	): PaymentProviderURLGenerator {
 		return $paymentProviderURLGenerator;
 	}
 

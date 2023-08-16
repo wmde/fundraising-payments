@@ -10,6 +10,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDescription;
+use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DefaultPaymentProviderAdapter;
 
 /**
@@ -20,9 +21,10 @@ class DefaultPaymentProviderAdapterTest extends TestCase {
 		$adapter = new DefaultPaymentProviderAdapter();
 		$payment = new CreditCardPayment( 4, Euro::newFromInt( 100 ), PaymentInterval::HalfYearly );
 		$urlGenerator = $this->givenCreditCardURLGenerator( $payment );
+		$context = DomainSpecificContextForTesting::create();
 
-		$this->assertSame( $payment, $adapter->fetchAndStoreAdditionalData( $payment ) );
-		$this->assertSame( $urlGenerator, $adapter->modifyPaymentUrlGenerator( $urlGenerator ) );
+		$this->assertSame( $payment, $adapter->fetchAndStoreAdditionalData( $payment, $context ) );
+		$this->assertSame( $urlGenerator, $adapter->modifyPaymentUrlGenerator( $urlGenerator, $context ) );
 	}
 
 	private function givenCreditCardURLGenerator( CreditCardPayment $payment ): CreditCardURLGenerator {
