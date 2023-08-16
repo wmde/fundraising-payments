@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Domain\UrlGenerator;
 interface PaymentProviderURLGenerator {
 
 	/**
-	 * Generate a URL to use (refer the donor to) to finalize a purchase on a 3rd party payment provider page  or internal confirmation page
+	 * Generate a URL to use (refer the donor to) to finalize a purchase on a 3rd party payment provider page.
 	 *
 	 * @param RequestContext $requestContext
 	 * @return string

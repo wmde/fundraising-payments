@@ -22,6 +22,7 @@ use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\UrlGeneratorStub;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
@@ -253,10 +254,9 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$this->assertEquals( "An invalid IBAN was provided", $result->errorMessage );
 	}
 
-	public function testPaymentResponseContainsURLGeneratorFromFactory(): void {
-		$urlGenerator = $this->createStub( PaymentProviderURLGenerator::class );
+	public function testPaymentResponseContainsURLFromURLGeneratorFactory(): void {
 		$urlGeneratorFactory = $this->createStub( UrlGeneratorFactory::class );
-		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( $urlGenerator );
+		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( new UrlGeneratorStub() );
 		$useCase = $this->useCaseBuilder
 			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
@@ -270,14 +270,13 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( $urlGenerator, $result->paymentProviderURLGenerator );
+		$this->assertSame( UrlGeneratorStub::URL, $result->externalPaymentCompletionUrl );
 	}
 
 	public function testPaymentProviderAdapterCanReplaceUrlGenerator(): void {
-		$urlGeneratorFactory = $this->givenUrlGeneratorFactory();
-		$urlGeneratorFromAdapter = $this->createStub( PaymentProviderURLGenerator::class );
+		$urlGeneratorFactory = $this->givenUrlGeneratorFactoryReturnsIncompleteUrlGenerator();
 		$adapterStub = $this->createStub( PaymentProviderAdapter::class );
-		$adapterStub->method( 'modifyPaymentUrlGenerator' )->willReturn( $urlGeneratorFromAdapter );
+		$adapterStub->method( 'modifyPaymentUrlGenerator' )->willReturn( new UrlGeneratorStub() );
 		$useCase = $this->useCaseBuilder
 			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
@@ -292,7 +291,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( $urlGeneratorFromAdapter, $result->paymentProviderURLGenerator );
+		$this->assertSame( UrlGeneratorStub::URL, $result->externalPaymentCompletionUrl );
 	}
 
 	public function testPaymentProviderCanReplacePaymentBeforeStoring(): void {
@@ -352,9 +351,10 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$this->assertEquals( $expectedPayment, $actualPayment );
 	}
 
-	private function givenUrlGeneratorFactory(): UrlGeneratorFactory {
+	private function givenUrlGeneratorFactoryReturnsIncompleteUrlGenerator(): UrlGeneratorFactory {
 		$urlGenerator = $this->createStub( PaymentProviderURLGenerator::class );
-		$urlGenerator->method( 'generateURL' )->willThrowException( new \LogicException( 'The "original" URL generator should be replaced by the payment provider adapter' ) );
+		$urlGenerator->method( 'generateURL' )
+			->willThrowException( new \LogicException( 'The "original" URL generator should be replaced by the payment provider adapter' ) );
 		$urlGeneratorFactory = $this->createStub( UrlGeneratorFactory::class );
 		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( $urlGenerator );
 		return $urlGeneratorFactory;

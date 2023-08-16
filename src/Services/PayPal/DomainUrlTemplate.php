@@ -20,9 +20,10 @@ class DomainUrlTemplate {
 
 		// Only needed until we actually use the user and system access tokens, see https://phabricator.wikimedia.org/T344346
 		if ( str_contains( $context->userAccessToken, ':' ) ) {
-			$tokens = explode( ':', $context->userAccessToken );
-			$this->context['accessToken'] = $tokens[0];
-			$this->context['updateToken'] = $tokens[1];
+			$this->context = array_merge(
+				$context->getLegacyTokens(),
+				$this->context
+			);
 		}
 	}
 
