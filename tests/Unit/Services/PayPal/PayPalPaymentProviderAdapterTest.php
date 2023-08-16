@@ -21,6 +21,7 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapter
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfig;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePaymentReferenceCode;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePayPalAPIForPayments;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapter
@@ -120,11 +121,35 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $payment ), $context );
 	}
 
+	public function testReplacesPlaceholdersInConfig(): void {
+		$fakePayPalAPI = new FakePayPalAPIForPayments(
+			[ new Subscription( 'SUB-1234', new \DateTimeImmutable(), 'https://sandbox.paypal.com/confirm-subscription' ) ],
+			[ new Order( 'SOME-ORDER-ID', 'https://sandbox.paypal.com/confirm-order' ) ],
+		);
+		$adapter = new PayPalPaymentProviderAdapter(
+			$fakePayPalAPI,
+			$this->givenAdapterConfig(),
+			$this->createStub( PayPalPaymentIdentifierRepository::class )
+		);
+		$recurringPayment = new PayPalPayment( 7, Euro::newFromInt( 20 ), PaymentInterval::Quarterly );
+		$oneTimePayment = new PayPalPayment( 8, Euro::newFromInt( 1000 ), PaymentInterval::OneTime );
+		$context = DomainSpecificContextForTesting::create();
+
+		$adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $recurringPayment ), $context );
+		$adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $oneTimePayment ), $context );
+
+		$subscriptionParameters = $fakePayPalAPI->getSubscriptionParameters();
+		$orderParameters = $fakePayPalAPI->getOrderParameters();
+		$this->assertCount( 1, $subscriptionParameters );
+		$this->assertCount( 1, $orderParameters );
+		$this->assertSame( 'https://example.com/confirmed?token=U-LETMEIN&id=1', $subscriptionParameters[0]->returnUrl );
+	}
+
 	private function givenAdapterConfig(): PayPalPaymentProviderAdapterConfig {
 		return new PayPalPaymentProviderAdapterConfig(
 			'your donation',
-			'https://example.com/confirmed?id={{id}}&utoken={{updateToken}}&accessToken={{accessToken}}',
-			'https://example.com/new?id={{id}}&utoken={{updateToken}}&accessToken={{accessToken}}',
+			'https://example.com/confirmed?token={{userAccessToken}}&id={{id}}',
+			'https://example.com/new',
 			[
 				PaymentInterval::Monthly->name => new SubscriptionPlan( 'Monthly donation', 'Donation-1', PaymentInterval::Monthly, 'P-123' ),
 				PaymentInterval::Quarterly->name => new SubscriptionPlan( 'Quarterly donation', 'Donation-1', PaymentInterval::Quarterly, 'P-456' ),
