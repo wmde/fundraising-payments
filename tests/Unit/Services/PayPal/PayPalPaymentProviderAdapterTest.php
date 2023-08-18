@@ -10,7 +10,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalSubscription;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PayPalPaymentIdentifierRepository;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\IncompletePayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Order;
@@ -40,7 +40,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 
 		$urlGenerator = $adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $payment ), DomainSpecificContextForTesting::create() );
 
-		$this->assertSame( 'https://sandbox.paypal.com/confirm-subscription', $urlGenerator->generateURL( new RequestContext( 6 ) ) );
+		$this->assertSame( 'https://sandbox.paypal.com/confirm-subscription', $urlGenerator->generateURL( new DomainSpecificContext( 6 ) ) );
 	}
 
 	public function testGivenOneTimePaymentURLGeneratorIsReplacedWithPayPalUrlGeneratorFetchedFromAPI(): void {
@@ -54,7 +54,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 
 		$urlGenerator = $adapter->modifyPaymentUrlGenerator( new IncompletePayPalURLGenerator( $payment ), DomainSpecificContextForTesting::create() );
 
-		$this->assertSame( 'https://sandbox.paypal.com/confirm-order', $urlGenerator->generateURL( new RequestContext( 4 ) ) );
+		$this->assertSame( 'https://sandbox.paypal.com/confirm-order', $urlGenerator->generateURL( new DomainSpecificContext( 4 ) ) );
 	}
 
 	public function testAdapterOnlyAcceptsIncompletePayPalUrlGenerator(): void {

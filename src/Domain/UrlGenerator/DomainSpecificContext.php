@@ -1,11 +1,14 @@
 <?php
 declare( strict_types=1 );
 
-namespace WMDE\Fundraising\PaymentContext\UseCases\CreatePayment;
+namespace WMDE\Fundraising\PaymentContext\Domain\UrlGenerator;
 
 use DateTimeImmutable;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
 
+/**
+ * Bounded contexts can pass in information that is specific to their domain,
+ * but needed for certain payment services and use cases.
+ */
 class DomainSpecificContext {
 	/**
 	 * @param int $itemId (internal) donation ID or membership ID
@@ -23,9 +26,10 @@ class DomainSpecificContext {
 	) {
 	}
 
-	public function getRequestContextForUrlGenerator(): RequestContext {
-		return new RequestContext(
+	public function getRequestContextForUrlGenerator(): DomainSpecificContext {
+		return new DomainSpecificContext(
 			$this->itemId,
+			null,
 			$this->invoiceId,
 			$this->firstName,
 			$this->lastName

@@ -7,6 +7,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalSubscription;
 use WMDE\Fundraising\PaymentContext\Domain\PayPalPaymentIdentifierRepository;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\IncompletePayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalURLGenerator;
@@ -14,7 +15,6 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
 use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
 
 class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {

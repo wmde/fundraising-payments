@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDescription;
@@ -52,7 +52,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 			new CreditCardPayment( 42, $amount, $interval )
 		);
 
-		$requestContext = new RequestContext(
+		$requestContext = new DomainSpecificContext(
 			itemId: $donationId,
 			firstName: $firstName,
 			lastName: $lastName,
@@ -83,7 +83,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 			new CreditCardPayment( 32, Euro::newFromCents( 100 ), PaymentInterval::OneTime )
 		);
 
-		$requestContext = new RequestContext(
+		$requestContext = new DomainSpecificContext(
 			itemId: 1234567,
 			firstName: "Kai",
 			lastName: "Nissen",

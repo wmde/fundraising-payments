@@ -9,8 +9,8 @@ interface PaymentProviderURLGenerator {
 	/**
 	 * Generate a URL to use (refer the donor to) to finalize a purchase on a 3rd party payment provider page.
 	 *
-	 * @param RequestContext $requestContext
+	 * @param DomainSpecificContext $requestContext
 	 * @return string
 	 */
-	public function generateURL( RequestContext $requestContext ): string;
+	public function generateURL( DomainSpecificContext $requestContext ): string;
 }

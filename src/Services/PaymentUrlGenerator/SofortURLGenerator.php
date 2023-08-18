@@ -6,8 +6,8 @@ namespace WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator;
 
 use RuntimeException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\Request;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\SofortClient;
 use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
@@ -24,7 +24,7 @@ class SofortURLGenerator implements PaymentProviderURLGenerator {
 	) {
 	}
 
-	public function generateUrl( RequestContext $requestContext ): string {
+	public function generateUrl( DomainSpecificContext $requestContext ): string {
 		$request = new Request();
 		$request->setAmount( $this->payment->getAmount() );
 		$request->setCurrencyCode( self::CURRENCY );

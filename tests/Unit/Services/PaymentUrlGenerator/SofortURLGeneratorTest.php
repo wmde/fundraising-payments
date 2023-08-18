@@ -10,7 +10,7 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDescription;
@@ -46,8 +46,9 @@ class SofortURLGeneratorTest extends TestCase {
 
 		$urlGenerator = new SofortURLGenerator( $config, $client, new FakeUrlAuthenticator(), $payment );
 
-		$requestContext = new RequestContext(
+		$requestContext = new DomainSpecificContext(
 			$internalItemId,
+			null,
 			$externalItemId
 		);
 		$urlGenerator->generateUrl( $requestContext );
@@ -78,8 +79,9 @@ class SofortURLGeneratorTest extends TestCase {
 
 		$urlGenerator = new SofortURLGenerator( $config, $client, new FakeUrlAuthenticator(), $payment );
 
-		$requestContext = new RequestContext(
+		$requestContext = new DomainSpecificContext(
 			44,
+			null,
 			'wx529836',
 			);
 		$returnedUrl = $urlGenerator->generateUrl( $requestContext );
@@ -109,7 +111,7 @@ class SofortURLGeneratorTest extends TestCase {
 		$this->expectException( RuntimeException::class );
 		$this->expectExceptionMessage( 'Could not generate Sofort URL: boo boo' );
 
-		$requestContext = new RequestContext( itemId: 23 );
+		$requestContext = new DomainSpecificContext( itemId: 23 );
 		$urlGenerator->generateUrl( $requestContext );
 	}
 }
