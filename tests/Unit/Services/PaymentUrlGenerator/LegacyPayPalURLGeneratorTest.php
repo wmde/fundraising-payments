@@ -12,6 +12,7 @@ use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDescription;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGenerator
@@ -43,7 +44,7 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 			Euro::newFromString( '12.34' ),
 			PaymentInterval::Quarterly
 		);
-		$generator = new LegacyPayPalURLGenerator( $this->newPayPalUrlConfig(), $payment );
+		$generator = new LegacyPayPalURLGenerator( $this->newPayPalUrlConfig(), new FakeUrlAuthenticator(), $payment );
 
 		$this->assertUrlValidForSubscriptions(
 			$generator->generateUrl( $this->testRequestContext )
@@ -61,7 +62,7 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 			Euro::newFromString( '12.34' ),
 			PaymentInterval::OneTime
 		);
-		$generator = new LegacyPayPalURLGenerator( $this->newPayPalUrlConfig(), $payment );
+		$generator = new LegacyPayPalURLGenerator( $this->newPayPalUrlConfig(), new FakeUrlAuthenticator(), $payment );
 
 		$this->assertUrlValidForSinglePayments(
 			$generator->generateUrl( $this->testRequestContext )
@@ -116,7 +117,7 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 			PaymentInterval::Quarterly
 		);
 
-		$generator = new LegacyPayPalURLGenerator( $this->newPayPalUrlConfigWithDelayedPayment(), $payment );
+		$generator = new LegacyPayPalURLGenerator( $this->newPayPalUrlConfigWithDelayedPayment(), new FakeUrlAuthenticator(), $payment );
 
 		$this->assertUrlValidForDelayedSubscriptions(
 			$generator->generateUrl( $this->testRequestContext )
@@ -157,10 +158,10 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 		$this->assertStringContainsString( 'notify_url=https%3A%2F%2Fmy.donation.app%2Fhandler%2Fpaypal%2F', $generatedUrl );
 		$this->assertStringContainsString( 'cancel_return=https%3A%2F%2Fmy.donation.app%2Fdonation%2Fcancel%2F', $generatedUrl );
 		$this->assertStringContainsString(
-			'return=https%3A%2F%2Fmy.donation.app%2Fdonation%2Fconfirm%2F%3Fid%3D1234%26accessToken%3Datoken',
+			'return=https%3A%2F%2Fmy.donation.app%2Fdonation%2Fconfirm%2F%3Fid%3D1234%26testAccessToken%3DLET_ME_IN',
 			$generatedUrl
 		);
-		$this->assertStringContainsString( 'custom=%7B%22sid%22%3A1234%2C%22utoken%22%3A%22utoken%22%7D', $generatedUrl );
+		$this->assertStringContainsString( 'custom=p-test-token-0', $generatedUrl );
 	}
 
 	private function assertSinglePaymentRelatedParamsSet( string $generatedUrl ): void {

@@ -22,6 +22,7 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapter
 use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePayPalAPIForPayments;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapter
@@ -32,7 +33,8 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$adapter = new PayPalPaymentProviderAdapter(
 			$this->givenAPIExpectingCreateSubscription(),
 			$this->givenAdapterConfig(),
-			$this->givenRepositoryStub()
+			$this->givenRepositoryStub(),
+			new FakeUrlAuthenticator()
 		);
 		$payment = new PayPalPayment( 6, Euro::newFromInt( 100 ), PaymentInterval::Quarterly );
 
@@ -45,7 +47,8 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$adapter = new PayPalPaymentProviderAdapter(
 			$this->givenAPIExpectingCreateOrder(),
 			$this->givenAdapterConfig(),
-			$this->givenRepositoryStub()
+			$this->givenRepositoryStub(),
+			new FakeUrlAuthenticator()
 		);
 		$payment = new PayPalPayment( 4, Euro::newFromInt( 27 ), PaymentInterval::OneTime );
 
@@ -58,7 +61,12 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$this->expectException( \LogicException::class );
 		$this->expectExceptionMessage( 'Expected instance of ' . IncompletePayPalURLGenerator::class . ', got ' . PayPalURLGenerator::class );
 		$api = $this->createStub( PaypalAPI::class );
-		$adapter = new PayPalPaymentProviderAdapter( $api, $this->givenAdapterConfig(), $this->givenRepositoryStub() );
+		$adapter = new PayPalPaymentProviderAdapter(
+			$api,
+			$this->givenAdapterConfig(),
+			$this->givenRepositoryStub(),
+			new FakeUrlAuthenticator()
+		);
 
 		$adapter->modifyPaymentUrlGenerator( new PayPalURLGenerator( 'https://example.com' ), DomainSpecificContextForTesting::create() );
 	}
@@ -71,7 +79,8 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$adapter = new PayPalPaymentProviderAdapter(
 			$this->givenAPIExpectingCreateSubscription(),
 			$this->givenAdapterConfig(),
-			$repo
+			$repo,
+			new FakeUrlAuthenticator()
 		);
 
 		$returnedPayment = $adapter->fetchAndStoreAdditionalData( $payment, DomainSpecificContextForTesting::create() );
@@ -86,7 +95,8 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$adapter = new PayPalPaymentProviderAdapter(
 			$this->givenAPIExpectingCreateOrder(),
 			$this->givenAdapterConfig(),
-			$repo
+			$repo,
+			new FakeUrlAuthenticator()
 		);
 
 		$returnedPayment = $adapter->fetchAndStoreAdditionalData( $payment, DomainSpecificContextForTesting::create() );
@@ -98,7 +108,12 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$this->expectException( \LogicException::class );
 		$this->expectExceptionMessage( PayPalPaymentProviderAdapter::class . ' only accepts ' . PayPalPayment::class );
 		$api = $this->createStub( PaypalAPI::class );
-		$adapter = new PayPalPaymentProviderAdapter( $api, $this->givenAdapterConfig(), $this->givenRepositoryStub() );
+		$adapter = new PayPalPaymentProviderAdapter(
+			$api,
+			$this->givenAdapterConfig(),
+			$this->givenRepositoryStub(),
+			new FakeUrlAuthenticator()
+		);
 
 		$adapter->fetchAndStoreAdditionalData(
 			SofortPayment::create( 5, Euro::newFromCents( 4775 ), PaymentInterval::OneTime, new FakePaymentReferenceCode() ),
@@ -111,7 +126,8 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$adapter = new PayPalPaymentProviderAdapter(
 			$this->givenAPIExpectingCreateSubscription(),
 			$this->givenAdapterConfig(),
-			$repo
+			$repo,
+			new FakeUrlAuthenticator()
 		);
 		$payment = new PayPalPayment( 6, Euro::newFromInt( 100 ), PaymentInterval::Quarterly );
 		$context = DomainSpecificContextForTesting::create();
@@ -129,7 +145,8 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$adapter = new PayPalPaymentProviderAdapter(
 			$fakePayPalAPI,
 			$this->givenAdapterConfig(),
-			$this->createStub( PayPalPaymentIdentifierRepository::class )
+			$this->createStub( PayPalPaymentIdentifierRepository::class ),
+			new FakeUrlAuthenticator()
 		);
 		$recurringPayment = new PayPalPayment( 7, Euro::newFromInt( 20 ), PaymentInterval::Quarterly );
 		$oneTimePayment = new PayPalPayment( 8, Euro::newFromInt( 1000 ), PaymentInterval::OneTime );
@@ -142,13 +159,13 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$orderParameters = $fakePayPalAPI->getOrderParameters();
 		$this->assertCount( 1, $subscriptionParameters );
 		$this->assertCount( 1, $orderParameters );
-		$this->assertSame( 'https://example.com/confirmed?token=U-LETMEIN&id=1', $subscriptionParameters[0]->returnUrl );
+		$this->assertSame( 'https://example.com/confirmed?testAccessToken=LET_ME_IN', $subscriptionParameters[0]->returnUrl );
 	}
 
 	private function givenAdapterConfig(): PayPalPaymentProviderAdapterConfig {
 		return new PayPalPaymentProviderAdapterConfig(
 			'your donation',
-			'https://example.com/confirmed?token={{userAccessToken}}&id={{id}}',
+			'https://example.com/confirmed?',
 			'https://example.com/new',
 			[
 				PaymentInterval::Monthly->name => new SubscriptionPlan( 'Monthly donation', 'Donation-1', PaymentInterval::Monthly, 'P-123' ),

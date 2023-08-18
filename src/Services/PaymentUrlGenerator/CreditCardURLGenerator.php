@@ -7,15 +7,15 @@ namespace WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
+use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 
 class CreditCardURLGenerator implements PaymentProviderURLGenerator {
 
-	private CreditCardURLGeneratorConfig $config;
-	private CreditCardPayment $payment;
-
-	public function __construct( CreditCardURLGeneratorConfig $config, CreditCardPayment $payment ) {
-		$this->config = $config;
-		$this->payment = $payment;
+	public function __construct(
+		private readonly CreditCardURLGeneratorConfig $config,
+		private readonly URLAuthenticator $urlAuthenticator,
+		private readonly CreditCardPayment $payment,
+	) {
 	}
 
 	public function generateUrl( RequestContext $requestContext ): string {
@@ -28,12 +28,11 @@ class CreditCardURLGenerator implements PaymentProviderURLGenerator {
 			'mp_user_surname' => $requestContext->lastName,
 			'sid' => $requestContext->itemId,
 			'gfx' => $this->config->getLogo(),
-			'token' => $requestContext->accessToken,
-			'utoken' => $requestContext->updateToken,
 			'amount' => $this->payment->getAmount()->getEuroCents(),
 			'theme' => $this->config->getTheme(),
 			'producttype' => 'fee',
 			'lang' => $this->config->getLocale(),
+			...$this->urlAuthenticator->getAuthenticationTokensForPaymentProviderUrl( self::class, [ 'token', 'utoken' ] )
 		];
 		if ( $this->config->isTestMode() ) {
 			$params['testmode'] = '1';

@@ -11,10 +11,11 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
-use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGenerator as SofortUrlGenerator;
-use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGeneratorConfig as SofortUrlConfig;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGenerator;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDescription;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\ExceptionThrowingSofortSofortClient;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SofortSofortClientSpy;
 
 /**
@@ -26,12 +27,10 @@ class SofortURLGeneratorTest extends TestCase {
 		$internalItemId = 44;
 		$externalItemId = 'wx529836';
 		$amount = Euro::newFromCents( 600 );
-		$updateToken = 'UDtoken';
-		$accessToken = 'XStoken';
 		$locale = 'DE';
 		$translatableDescription = $this->createMock( TranslatableDescription::class );
 
-		$config = new SofortUrlConfig(
+		$config = new SofortURLGeneratorConfig(
 			$locale,
 			'https://us.org/yes',
 			'https://us.org/no',
@@ -45,20 +44,16 @@ class SofortURLGeneratorTest extends TestCase {
 			PaymentInterval::OneTime,
 			$this->createMock( PaymentReferenceCode::class ) );
 
-		$urlGenerator = new SofortUrlGenerator( $config, $client, $payment );
+		$urlGenerator = new SofortURLGenerator( $config, $client, new FakeUrlAuthenticator(), $payment );
 
 		$requestContext = new RequestContext(
 			$internalItemId,
-			$externalItemId,
-			$updateToken,
-			$accessToken
+			$externalItemId
 		);
 		$urlGenerator->generateUrl( $requestContext );
 
-		$this->assertStringContainsString( "id=$internalItemId", $client->request->getSuccessUrl() );
-		$this->assertStringContainsString( "id=$internalItemId", $client->request->getNotificationUrl() );
-		$this->assertStringContainsString( "accessToken=$accessToken", $client->request->getSuccessUrl() );
-		$this->assertStringContainsString( "updateToken=$updateToken", $client->request->getNotificationUrl() );
+		$this->assertStringContainsString( "testAccessToken=LET_ME_IN", $client->request->getSuccessUrl() );
+		$this->assertStringContainsString( "testAccessToken=LET_ME_IN", $client->request->getNotificationUrl() );
 		$this->assertSame( $amount, $client->request->getAmount() );
 		$this->assertSame( $locale, $client->request->getLocale() );
 	}
@@ -66,7 +61,7 @@ class SofortURLGeneratorTest extends TestCase {
 	public function testSofortUrlGeneratorReturnsUrlFromClient(): void {
 		$expectedUrl = 'https://dn.ht/picklecat/';
 		$translatableDescriptionMock = $this->createMock( TranslatableDescription::class );
-		$config = new SofortUrlConfig(
+		$config = new SofortURLGeneratorConfig(
 			'DE',
 			'https://us.org/yes',
 			'https://us.org/no',
@@ -81,13 +76,12 @@ class SofortURLGeneratorTest extends TestCase {
 			PaymentInterval::OneTime,
 			$this->createMock( PaymentReferenceCode::class ) );
 
-		$urlGenerator = new SofortUrlGenerator( $config, $client, $payment );
+		$urlGenerator = new SofortURLGenerator( $config, $client, new FakeUrlAuthenticator(), $payment );
 
 		$requestContext = new RequestContext(
 			44,
 			'wx529836',
-			'up date token :)',
-			'ax ess token :)' );
+			);
 		$returnedUrl = $urlGenerator->generateUrl( $requestContext );
 
 		$this->assertSame( $expectedUrl, $returnedUrl );
@@ -95,7 +89,7 @@ class SofortURLGeneratorTest extends TestCase {
 
 	public function testWhenApiReturnsErrorAnExceptionWithApiErrorMessageIsThrown(): void {
 		$translatableDescriptionStub = $this->createStub( TranslatableDescription::class );
-		$config = new SofortUrlConfig(
+		$config = new SofortURLGeneratorConfig(
 			'DE',
 			'https://irreleva.nt/y',
 			'https://irreleva.nt/n',
@@ -107,19 +101,15 @@ class SofortURLGeneratorTest extends TestCase {
 			23,
 			Euro::newFromCents( 600 ),
 			PaymentInterval::OneTime,
-			$this->createMock( PaymentReferenceCode::class ) );
+			$this->createMock( PaymentReferenceCode::class )
+		);
 
-		$urlGenerator = new SofortUrlGenerator( $config, $client, $payment );
+		$urlGenerator = new SofortURLGenerator( $config, $client, new FakeUrlAuthenticator(), $payment );
 
 		$this->expectException( RuntimeException::class );
 		$this->expectExceptionMessage( 'Could not generate Sofort URL: boo boo' );
 
-		$requestContext = new RequestContext(
-			itemId: 23,
-			updateToken: 'token_to_updateblabla',
-			accessToken: 'token_to_accessblabla'
-
-		);
+		$requestContext = new RequestContext( itemId: 23 );
 		$urlGenerator->generateUrl( $requestContext );
 	}
 }

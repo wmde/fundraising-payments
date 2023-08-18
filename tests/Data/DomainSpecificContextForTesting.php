@@ -12,8 +12,6 @@ class DomainSpecificContextForTesting {
 	public static function create(): DomainSpecificContext {
 		return new DomainSpecificContext(
 			1,
-			'U-LETMEIN',
-			'S-LETMEOUT',
 			null,
 			'D-1',
 			'Hubert J.',

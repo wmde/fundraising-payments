@@ -13,6 +13,7 @@ use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalURLGenera
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
+use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
 
@@ -26,7 +27,8 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 	public function __construct(
 		private readonly PaypalAPI $paypalAPI,
 		private readonly PayPalPaymentProviderAdapterConfig $config,
-		private readonly PayPalPaymentIdentifierRepository $paymentIdentifierRepository
+		private readonly PayPalPaymentIdentifierRepository $paymentIdentifierRepository,
+		private readonly URLAuthenticator $urlAuthenticator
 	) {
 	}
 
@@ -57,14 +59,13 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 			$subscription = $this->createSubscriptionWithAPI( $payment, $domainSpecificContext );
 			return new PayPalURLGenerator( $subscription->confirmationLink );
 		} else {
-			$urlTemplate = new DomainUrlTemplate( $domainSpecificContext );
 			$params = new OrderParameters(
 				(string)$domainSpecificContext->itemId,
 				$domainSpecificContext->invoiceId,
 				$this->config->productName,
 				$payment->getAmount(),
-				$urlTemplate->replacePlaceholders( $this->config->returnURL ),
-				$urlTemplate->replacePlaceholders( $this->config->cancelURL )
+				$this->urlAuthenticator->addAuthenticationTokensToApplicationUrl( $this->config->returnURL ),
+				$this->urlAuthenticator->addAuthenticationTokensToApplicationUrl( $this->config->cancelURL )
 			);
 			$order = $this->paypalAPI->createOrder( $params );
 			return new PayPalURLGenerator( $order->confirmationLink );
@@ -76,13 +77,12 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 	 */
 	private function createSubscriptionWithAPI( PayPalPayment $payment, DomainSpecificContext $domainSpecificContext ): Subscription {
 		if ( $this->subscription === null ) {
-			$urlTemplate = new DomainUrlTemplate( $domainSpecificContext );
 			$subscriptionPlan = $this->config->subscriptionPlanMap[ $payment->getInterval()->name ];
 			$params = new SubscriptionParameters(
 				$subscriptionPlan,
 				$payment->getAmount(),
-				$urlTemplate->replacePlaceholders( $this->config->returnURL ),
-				$urlTemplate->replacePlaceholders( $this->config->cancelURL ),
+				$this->urlAuthenticator->addAuthenticationTokensToApplicationUrl( $this->config->returnURL ),
+				$this->urlAuthenticator->addAuthenticationTokensToApplicationUrl( $this->config->cancelURL ),
 				$domainSpecificContext->startTimeForRecurringPayment
 			);
 			$this->subscription = $this->paypalAPI->createSubscription( $params );

@@ -8,6 +8,7 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
+use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 
 /**
  * URL generator that passes the PayPal parameters to the PayPal page via URL parameters
@@ -26,12 +27,11 @@ class LegacyPayPalURLGenerator implements PaymentProviderURLGenerator {
 	private const PAYMENT_CYCLE_INFINITE = '0';
 	private const PAYMENT_CYCLE_MONTHLY = 'M';
 
-	private LegacyPayPalURLGeneratorConfig $config;
-	private PayPalPayment $payment;
-
-	public function __construct( LegacyPayPalURLGeneratorConfig $config, PayPalPayment $payment ) {
-		$this->config = $config;
-		$this->payment = $payment;
+	public function __construct(
+		private readonly LegacyPayPalURLGeneratorConfig $config,
+		private readonly URLAuthenticator $urlAuthenticator,
+		private readonly PayPalPayment $payment
+	) {
 	}
 
 	public function generateUrl( RequestContext $requestContext ): string {
@@ -40,8 +40,7 @@ class LegacyPayPalURLGenerator implements PaymentProviderURLGenerator {
 			$this->getIntervalAgnosticParameters(
 				$requestContext->itemId,
 				$requestContext->invoiceId,
-				$requestContext->updateToken,
-				$requestContext->accessToken ),
+		 ),
 			$this->getPaymentDelayParameters()
 		);
 
@@ -51,11 +50,9 @@ class LegacyPayPalURLGenerator implements PaymentProviderURLGenerator {
 	/**
 	 * @param int $itemId
 	 * @param string $invoiceId
-	 * @param string $updateToken
-	 * @param string $accessToken
 	 * @return array<string,mixed>
 	 */
-	private function getIntervalAgnosticParameters( int $itemId, string $invoiceId, string $updateToken, string $accessToken ): array {
+	private function getIntervalAgnosticParameters( int $itemId, string $invoiceId ): array {
 		return [
 			'business' => $this->config->getPayPalAccountAddress(),
 			'currency_code' => 'EUR',
@@ -65,18 +62,19 @@ class LegacyPayPalURLGenerator implements PaymentProviderURLGenerator {
 			'invoice' => $invoiceId,
 			'notify_url' => $this->config->getNotifyUrl(),
 			'cancel_return' => $this->config->getCancelUrl(),
-			'return' => $this->config->getReturnUrl() . '?id=' . $itemId . '&accessToken=' . $accessToken,
-			'custom' => json_encode(
-				[
-					'sid' => $itemId,
-					'utoken' => $updateToken
-				]
+			'return' => $this->urlAuthenticator->addAuthenticationTokensToApplicationUrl(
+				$this->config->getReturnUrl() . '?id=' . $itemId
+			),
+			...$this->urlAuthenticator->getAuthenticationTokensForPaymentProviderUrl(
+				self::class,
+				[ 'custom' ]
 			)
 		];
 	}
 
 	/**
 	 * @return array<string,mixed>
+	 * @deprecated The "Trial Period" was an attempt at using PayPal for memberships. We'll use the PayPal API with subscriptions instead.
 	 */
 	private function getPaymentDelayParameters(): array {
 		if ( $this->config->getDelayInDays() > 0 ) {
@@ -129,6 +127,7 @@ class LegacyPayPalURLGenerator implements PaymentProviderURLGenerator {
 	 * @param int $delayInDays
 	 *
 	 * @return array<string,mixed>
+	 * @deprecated The "Trial Period" was an attempt at using PayPal for memberships. We'll use the PayPal API with subscriptions instead.
 	 */
 	private function getDelayedSubscriptionParams( int $delayInDays ): array {
 		return [

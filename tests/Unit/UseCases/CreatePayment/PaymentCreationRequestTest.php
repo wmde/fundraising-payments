@@ -19,7 +19,7 @@ class PaymentCreationRequestTest extends TestCase {
 		$request->setDomainSpecificContext( DomainSpecificContextForTesting::create() );
 
 		$this->assertSame(
-			'{"domainSpecificPaymentValidator":"WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Fixtures\\\\SucceedingDomainSpecificValidator","domainSpecificContext":{"itemId":1,"userAccessToken":"U-LETMEIN","systemAccessToken":"S-LETMEOUT","startTimeForRecurringPayment":null,"invoiceId":"D-1","firstName":"Hubert J.","lastName":"Farnsworth"},"amountInEuroCents":9876,"interval":1,"paymentType":"BEZ","iban":"DE88100900001234567892","bic":"BEVODEBB","transferCodePrefix":"D"}',
+			'{"domainSpecificPaymentValidator":"WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Fixtures\\\\SucceedingDomainSpecificValidator","domainSpecificContext":{"itemId":1,"startTimeForRecurringPayment":null,"invoiceId":"D-1","firstName":"Hubert J.","lastName":"Farnsworth"},"amountInEuroCents":9876,"interval":1,"paymentType":"BEZ","iban":"DE88100900001234567892","bic":"BEVODEBB","transferCodePrefix":"D"}',
 			(string)$request
 		);
 	}

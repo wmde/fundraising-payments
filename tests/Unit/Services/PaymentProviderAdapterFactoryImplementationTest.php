@@ -19,6 +19,7 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapter
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfig;
 use WMDE\Fundraising\PaymentContext\Tests\Data\TestIban;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePaymentReferenceCode;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DefaultPaymentProviderAdapter;
 
 /**
@@ -32,7 +33,8 @@ class PaymentProviderAdapterFactoryImplementationTest extends TestCase {
 		$factory = new PaymentProviderAdapterFactoryImplementation(
 			$this->createStub( PaypalAPI::class ),
 			$this->createStub( PayPalPaymentProviderAdapterConfig::class ),
-			$this->createStub( PayPalPaymentIdentifierRepository::class )
+			$this->createStub( PayPalPaymentIdentifierRepository::class ),
+			new FakeUrlAuthenticator()
 		);
 		$adapter = $factory->createProvider( $payment );
 		$this->assertInstanceOf( DefaultPaymentProviderAdapter::class, $adapter );
@@ -42,7 +44,8 @@ class PaymentProviderAdapterFactoryImplementationTest extends TestCase {
 		$factory = new PaymentProviderAdapterFactoryImplementation(
 			$this->createStub( PaypalAPI::class ),
 			$this->createStub( PayPalPaymentProviderAdapterConfig::class ),
-			$this->createStub( PayPalPaymentIdentifierRepository::class )
+			$this->createStub( PayPalPaymentIdentifierRepository::class ),
+			new FakeUrlAuthenticator()
 		);
 		$payment = new PayPalPayment( 5, Euro::newFromCents( 10000 ), PaymentInterval::Yearly );
 		$adapter = $factory->createProvider( $payment );

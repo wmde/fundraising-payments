@@ -12,6 +12,7 @@ use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDescription;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGenerator
@@ -47,13 +48,12 @@ class CreditCardURLGeneratorTest extends TestCase {
 				],
 				$translatableDescriptionMock
 			),
+			new FakeUrlAuthenticator(),
 			new CreditCardPayment( 42, $amount, $interval )
 		);
 
 		$requestContext = new RequestContext(
 			itemId: $donationId,
-			updateToken: $updateToken,
-			accessToken: $accessToken,
 			firstName: $firstName,
 			lastName: $lastName,
 		);
@@ -79,20 +79,19 @@ class CreditCardURLGeneratorTest extends TestCase {
 				],
 				$translatableDescriptionMock
 			),
+			new FakeUrlAuthenticator(),
 			new CreditCardPayment( 32, Euro::newFromCents( 100 ), PaymentInterval::OneTime )
 		);
 
 		$requestContext = new RequestContext(
 			itemId: 1234567,
-			updateToken: "my_update_token",
-			accessToken: "my_access_token",
 			firstName: "Kai",
 			lastName: "Nissen",
 		);
 		$this->assertSame(
 			'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 			'paytext=Ich+spende+einmalig&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
-			'token=my_access_token&utoken=my_update_token&amount=100&theme=wikimedia&producttype=fee&lang=de&testmode=1',
+			'amount=100&theme=wikimedia&producttype=fee&lang=de&token=p-test-token-0&utoken=p-test-token-1&testmode=1',
 			$urlGenerator->generateUrl( $requestContext )
 		);
 	}
@@ -105,7 +104,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 			[
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 				'paytext=Ich+spende+einmalig&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
-				'token=my_access_token&utoken=my_update_token&amount=500&theme=wikimedia&producttype=fee&lang=de',
+				'amount=500&theme=wikimedia&producttype=fee&lang=de&token=p-test-token-0&utoken=p-test-token-1',
 				'Kai',
 				'Nissen',
 				'Ich spende einmalig',
@@ -119,7 +118,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 			[
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 				'paytext=Ich+spende+monatlich&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
-				'token=my_access_token&utoken=my_update_token&amount=123&theme=wikimedia&producttype=fee&lang=de',
+				'amount=123&theme=wikimedia&producttype=fee&lang=de&token=p-test-token-0&utoken=p-test-token-1',
 				'Kai',
 				'Nissen',
 				'Ich spende monatlich',
@@ -133,8 +132,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 			[
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 				'paytext=Ich+spende+halbj%C3%A4hrlich&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&' .
-				'gfx=wikimedia_black&token=my_access_token&utoken=my_update_token&amount=1250&theme=wikimedia&' .
-				'producttype=fee&lang=de',
+				'gfx=wikimedia_black&amount=1250&theme=wikimedia&producttype=fee&lang=de&token=p-test-token-0&utoken=p-test-token-1',
 				'Kai',
 				'Nissen',
 				'Ich spende halbjährlich',

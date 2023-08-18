@@ -27,6 +27,7 @@ class PaymentURLFactory implements UrlGeneratorFactory {
 		private readonly LegacyPayPalURLGeneratorConfig $legacyPayPalConfig,
 		private readonly SofortURLGeneratorConfig $sofortConfig,
 		private readonly SofortClient $sofortClient,
+		private readonly URLAuthenticator $urlAuthenticator,
 		private readonly bool $useLegacyPayPalUrlGenerator = true
 	) {
 	}
@@ -36,7 +37,7 @@ class PaymentURLFactory implements UrlGeneratorFactory {
 		//       and we don't need the feature flag any more
 		//       See https://phabricator.wikimedia.org/T329159
 		if ( $this->useLegacyPayPalUrlGenerator ) {
-			return new LegacyPayPalURLGenerator( $this->legacyPayPalConfig, $payPalPayment );
+			return new LegacyPayPalURLGenerator( $this->legacyPayPalConfig, $this->urlAuthenticator, $payPalPayment );
 		}
 
 		// The IncompletePayPalURLGenerator will be replaced inside the use case with a PayPalURLGenerator,
@@ -46,14 +47,14 @@ class PaymentURLFactory implements UrlGeneratorFactory {
 		if ( $payPalPayment->getInterval()->isRecurring() ) {
 			return new IncompletePayPalURLGenerator( $payPalPayment );
 		} else {
-			return new LegacyPayPalURLGenerator( $this->legacyPayPalConfig, $payPalPayment );
+			return new LegacyPayPalURLGenerator( $this->legacyPayPalConfig, $this->urlAuthenticator, $payPalPayment );
 		}
 	}
 
 	public function createURLGenerator( Payment $payment ): PaymentProviderURLGenerator {
 		return match ( true ) {
-			$payment instanceof SofortPayment => new SofortURLGenerator( $this->sofortConfig, $this->sofortClient, $payment ),
-			$payment instanceof CreditCardPayment => new CreditCardURLGenerator( $this->creditCardConfig, $payment ),
+			$payment instanceof SofortPayment => new SofortURLGenerator( $this->sofortConfig, $this->sofortClient, $this->urlAuthenticator, $payment ),
+			$payment instanceof CreditCardPayment => new CreditCardURLGenerator( $this->creditCardConfig, $this->urlAuthenticator, $payment ),
 			$payment instanceof PayPalPayment => $this->createPayPalUrlGenerator( $payment ),
 			default => new NullGenerator(),
 		};

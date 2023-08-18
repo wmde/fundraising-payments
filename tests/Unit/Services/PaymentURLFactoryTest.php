@@ -22,6 +22,7 @@ use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\NullGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\SofortClient;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGeneratorConfig;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentURLFactory
@@ -98,6 +99,7 @@ class PaymentURLFactoryTest extends TestCase {
 			$payPalConfig,
 			$sofortConfig,
 			$sofortClient,
+			new FakeUrlAuthenticator(),
 			$useLegacyPayPalUrlGenerator
 		);
 	}

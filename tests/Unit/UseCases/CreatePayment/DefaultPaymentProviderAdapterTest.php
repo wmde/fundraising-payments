@@ -11,6 +11,7 @@ use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGe
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDescription;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DefaultPaymentProviderAdapter;
 
 /**
@@ -41,6 +42,7 @@ class DefaultPaymentProviderAdapterTest extends TestCase {
 				],
 				$this->createMock( TranslatableDescription::class )
 			),
+			new FakeUrlAuthenticator(),
 			$payment );
 	}
 }

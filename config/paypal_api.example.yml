@@ -38,12 +38,12 @@ donation:
               interval: 'Yearly'
         # the page the user gets redirected to when the PayPal payment was successfully created
         # Where do they get redirected from? From PayPal page
-        # PayPalAPIURLGenerator replaces the placeholders before the URL gets transmitted to PayPal
-        return_url: 'https://test-spenden.wikimedia.de/show-donation-confirmation?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
+        # The UrlAuthenticator will append access tokens to the URL
+        return_url: 'https://test-spenden.wikimedia.de/show-donation-confirmation?'
         # the page the user gets redirected to when they hit 'cancel'
         # Where do they get redirected from? From PayPal page
-        # PayPalAPIURLGenerator replaces the placeholders before the URL gets transmitted to PayPal
-        cancel_url: 'https://test-spenden.wikimedia.de/new?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
+      # The UrlAuthenticator will append access tokens to the URL
+        cancel_url: 'https://test-spenden.wikimedia.de/new?id='
 
     en_GB:
         product_id: 'donation_en_1'
@@ -61,8 +61,8 @@ donation:
             - id: 'NMP'
               name: 'Yearly donation to Wikimedia'
               interval: 'Yearly'
-        return_url: 'https://test-spenden.wikimedia.de/show-donation-confirmation?id={{id}}&utoken={{updateToken}}&token={{accessToken}}&lang=en'
-        cancel_url: 'https://test-spenden.wikimedia.de/new?id={{id}}&utoken={{updateToken}}&token={{accessToken}}&lang=en'
+        return_url: 'https://test-spenden.wikimedia.de/show-donation-confirmation?&lang=en'
+        cancel_url: 'https://test-spenden.wikimedia.de/new?&lang=en'
 membership:
     de_DE:
         product_id: 'membership_de_1'
@@ -80,8 +80,8 @@ membership:
             - id: 'MBB'
               name: 'Jährlicher Mitgliedschaftsbeitrag an Wikimedia'
               interval: 'Yearly'
-        return_url: 'https://test-spenden.wikimedia.de/show-membership-confirmation?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
-        cancel_url: 'https://test-spenden.wikimedia.de/apply-for-membership?id={{id}}&utoken={{updateToken}}&token={{accessToken}}'
+        return_url: 'https://test-spenden.wikimedia.de/show-membership-confirmation?'
+        cancel_url: 'https://test-spenden.wikimedia.de/apply-for-membership?'
     en_GB:
         product_id: 'membership_en_1'
         product_name: 'Wikimedia Membership'
@@ -98,5 +98,5 @@ membership:
             - id: 'MNB'
               name: 'Yearly membership fee for Wikimedia'
               interval: 'Yearly'
-        return_url: 'https://test-spenden.wikimedia.de/show-membership-confirmation?id={{id}}&utoken={{updateToken}}&token={{accessToken}}&lang=en'
-        cancel_url: 'https://test-spenden.wikimedia.de/apply-for-membership?id={{id}}&utoken={{updateToken}}&token={{accessToken}}&lang=en'
+        return_url: 'https://test-spenden.wikimedia.de/show-membership-confirmation?lang=en'
+        cancel_url: 'https://test-spenden.wikimedia.de/apply-for-membership?lang=en'
