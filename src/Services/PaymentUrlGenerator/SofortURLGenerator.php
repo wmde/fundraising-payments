@@ -10,22 +10,18 @@ use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenera
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\Request;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\SofortClient;
+use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 
 class SofortURLGenerator implements PaymentProviderURLGenerator {
 
 	private const CURRENCY = 'EUR';
 
-	private SofortURLGeneratorConfig $config;
-	private SofortClient $client;
-	private SofortPayment $payment;
-
 	public function __construct(
-		SofortURLGeneratorConfig $config,
-		SofortClient $client,
-		SofortPayment $payment ) {
-		$this->config = $config;
-		$this->client = $client;
-		$this->payment = $payment;
+		private readonly SofortURLGeneratorConfig $config,
+		private readonly SofortClient $client,
+		private readonly URLAuthenticator $authenticator,
+		private readonly SofortPayment $payment
+	) {
 	}
 
 	public function generateUrl( RequestContext $requestContext ): string {
@@ -40,21 +36,11 @@ class SofortURLGenerator implements PaymentProviderURLGenerator {
 			$this->payment->getPaymentReferenceCode()
 		] );
 		$request->setSuccessUrl(
-			$this->config->getReturnUrl() . '?' . http_build_query(
-				[
-					'id' => $requestContext->itemId,
-					'accessToken' => $requestContext->accessToken
-				]
-			)
+			$this->authenticator->addAuthenticationTokensToApplicationUrl( $this->config->getReturnUrl() )
 		);
 		$request->setAbortUrl( $this->config->getCancelUrl() );
 		$request->setNotificationUrl(
-			$this->config->getNotificationUrl() . '?' . http_build_query(
-				[
-					'id' => $requestContext->itemId,
-					'updateToken' => $requestContext->updateToken
-				]
-			)
+			$this->authenticator->addAuthenticationTokensToApplicationUrl( $this->config->getNotificationUrl() )
 		);
 		$request->setLocale( $this->config->getLocale() );
 

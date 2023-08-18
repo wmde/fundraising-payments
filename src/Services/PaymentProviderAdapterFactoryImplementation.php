@@ -17,7 +17,8 @@ class PaymentProviderAdapterFactoryImplementation implements PaymentProviderAdap
 	public function __construct(
 		private readonly PaypalAPI $paypalAPI,
 		private readonly PayPalPaymentProviderAdapterConfig $payPalAdapterConfig,
-		private readonly PayPalPaymentIdentifierRepository $paymentIdentifierRepository
+		private readonly PayPalPaymentIdentifierRepository $paymentIdentifierRepository,
+		private readonly URLAuthenticator $urlAuthenticator
 	) {
 	}
 
@@ -26,7 +27,8 @@ class PaymentProviderAdapterFactoryImplementation implements PaymentProviderAdap
 			return new PayPalPaymentProviderAdapter(
 				$this->paypalAPI,
 				$this->payPalAdapterConfig,
-				$this->paymentIdentifierRepository
+				$this->paymentIdentifierRepository,
+				$this->urlAuthenticator
 			);
 		}
 		return new DefaultPaymentProviderAdapter();
