@@ -6,8 +6,8 @@ namespace WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator;
 
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 
 /**
@@ -34,7 +34,7 @@ class LegacyPayPalURLGenerator implements PaymentProviderURLGenerator {
 	) {
 	}
 
-	public function generateUrl( RequestContext $requestContext ): string {
+	public function generateUrl( DomainSpecificContext $requestContext ): string {
 		$params = array_merge(
 			$this->getIntervalDependentParameters( $this->payment->getAmount(), $this->payment->getInterval()->value ),
 			$this->getIntervalAgnosticParameters(

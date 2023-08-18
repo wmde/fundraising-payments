@@ -4,6 +4,7 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\UseCases\CreatePayment;
 
 use WMDE\Fundraising\PaymentContext\Domain\DomainSpecificPaymentValidator;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 
 class PaymentCreationRequest implements \JsonSerializable, \Stringable {
 

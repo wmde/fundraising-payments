@@ -5,8 +5,8 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator;
 
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
 use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 
 class CreditCardURLGenerator implements PaymentProviderURLGenerator {
@@ -18,7 +18,7 @@ class CreditCardURLGenerator implements PaymentProviderURLGenerator {
 	) {
 	}
 
-	public function generateUrl( RequestContext $requestContext ): string {
+	public function generateUrl( DomainSpecificContext $requestContext ): string {
 		$baseUrl = $this->config->getBaseUrl();
 		$params = [
 			'project' => $this->config->getProjectId(),

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\RequestContext;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDescription;
@@ -27,11 +27,12 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 	private const RETURN_URL = 'https://my.donation.app/donation/confirm/';
 	private const CANCEL_URL = 'https://my.donation.app/donation/cancel/';
 	private const ITEM_NAME = 'Mentioning that awesome organization on the invoice';
-	private RequestContext $testRequestContext;
+	private DomainSpecificContext $testRequestContext;
 
 	public function setup(): void {
-		$this->testRequestContext = new RequestContext(
+		$this->testRequestContext = new DomainSpecificContext(
 			1234,
+			null,
 			'd1234',
 			'utoken',
 			'atoken'

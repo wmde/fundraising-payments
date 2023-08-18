@@ -3,7 +3,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Data;
 
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DomainSpecificContext;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 
 /**
  * Create a generic domain specific object that resembles a donation
