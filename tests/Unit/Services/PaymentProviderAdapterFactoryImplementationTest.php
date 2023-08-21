@@ -34,9 +34,8 @@ class PaymentProviderAdapterFactoryImplementationTest extends TestCase {
 			$this->createStub( PaypalAPI::class ),
 			$this->createStub( PayPalPaymentProviderAdapterConfig::class ),
 			$this->createStub( PayPalPaymentIdentifierRepository::class ),
-			new FakeUrlAuthenticator()
 		);
-		$adapter = $factory->createProvider( $payment );
+		$adapter = $factory->createProvider( $payment, new FakeUrlAuthenticator() );
 		$this->assertInstanceOf( DefaultPaymentProviderAdapter::class, $adapter );
 	}
 
@@ -45,10 +44,9 @@ class PaymentProviderAdapterFactoryImplementationTest extends TestCase {
 			$this->createStub( PaypalAPI::class ),
 			$this->createStub( PayPalPaymentProviderAdapterConfig::class ),
 			$this->createStub( PayPalPaymentIdentifierRepository::class ),
-			new FakeUrlAuthenticator()
 		);
 		$payment = new PayPalPayment( 5, Euro::newFromCents( 10000 ), PaymentInterval::Yearly );
-		$adapter = $factory->createProvider( $payment );
+		$adapter = $factory->createProvider( $payment, new FakeUrlAuthenticator() );
 		$this->assertInstanceOf( PayPalPaymentProviderAdapter::class, $adapter );
 	}
 
