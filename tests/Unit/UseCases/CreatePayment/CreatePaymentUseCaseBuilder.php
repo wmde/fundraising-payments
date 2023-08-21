@@ -15,6 +15,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckBankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\NullGenerator;
+use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FixedPaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingIbanValidator;
@@ -147,7 +148,7 @@ class CreatePaymentUseCaseBuilder {
 
 	private function makePaymentProviderAdapterFactory(): PaymentProviderAdapterFactory {
 		return new class implements PaymentProviderAdapterFactory {
-			public function createProvider( Payment $payment ): PaymentProviderAdapter {
+			public function createProvider( Payment $payment, URLAuthenticator $authenticator ): PaymentProviderAdapter {
 				return new DefaultPaymentProviderAdapter();
 			}
 		};
@@ -158,7 +159,7 @@ class CreatePaymentUseCaseBuilder {
 			public function __construct( private readonly PaymentProviderAdapter $paymentProviderAdapter ) {
 			}
 
-			public function createProvider( Payment $payment ): PaymentProviderAdapter {
+			public function createProvider( Payment $payment, URLAuthenticator $authenticator ): PaymentProviderAdapter {
 				return $this->paymentProviderAdapter;
 			}
 		};

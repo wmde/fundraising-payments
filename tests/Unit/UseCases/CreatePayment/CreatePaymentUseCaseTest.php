@@ -5,6 +5,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CreatePayment;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\DomainSpecificPaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
@@ -20,11 +21,12 @@ use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\UrlGeneratorStub;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DomainSpecificPaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
 
@@ -229,8 +231,8 @@ class CreatePaymentUseCaseTest extends TestCase {
 			amountInEuroCents: 500,
 			interval: 0,
 			paymentType: 'PPL',
+			domainSpecificPaymentValidator: new FailingDomainSpecificValidator()
 		);
-		$request->setDomainSpecificPaymentValidator( new FailingDomainSpecificValidator() );
 		$result = $useCase->createPayment( $request );
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
@@ -327,14 +329,20 @@ class CreatePaymentUseCaseTest extends TestCase {
 		string $paymentType,
 		string $iban = '',
 		string $bic = '',
-		string $transferCodePrefix = ''
-	): PaymentCreationRequest {
-		$request = new PaymentCreationRequest(
-			$amountInEuroCents, $interval, $paymentType, $iban, $bic, $transferCodePrefix
+		string $transferCodePrefix = '',
+		?DomainSpecificPaymentValidator $domainSpecificPaymentValidator = null
+	): DomainSpecificPaymentCreationRequest {
+		return new DomainSpecificPaymentCreationRequest(
+			$amountInEuroCents,
+			$interval,
+			$paymentType,
+			$domainSpecificPaymentValidator ?? new SucceedingDomainSpecificValidator(),
+			DomainSpecificContextForTesting::create(),
+			new FakeUrlAuthenticator(),
+			$iban,
+			$bic,
+			$transferCodePrefix
 		);
-		$request->setDomainSpecificPaymentValidator( new SucceedingDomainSpecificValidator() );
-		$request->setDomainSpecificContext( DomainSpecificContextForTesting::create() );
-		return $request;
 	}
 
 	private function makePaymentReferenceGenerator(): PaymentReferenceCodeGenerator {

@@ -34,8 +34,8 @@ class CreatePaymentUseCase {
 	) {
 	}
 
-	public function createPayment( PaymentCreationRequest $request ): SuccessResponse|FailureResponse {
-		$validationResult = $this->paymentValidator->validatePaymentData( $request->amountInEuroCents, $request->interval, $request->paymentType, $request->getDomainSpecificPaymentValidator() );
+	public function createPayment( DomainSpecificPaymentCreationRequest $request ): SuccessResponse|FailureResponse {
+		$validationResult = $this->paymentValidator->validatePaymentData( $request->amountInEuroCents, $request->interval, $request->paymentType, $request->domainSpecificPaymentValidator );
 		if ( !$validationResult->isSuccessful() ) {
 			return new FailureResponse( $validationResult->getValidationErrors()[0]->getMessageIdentifier() );
 		}
@@ -46,17 +46,17 @@ class CreatePaymentUseCase {
 			return new FailureResponse( $e->getMessage() );
 		}
 
-		$paymentProvider = $this->paymentProviderAdapterFactory->createProvider( $payment );
+		$paymentProvider = $this->paymentProviderAdapterFactory->createProvider( $payment, $request->urlAuthenticator );
 
 		// payment providers may modify the payment or store payment-adjacent data
 		// (e.g. PayPal payment IDs)
-		$payment = $paymentProvider->fetchAndStoreAdditionalData( $payment, $request->getDomainSpecificContext() );
+		$payment = $paymentProvider->fetchAndStoreAdditionalData( $payment, $request->domainSpecificContext );
 
 		$this->paymentRepository->storePayment( $payment );
 
 		return new SuccessResponse(
 			$payment->getId(),
-			$this->generatePaymentCompletionUrl( $payment, $paymentProvider, $request->getDomainSpecificContext() ),
+			$this->generatePaymentCompletionUrl( $payment, $paymentProvider, $request->domainSpecificContext ),
 			$payment->isCompleted()
 		);
 	}

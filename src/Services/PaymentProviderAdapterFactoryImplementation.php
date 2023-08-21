@@ -18,17 +18,16 @@ class PaymentProviderAdapterFactoryImplementation implements PaymentProviderAdap
 		private readonly PaypalAPI $paypalAPI,
 		private readonly PayPalPaymentProviderAdapterConfig $payPalAdapterConfig,
 		private readonly PayPalPaymentIdentifierRepository $paymentIdentifierRepository,
-		private readonly URLAuthenticator $urlAuthenticator
 	) {
 	}
 
-	public function createProvider( Payment $payment ): PaymentProviderAdapter {
+	public function createProvider( Payment $payment, URLAuthenticator $authenticator ): PaymentProviderAdapter {
 		if ( $payment instanceof PayPalPayment ) {
 			return new PayPalPaymentProviderAdapter(
 				$this->paypalAPI,
 				$this->payPalAdapterConfig,
 				$this->paymentIdentifierRepository,
-				$this->urlAuthenticator
+				$authenticator
 			);
 		}
 		return new DefaultPaymentProviderAdapter();
