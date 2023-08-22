@@ -12,6 +12,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PayPalPaymentIdentifierRepository;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\IncompletePayPalURLGenerator;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Order;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
@@ -20,6 +21,7 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapter;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfig;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeLegacyPayPalURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePayPalAPIForPayments;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
@@ -162,6 +164,25 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$this->assertSame( 'https://example.com/confirmed?testAccessToken=LET_ME_IN', $subscriptionParameters[0]->returnUrl );
 	}
 
+	public function testGivenLegacyPayPalUrlGeneratorAdapterDoesNotModifyUrlGenerator(): void {
+		$adapter = new PayPalPaymentProviderAdapter(
+			$this->givenAPIExpectingNoCalls(),
+			$this->givenAdapterConfig(),
+			$this->givenRepositoryStub(),
+			new FakeUrlAuthenticator()
+		);
+		$payment = new PayPalPayment( 6, Euro::newFromInt( 100 ), PaymentInterval::Quarterly );
+		$legacyUrlGenerator = new LegacyPayPalURLGenerator(
+			FakeLegacyPayPalURLGeneratorConfig::create(),
+			new FakeUrlAuthenticator(),
+			$payment
+		);
+
+		$urlGenerator = $adapter->modifyPaymentUrlGenerator( $legacyUrlGenerator, DomainSpecificContextForTesting::create() );
+
+		$this->assertSame( $legacyUrlGenerator, $urlGenerator );
+	}
+
 	private function givenAdapterConfig(): PayPalPaymentProviderAdapterConfig {
 		return new PayPalPaymentProviderAdapterConfig(
 			'your donation',
@@ -197,6 +218,13 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 			->willReturn(
 				new Subscription( 'SUB-1234', new \DateTimeImmutable(), 'https://sandbox.paypal.com/confirm-subscription' )
 			);
+		return $api;
+	}
+
+	private function givenAPIExpectingNoCalls(): PaypalAPI {
+		$api = $this->createMock( PayPalAPI::class );
+		$api->expects( $this->never() )->method( 'createSubscription' );
+		$api->expects( $this->never() )->method( 'createOrder' );
 		return $api;
 	}
 }

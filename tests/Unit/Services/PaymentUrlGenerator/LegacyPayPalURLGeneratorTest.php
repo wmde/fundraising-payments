@@ -12,10 +12,12 @@ use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDescription;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeLegacyPayPalURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGenerator
+ * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGeneratorConfig
  *
  */
 class LegacyPayPalURLGeneratorTest extends TestCase {
@@ -26,7 +28,6 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 	private const NOTIFY_URL = 'https://my.donation.app/handler/paypal/';
 	private const RETURN_URL = 'https://my.donation.app/donation/confirm/';
 	private const CANCEL_URL = 'https://my.donation.app/donation/cancel/';
-	private const ITEM_NAME = 'Mentioning that awesome organization on the invoice';
 	private DomainSpecificContext $testRequestContext;
 
 	public function setup(): void {
@@ -45,7 +46,10 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 			Euro::newFromString( '12.34' ),
 			PaymentInterval::Quarterly
 		);
-		$generator = new LegacyPayPalURLGenerator( $this->newPayPalUrlConfig(), new FakeUrlAuthenticator(), $payment );
+		$generator = new LegacyPayPalURLGenerator(
+			FakeLegacyPayPalURLGeneratorConfig::create(),
+			new FakeUrlAuthenticator(), $payment
+		);
 
 		$this->assertUrlValidForSubscriptions(
 			$generator->generateUrl( $this->testRequestContext )
@@ -63,7 +67,7 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 			Euro::newFromString( '12.34' ),
 			PaymentInterval::OneTime
 		);
-		$generator = new LegacyPayPalURLGenerator( $this->newPayPalUrlConfig(), new FakeUrlAuthenticator(), $payment );
+		$generator = new LegacyPayPalURLGenerator( FakeLegacyPayPalURLGeneratorConfig::create(), new FakeUrlAuthenticator(), $payment );
 
 		$this->assertUrlValidForSinglePayments(
 			$generator->generateUrl( $this->testRequestContext )
@@ -73,22 +77,6 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 	private function assertUrlValidForSinglePayments( string $generatedUrl ): void {
 		$this->assertCommonParamsSet( $generatedUrl );
 		$this->assertSinglePaymentRelatedParamsSet( $generatedUrl );
-	}
-
-	private function newPayPalUrlConfig(): LegacyPayPalURLGeneratorConfig {
-		$descriptionStub = $this->createStub( TranslatableDescription::class );
-		$descriptionStub->method( 'getText' )->willReturn( self::ITEM_NAME );
-		return LegacyPayPalURLGeneratorConfig::newFromConfig(
-			[
-				'base-url' => self::BASE_URL,
-				'locale' => self::LOCALE,
-				'account-address' => self::ACCOUNT_ADDRESS,
-				'notify-url' => self::NOTIFY_URL,
-				'return-url' => self::RETURN_URL,
-				'cancel-url' => self::CANCEL_URL
-			],
-			$descriptionStub
-		);
 	}
 
 	public function testGivenIncompletePayPalUrlConfig_exceptionIsThrown(): void {

@@ -6,6 +6,9 @@ namespace WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator;
 
 use RuntimeException;
 
+/**
+ * @deprecated
+ */
 class LegacyPayPalURLGeneratorConfig {
 
 	public const CONFIG_KEY_ACCOUNT_ADDRESS = 'account-address';
