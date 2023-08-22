@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\Services\PayPal;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Yaml\Yaml;
 
-class PayPalURLGeneratorConfigReader {
+class PayPalPaymentProviderAdapterConfigReader {
 
 	public static function readConfig( string $fileName ): array {
 		$config = Yaml::parseFile( $fileName );
@@ -16,7 +16,7 @@ class PayPalURLGeneratorConfigReader {
 		}
 
 		$processor = new Processor();
-		$schema = new PayPalURLGeneratorConfigSchema();
+		$schema = new PayPalPaymentProviderAdapterConfigSchema();
 		$processor->processConfiguration(
 			$schema,
 			[ $config ]

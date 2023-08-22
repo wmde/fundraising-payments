@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\ScalarTypeConverter;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
-use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalURLGeneratorConfigReader;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfigReader;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanForProductUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\ErrorResult;
@@ -44,7 +44,7 @@ class CreateSubscriptionPlansCommand extends Command {
 	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		$useCase = new CreateSubscriptionPlanForProductUseCase( $this->paypalAPI );
 
-		$configuration = PayPalURLGeneratorConfigReader::readConfig(
+		$configuration = PayPalPaymentProviderAdapterConfigReader::readConfig(
 			ScalarTypeConverter::toString( $input->getArgument( 'configFile' ) )
 		);
 
