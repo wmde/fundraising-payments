@@ -6,12 +6,12 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Yaml\Yaml;
-use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalURLGeneratorConfigSchema;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfigSchema;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalURLGeneratorConfigSchema
+ * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfigSchema
  */
-class PayPalURLGeneratorConfigSchemaTest extends TestCase {
+class PayPalPaymentProviderAdapterConfigSchemaTest extends TestCase {
 	/**
 	 * @doesNotPerformAssertions
 	 */
@@ -21,7 +21,7 @@ class PayPalURLGeneratorConfigSchemaTest extends TestCase {
 		);
 
 		$processor = new Processor();
-		$schema = new PayPalURLGeneratorConfigSchema();
+		$schema = new PayPalPaymentProviderAdapterConfigSchema();
 		$processor->processConfiguration(
 			$schema,
 			[ $config ]

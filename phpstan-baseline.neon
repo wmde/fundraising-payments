@@ -10,16 +10,16 @@ parameters:
 
         # Workaround for loading the Paypal configuration YAML file (mixed content) and assuming a certain array shape (validated with Symfony config)
         # In the future, Symfony Config might generate PHPStan types that would allow us to at least type the input to PayPalAPIURLGeneratorConfigFactory
-        # and the output of PayPalURLGeneratorConfigReader
+        # and the output of PayPalPaymentProviderAdapterConfigReader
         - message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Services\\\\PayPal\\\\PayPalPaymentProviderAdapterConfigFactory\\:\\:createConfig\\(\\) has parameter \\$allConfigs with no value type specified in iterable type array\\.$#"
           count: 1
           path: src/Services/PayPal/PayPalPaymentProviderAdapterConfigFactory.php
-        - message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Services\\\\PayPal\\\\PayPalURLGeneratorConfigReader\\:\\:checkProductAndSubscriptionPlanIdsAreUnique\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
+        - message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Services\\\\PayPal\\\\PayPalPaymentProviderAdapterConfigReader\\:\\:checkProductAndSubscriptionPlanIdsAreUnique\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
           count: 1
-          path: src/Services/PayPal/PayPalURLGeneratorConfigReader.php
-        - message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Services\\\\PayPal\\\\PayPalURLGeneratorConfigReader\\:\\:readConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
+          path: src/Services/PayPal/PayPalPaymentProviderAdapterConfigReader.php
+        - message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Services\\\\PayPal\\\\PayPalPaymentProviderAdapterConfigReader\\:\\:readConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
           count: 1
-          path: src/Services/PayPal/PayPalURLGeneratorConfigReader.php
+          path: src/Services/PayPal/PayPalPaymentProviderAdapterConfigReader.php
         - message: "#^Call to an undefined method Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\NodeDefinition\\:\\:arrayPrototype\\(\\)\\.$#"
           count: 1
-          path: src/Services/PayPal/PayPalURLGeneratorConfigSchema.php
+          path: src/Services/PayPal/PayPalPaymentProviderAdapterConfigSchema.php
