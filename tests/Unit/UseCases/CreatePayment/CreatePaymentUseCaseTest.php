@@ -17,7 +17,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\UrlGeneratorFactory;
+use WMDE\Fundraising\PaymentContext\Services\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
