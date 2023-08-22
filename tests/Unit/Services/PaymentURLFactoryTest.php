@@ -38,7 +38,7 @@ class PaymentURLFactoryTest extends TestCase {
 			new PaymentReferenceCode( 'XW', 'DARE99', 'X' )
 		);
 
-		$actualGenerator = $urlFactory->createURLGenerator( $payment );
+		$actualGenerator = $urlFactory->createURLGenerator( $payment, new FakeUrlAuthenticator() );
 
 		self::assertInstanceOf( SofortURLGenerator::class, $actualGenerator );
 	}
@@ -47,7 +47,7 @@ class PaymentURLFactoryTest extends TestCase {
 		$urlFactory = $this->createTestURLFactory();
 		$payment = new CreditCardPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
 
-		$actualGenerator = $urlFactory->createURLGenerator( $payment );
+		$actualGenerator = $urlFactory->createURLGenerator( $payment, new FakeUrlAuthenticator() );
 
 		self::assertInstanceOf( CreditCardURLGenerator::class, $actualGenerator );
 	}
@@ -64,7 +64,7 @@ class PaymentURLFactoryTest extends TestCase {
 		$urlFactory = $this->createTestURLFactory( true );
 		$payment = new PayPalPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
 
-		$actualGenerator = $urlFactory->createURLGenerator( $payment );
+		$actualGenerator = $urlFactory->createURLGenerator( $payment, new FakeUrlAuthenticator() );
 
 		self::assertInstanceOf( LegacyPayPalURLGenerator::class, $actualGenerator );
 	}
@@ -73,7 +73,7 @@ class PaymentURLFactoryTest extends TestCase {
 		$urlFactory = $this->createTestURLFactory();
 		$payment = new PayPalPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
 
-		$actualGenerator = $urlFactory->createURLGenerator( $payment );
+		$actualGenerator = $urlFactory->createURLGenerator( $payment, new FakeUrlAuthenticator() );
 
 		// The IncompletePayPalURLGenerator will be replaced inside the use case, we just need a default for PayPal
 		self::assertInstanceOf( IncompletePayPalURLGenerator::class, $actualGenerator );
@@ -84,7 +84,7 @@ class PaymentURLFactoryTest extends TestCase {
 
 		$payment = $this->createMock( Payment::class );
 
-		$actualGenerator = $urlFactory->createURLGenerator( $payment );
+		$actualGenerator = $urlFactory->createURLGenerator( $payment, new FakeUrlAuthenticator() );
 
 		self::assertInstanceOf( NullGenerator::class, $actualGenerator );
 	}
@@ -99,7 +99,6 @@ class PaymentURLFactoryTest extends TestCase {
 			$payPalConfig,
 			$sofortConfig,
 			$sofortClient,
-			new FakeUrlAuthenticator(),
 			$useLegacyPayPalUrlGenerator
 		);
 	}

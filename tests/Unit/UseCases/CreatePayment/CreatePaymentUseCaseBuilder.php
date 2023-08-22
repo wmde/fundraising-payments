@@ -12,10 +12,10 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckBankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\NullGenerator;
 use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
+use WMDE\Fundraising\PaymentContext\Services\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FixedPaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingIbanValidator;
@@ -82,7 +82,7 @@ class CreatePaymentUseCaseBuilder {
 
 	private function makePaymentURLFactoryStub(): UrlGeneratorFactory {
 		return new class implements UrlGeneratorFactory {
-			public function createURLGenerator( Payment $payment ): NullGenerator {
+			public function createURLGenerator( Payment $payment, URLAuthenticator $authenticator ): NullGenerator {
 				return new NullGenerator();
 			}
 		};

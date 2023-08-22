@@ -17,8 +17,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\UrlGeneratorFactory;
+use WMDE\Fundraising\PaymentContext\Services\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\UseCases\BankDataFailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 
@@ -56,7 +55,7 @@ class CreatePaymentUseCase {
 
 		return new SuccessResponse(
 			$payment->getId(),
-			$this->generatePaymentCompletionUrl( $payment, $paymentProvider, $request->domainSpecificContext ),
+			$this->generatePaymentCompletionUrl( $payment, $paymentProvider, $request ),
 			$payment->isCompleted()
 		);
 	}
@@ -154,8 +153,13 @@ class CreatePaymentUseCase {
 		);
 	}
 
-	private function generatePaymentCompletionUrl( Payment $payment, PaymentProviderAdapter $paymentProvider, DomainSpecificContext $domainSpecificContext ): string {
-		$paymentProviderURLGenerator = $this->paymentURLFactory->createURLGenerator( $payment );
+	private function generatePaymentCompletionUrl(
+		Payment $payment,
+		PaymentProviderAdapter $paymentProvider,
+		DomainSpecificPaymentCreationRequest $request,
+	): string {
+		$domainSpecificContext = $request->domainSpecificContext;
+		$paymentProviderURLGenerator = $this->paymentURLFactory->createURLGenerator( $payment, $request->urlAuthenticator );
 		$paymentProviderURLGenerator = $paymentProvider->modifyPaymentUrlGenerator( $paymentProviderURLGenerator, $domainSpecificContext );
 		return $paymentProviderURLGenerator->generateURL( $domainSpecificContext->getRequestContextForUrlGenerator() );
 	}
