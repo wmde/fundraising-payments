@@ -37,7 +37,7 @@ CREATE TABLE last_generated_payment_id (
     PRIMARY KEY(id)
 ) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB 
 EOT
-);
+		);
 
 		$this->addSql( <<<'EOT'
 CREATE TABLE payment_reference_codes (
@@ -45,7 +45,7 @@ CREATE TABLE payment_reference_codes (
     PRIMARY KEY(code)
 ) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB 
 EOT
-);
+		);
 
 		$this->addSql( <<<'EOT'
 CREATE TABLE payment (
@@ -56,7 +56,7 @@ CREATE TABLE payment (
     PRIMARY KEY(id)
 ) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB 
 EOT
-);
+		);
 		$this->addSql( <<<'EOT'
 CREATE TABLE payment_bank_transfer (
     id INT NOT NULL, 
@@ -67,7 +67,7 @@ CREATE TABLE payment_bank_transfer (
     PRIMARY KEY(id)
 ) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB 
 EOT
-);
+		);
 
 		$this->addSql( <<<'EOT'
 CREATE TABLE payment_credit_card (
@@ -77,7 +77,7 @@ CREATE TABLE payment_credit_card (
 	PRIMARY KEY(id)
 ) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB 
 EOT
-);
+		);
 
 		$this->addSql( <<<'EOT'
 CREATE TABLE payment_direct_debit (
@@ -88,7 +88,7 @@ CREATE TABLE payment_direct_debit (
     PRIMARY KEY(id)
 ) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB 
 EOT
-);
+		);
 
 		$this->addSql( <<<'EOT'
 CREATE TABLE payment_paypal (
@@ -103,7 +103,7 @@ CREATE TABLE payment_paypal (
 	PRIMARY KEY(id)
 ) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB 
 EOT
-);
+		);
 
 		$this->addSql( <<<'EOT'
 CREATE TABLE payment_sofort (
@@ -116,7 +116,7 @@ CREATE TABLE payment_sofort (
 	PRIMARY KEY(id)
 ) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB 
 EOT
-);
+		);
 	}
 
 	public function down( Schema $schema ): void {

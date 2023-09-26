@@ -50,7 +50,7 @@ class GenerateIbanUseCaseTest extends TestCase {
 
 		$this->bankDataGenerator->expects( $this->once() )
 			->method( 'getBankDataFromAccountData' )
-			->with( $this->equalTo( '1015754243' ), $this->equalTo( '20050550' ) )
+			->with( '1015754243', '20050550' )
 			->willReturn( DirectDebitBankData::validBankData() );
 
 		$useCase = $this->newGenerateIbanUseCase();

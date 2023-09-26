@@ -36,7 +36,7 @@ class CreateBookedPayPalPaymentUseCase {
 	 * @return SuccessResponse|FailureResponse
 	 */
 	public function bookNewPayment( int $amountInCents, array $transactionData ): SuccessResponse|FailureResponse {
-		try{
+		try {
 			$parsedAmount = Euro::newFromCents( $amountInCents );
 		} catch ( \InvalidArgumentException $exception ) {
 			return new FailureResponse( $exception->getMessage() );
