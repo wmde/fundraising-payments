@@ -33,14 +33,14 @@ class CreatePaymentUseCase {
 	) {
 	}
 
-	public function createPayment( DomainSpecificPaymentCreationRequest $request ): SuccessResponse|FailureResponse {
+	public function createPayment( PaymentCreationRequest $request ): SuccessResponse|FailureResponse {
 		$validationResult = $this->paymentValidator->validatePaymentData( $request->amountInEuroCents, $request->interval, $request->paymentType, $request->domainSpecificPaymentValidator );
 		if ( !$validationResult->isSuccessful() ) {
 			return new FailureResponse( $validationResult->getValidationErrors()[0]->getMessageIdentifier() );
 		}
 
 		try {
-			$payment = $this->tryCreatePayment( $request );
+			$payment = $this->tryCreatePayment( $request->getParameters() );
 		} catch ( PaymentCreationException $e ) {
 			return new FailureResponse( $e->getMessage() );
 		}
@@ -61,102 +61,102 @@ class CreatePaymentUseCase {
 	}
 
 	/**
-	 * @param PaymentCreationRequest $request
+	 * @param PaymentParameters $parameters
 	 * @return Payment
 	 * @throws PaymentCreationException
 	 */
-	private function tryCreatePayment( PaymentCreationRequest $request ): Payment {
-		return match ( PaymentType::tryFrom( $request->paymentType ) ) {
-			PaymentType::CreditCard => $this->createCreditCardPayment( $request ),
-			PaymentType::Paypal => $this->createPayPalPayment( $request ),
-			PaymentType::Sofort => $this->createSofortPayment( $request ),
-			PaymentType::BankTransfer => $this->createBankTransferPayment( $request ),
-			PaymentType::DirectDebit => $this->createDirectDebitPayment( $request ),
+	private function tryCreatePayment( PaymentParameters $parameters ): Payment {
+		return match ( PaymentType::tryFrom( $parameters->paymentType ) ) {
+			PaymentType::CreditCard => $this->createCreditCardPayment( $parameters ),
+			PaymentType::Paypal => $this->createPayPalPayment( $parameters ),
+			PaymentType::Sofort => $this->createSofortPayment( $parameters ),
+			PaymentType::BankTransfer => $this->createBankTransferPayment( $parameters ),
+			PaymentType::DirectDebit => $this->createDirectDebitPayment( $parameters ),
 			default => throw new \LogicException( sprintf(
-				'Invalid payment type not caught by %s: %s', PaymentValidator::class, $request->paymentType
+				'Invalid payment type not caught by %s: %s', PaymentValidator::class, $parameters->paymentType
 			) )
 		};
 	}
 
 	/**
-	 * @param PaymentCreationRequest $request
+	 * @param PaymentParameters $parameters
 	 * @return CreditCardPayment
 	 */
-	private function createCreditCardPayment( PaymentCreationRequest $request ): CreditCardPayment {
+	private function createCreditCardPayment( PaymentParameters $parameters ): CreditCardPayment {
 		return new CreditCardPayment(
 			$this->idGenerator->getNewId(),
-			Euro::newFromCents( $request->amountInEuroCents ),
-			PaymentInterval::from( $request->interval )
+			Euro::newFromCents( $parameters->amountInEuroCents ),
+			PaymentInterval::from( $parameters->interval )
 		);
 	}
 
 	/**
-	 * @param PaymentCreationRequest $request
+	 * @param PaymentParameters $parameters
 	 * @return PayPalPayment
 	 */
-	private function createPayPalPayment( PaymentCreationRequest $request ): PayPalPayment {
+	private function createPayPalPayment( PaymentParameters $parameters ): PayPalPayment {
 		return new PayPalPayment(
 			$this->idGenerator->getNewId(),
-			Euro::newFromCents( $request->amountInEuroCents ),
-			PaymentInterval::from( $request->interval )
+			Euro::newFromCents( $parameters->amountInEuroCents ),
+			PaymentInterval::from( $parameters->interval )
 		);
 	}
 
 	/**
-	 * @param PaymentCreationRequest $request
+	 * @param PaymentParameters $parameters
 	 * @return SofortPayment
 	 * @throws PaymentCreationException
 	 */
-	private function createSofortPayment( PaymentCreationRequest $request ): SofortPayment {
-		$paymentInterval = PaymentInterval::from( $request->interval );
+	private function createSofortPayment( PaymentParameters $parameters ): SofortPayment {
+		$paymentInterval = PaymentInterval::from( $parameters->interval );
 		if ( $paymentInterval->isRecurring() ) {
 			throw new PaymentCreationException( "Sofort payment does not support recurring intervals (>0)." );
 		}
 
 		return SofortPayment::create(
 			$this->idGenerator->getNewId(),
-			Euro::newFromCents( $request->amountInEuroCents ),
+			Euro::newFromCents( $parameters->amountInEuroCents ),
 			$paymentInterval,
-			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )
+			$this->paymentReferenceCodeGenerator->newPaymentReference( $parameters->transferCodePrefix )
 		);
 	}
 
 	/**
-	 * @param PaymentCreationRequest $request
+	 * @param PaymentParameters $parameters
 	 * @return BankTransferPayment
 	 */
-	private function createBankTransferPayment( PaymentCreationRequest $request ): BankTransferPayment {
+	private function createBankTransferPayment( PaymentParameters $parameters ): BankTransferPayment {
 		return BankTransferPayment::create(
 			$this->idGenerator->getNewId(),
-			Euro::newFromCents( $request->amountInEuroCents ),
-			PaymentInterval::from( $request->interval ),
-			$this->paymentReferenceCodeGenerator->newPaymentReference( $request->transferCodePrefix )
+			Euro::newFromCents( $parameters->amountInEuroCents ),
+			PaymentInterval::from( $parameters->interval ),
+			$this->paymentReferenceCodeGenerator->newPaymentReference( $parameters->transferCodePrefix )
 		);
 	}
 
 	/**
-	 * @param PaymentCreationRequest $request
+	 * @param PaymentParameters $parameters
 	 * @return DirectDebitPayment
 	 * @throws PaymentCreationException
 	 */
-	private function createDirectDebitPayment( PaymentCreationRequest $request ): DirectDebitPayment {
-		if ( $this->validateIbanUseCase->ibanIsValid( $request->iban ) instanceof BankDataFailureResponse ) {
+	private function createDirectDebitPayment( PaymentParameters $parameters ): DirectDebitPayment {
+		if ( $this->validateIbanUseCase->ibanIsValid( $parameters->iban ) instanceof BankDataFailureResponse ) {
 			throw new PaymentCreationException( "An invalid IBAN was provided" );
 		}
 
 		return DirectDebitPayment::create(
 			$this->idGenerator->getNewId(),
-			Euro::newFromCents( $request->amountInEuroCents ),
-			PaymentInterval::from( $request->interval ),
-			new Iban( $request->iban ),
-			$request->bic
+			Euro::newFromCents( $parameters->amountInEuroCents ),
+			PaymentInterval::from( $parameters->interval ),
+			new Iban( $parameters->iban ),
+			$parameters->bic
 		);
 	}
 
 	private function generatePaymentCompletionUrl(
 		Payment $payment,
 		PaymentProviderAdapter $paymentProvider,
-		DomainSpecificPaymentCreationRequest $request,
+		PaymentCreationRequest $request,
 	): string {
 		$domainSpecificContext = $request->domainSpecificContext;
 		$paymentProviderURLGenerator = $this->paymentURLFactory->createURLGenerator( $payment, $request->urlAuthenticator );
