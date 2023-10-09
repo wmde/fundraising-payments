@@ -8,16 +8,16 @@ use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DomainSpecificPaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentParameters;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DomainSpecificPaymentCreationRequest
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentParameters
  */
-class DomainSpecificPaymentCreationRequestTest extends TestCase {
+class PaymentCreationRequestTest extends TestCase {
 	public function testRequestCanBeStringified(): void {
-		$request = new DomainSpecificPaymentCreationRequest(
+		$request = new PaymentCreationRequest(
 			9876,
 			1,
 			'BEZ',
@@ -30,13 +30,13 @@ class DomainSpecificPaymentCreationRequestTest extends TestCase {
 		);
 
 		$this->assertSame(
-			'{"amountInEuroCents":9876,"interval":1,"paymentType":"BEZ","iban":"DE88100900001234567892","bic":"BEVODEBB","transferCodePrefix":"D","domainSpecificPaymentValidator":"WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Fixtures\\\\SucceedingDomainSpecificValidator","domainSpecificContext":{"itemId":1,"startTimeForRecurringPayment":null,"invoiceId":"D-1","firstName":"Hubert J.","lastName":"Farnsworth"}}',
+			'{"amountInEuroCents":9876,"interval":1,"paymentType":"BEZ","domainSpecificPaymentValidator":"WMDE\\\\Fundraising\\\\PaymentContext\\\\Tests\\\\Fixtures\\\\SucceedingDomainSpecificValidator","domainSpecificContext":{"itemId":1,"startTimeForRecurringPayment":null,"invoiceId":"D-1","firstName":"Hubert J.","lastName":"Farnsworth"},"iban":"DE88100900001234567892","bic":"BEVODEBB","transferCodePrefix":"D"}',
 			(string)$request
 		);
 	}
 
 	public function testGivenInvalidInputStringifiedOutputIsErrorMessage(): void {
-		$request = new DomainSpecificPaymentCreationRequest(
+		$request = new PaymentCreationRequest(
 			9876,
 			1,
 			'BEZ',
@@ -56,7 +56,7 @@ class DomainSpecificPaymentCreationRequestTest extends TestCase {
 	}
 
 	public function testJSONRepresentationContainsValidatorClassName(): void {
-		$request = new DomainSpecificPaymentCreationRequest(
+		$request = new PaymentCreationRequest(
 			9876,
 			1,
 			'BEZ',
@@ -78,27 +78,23 @@ class DomainSpecificPaymentCreationRequestTest extends TestCase {
 		);
 	}
 
-	public function testNewFromBaseRequestPassesConstructorParameters(): void {
-		$request = DomainSpecificPaymentCreationRequest::newFromBaseRequest(
-			new PaymentCreationRequest(
+	public function testPaymentParametersRoundTrip(): void {
+		$parameters = new PaymentParameters(
 			9876,
 			1,
 			'BEZ',
 			'DE88100900001234567892',
 			'BEVODEBB',
 			'D'
-			),
+		);
+		$request = PaymentCreationRequest::newFromParameters(
+			$parameters,
 			new SucceedingDomainSpecificValidator(),
 			DomainSpecificContextForTesting::create(),
 			new FakeUrlAuthenticator(),
 		);
 
-		$this->assertSame( 9876, $request->amountInEuroCents );
-		$this->assertSame( 1, $request->interval );
-		$this->assertSame( 'BEZ', $request->paymentType );
-		$this->assertSame( 'DE88100900001234567892', $request->iban );
-		$this->assertSame( 'BEVODEBB', $request->bic );
-		$this->assertSame( 'D', $request->transferCodePrefix );
+		$this->assertEquals( $parameters, $request->getParameters() );
 	}
 
 }

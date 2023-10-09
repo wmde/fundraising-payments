@@ -25,8 +25,8 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\UrlGeneratorStub;
-use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DomainSpecificPaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
 
@@ -331,8 +331,8 @@ class CreatePaymentUseCaseTest extends TestCase {
 		string $bic = '',
 		string $transferCodePrefix = '',
 		?DomainSpecificPaymentValidator $domainSpecificPaymentValidator = null
-	): DomainSpecificPaymentCreationRequest {
-		return new DomainSpecificPaymentCreationRequest(
+	): PaymentCreationRequest {
+		return new PaymentCreationRequest(
 			$amountInEuroCents,
 			$interval,
 			$paymentType,
