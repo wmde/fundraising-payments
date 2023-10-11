@@ -3,8 +3,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\Model;
 
-enum PaymentInterval: int
-{
+enum PaymentInterval: int {
 	case OneTime = 0;
 	case Monthly = 1;
 	case Quarterly = 3;

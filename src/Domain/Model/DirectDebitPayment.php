@@ -91,7 +91,8 @@ class DirectDebitPayment extends Payment implements CancellablePayment {
 	 * @return string (N is the NEW payment status (legacy) for directdebit payments)
 	 */
 	protected function getLegacyPaymentStatus(): string {
-		if ( $this->isCancelled() ) { return LegacyPaymentStatus::CANCELLED->value;
+		if ( $this->isCancelled() ) {
+			return LegacyPaymentStatus::CANCELLED->value;
 		}
 		return LegacyPaymentStatus::DIRECT_DEBIT->value;
 	}
