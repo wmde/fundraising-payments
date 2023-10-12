@@ -49,6 +49,6 @@ class PayPalSubscriptionTest extends TestCase {
 	}
 
 	private function givenMonthlyPayment(): PayPalPayment {
-	return new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::Monthly );
+		return new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::Monthly );
 	}
 }

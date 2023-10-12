@@ -49,6 +49,6 @@ class PayPalOrderTest extends TestCase {
 	}
 
 	private function givenOneTimePayment(): PayPalPayment {
-	return new PayPalPayment( 1, Euro::newFromCents( 5000 ), PaymentInterval::OneTime );
+		return new PayPalPayment( 1, Euro::newFromCents( 5000 ), PaymentInterval::OneTime );
 	}
 }

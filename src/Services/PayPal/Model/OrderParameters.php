@@ -62,6 +62,6 @@ class OrderParameters {
 					]
 				]
 			],
-		 JSON_THROW_ON_ERROR );
+			JSON_THROW_ON_ERROR );
 	}
 }
