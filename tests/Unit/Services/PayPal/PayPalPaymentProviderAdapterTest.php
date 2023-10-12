@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalOrder;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalSubscription;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
@@ -31,6 +32,9 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
  * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfig
  */
 class PayPalPaymentProviderAdapterTest extends TestCase {
+	private const ORDER_ID = 'SOME-ORDER-ID';
+	private const SUBSCRIPTION_ID = 'SUB-1234';
+
 	public function testGivenRecurringPaymentURLGeneratorIsReplacedWithPayPalUrlGeneratorFetchedFromAPI(): void {
 		$adapter = new PayPalPaymentProviderAdapter(
 			$this->givenAPIExpectingCreateSubscription(),
@@ -75,7 +79,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 
 	public function testGivenRecurringPaymentAdapterStoresPayPalSubscription(): void {
 		$payment = new PayPalPayment( 6, Euro::newFromInt( 100 ), PaymentInterval::HalfYearly );
-		$payPalSubscription = new PayPalSubscription( $payment, 'SUB-1234' );
+		$payPalSubscription = new PayPalSubscription( $payment, self::SUBSCRIPTION_ID );
 		$repo = $this->createMock( PayPalPaymentIdentifierRepository::class );
 		$repo->expects( $this->once() )->method( 'storePayPalIdentifier' )->with( $payPalSubscription );
 		$adapter = new PayPalPaymentProviderAdapter(
@@ -90,10 +94,11 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$this->assertSame( $payment, $returnedPayment );
 	}
 
-	public function testGivenOneTimePaymentAdapterDoesNotStorePayPalOrder(): void {
+	public function testGivenOneTimePaymentAdapterStoresPayPalOrder(): void {
 		$payment = new PayPalPayment( 74, Euro::newFromInt( 470 ), PaymentInterval::OneTime );
+		$paypalOrder = new PayPalOrder( $payment, self::ORDER_ID );
 		$repo = $this->createMock( PayPalPaymentIdentifierRepository::class );
-		$repo->expects( $this->never() )->method( 'storePayPalIdentifier' );
+		$repo->expects( $this->once() )->method( 'storePayPalIdentifier' )->with( $paypalOrder );
 		$adapter = new PayPalPaymentProviderAdapter(
 			$this->givenAPIExpectingCreateOrder(),
 			$this->givenAdapterConfig(),
@@ -141,8 +146,8 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 
 	public function testReplacesPlaceholdersInConfig(): void {
 		$fakePayPalAPI = new FakePayPalAPIForPayments(
-			[ new Subscription( 'SUB-1234', new \DateTimeImmutable(), 'https://sandbox.paypal.com/confirm-subscription' ) ],
-			[ new Order( 'SOME-ORDER-ID', 'https://sandbox.paypal.com/confirm-order' ) ],
+			[ new Subscription( self::SUBSCRIPTION_ID, new \DateTimeImmutable(), 'https://sandbox.paypal.com/confirm-subscription' ) ],
+			[ new Order( self::ORDER_ID, 'https://sandbox.paypal.com/confirm-order' ) ],
 		);
 		$adapter = new PayPalPaymentProviderAdapter(
 			$fakePayPalAPI,
@@ -206,7 +211,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 	private function givenAPIExpectingCreateOrder(): PaypalAPI {
 		$api = $this->createStub( PayPalAPI::class );
 		$api->method( 'createOrder' )->willReturn(
-			new Order( 'SOME-ORDER-ID', 'https://sandbox.paypal.com/confirm-order' )
+			new Order( self::ORDER_ID, 'https://sandbox.paypal.com/confirm-order' )
 		);
 		return $api;
 	}
@@ -216,7 +221,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$api->expects( $this->once() )
 			->method( 'createSubscription' )
 			->willReturn(
-				new Subscription( 'SUB-1234', new \DateTimeImmutable(), 'https://sandbox.paypal.com/confirm-subscription' )
+				new Subscription( self::SUBSCRIPTION_ID, new \DateTimeImmutable(), 'https://sandbox.paypal.com/confirm-subscription' )
 			);
 		return $api;
 	}

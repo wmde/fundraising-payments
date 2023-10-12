@@ -429,10 +429,11 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	public function testStorePayPalIdentifierForOneTimePayment(): void {
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 		$payment = new PayPalPayment( 9, Euro::newFromInt( 87 ), PaymentInterval::OneTime );
-		$repo->storePayPalIdentifier( new PayPalOrder( $payment, 'TXN-9' ) );
+		$repo->storePayPalIdentifier( new PayPalOrder( $payment, 'O-1234', 'TXN-9' ) );
 
 		$identifier = $this->fetchRawPayPalIdentifier( 9 );
 		$this->assertSame( 9, $identifier['payment_id'] );
+		$this->assertSame( 'O-1234', $identifier['order_id'] );
 		$this->assertSame( 'TXN-9', $identifier['transaction_id'] );
 		$this->assertSame( 'O', $identifier['identifier_type'] );
 	}
@@ -641,7 +642,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	 */
 	private function fetchRawPayPalIdentifier( int $paymentId ): array {
 		$data = $this->connection->createQueryBuilder()
-			->select( 'p.subscription_id', 'p.transaction_id', 'p.payment_id', 'p.identifier_type' )
+			->select( 'p.subscription_id', 'p.order_id', 'p.transaction_id', 'p.payment_id', 'p.identifier_type' )
 			->from( 'payment_paypal_identifier', 'p' )
 			->where( 'p.payment_id = :payment_id' )
 			->setParameter( 'payment_id', $paymentId, ParameterType::INTEGER )
