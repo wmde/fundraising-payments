@@ -4,6 +4,7 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\Services\PayPal;
 
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalOrder;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalSubscription;
 use WMDE\Fundraising\PaymentContext\Domain\PayPalPaymentIdentifierRepository;
@@ -12,6 +13,7 @@ use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenera
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\IncompletePayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalURLGenerator;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Order;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters;
@@ -24,6 +26,11 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 	 * @var Subscription|null Used as cache to avoid multiple API calls
 	 */
 	private ?Subscription $subscription = null;
+
+	/**
+	 * @var Order|null Used as cache to avoid multiple API calls
+	 */
+	private ?Order $order = null;
 
 	public function __construct(
 		private readonly PaypalAPI $paypalAPI,
@@ -39,10 +46,12 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 		if ( $payment->getInterval()->isRecurring() ) {
 			$subscription = $this->createSubscriptionWithAPI( $payment, $domainSpecificContext );
 			$identifier = new PayPalSubscription( $payment, $subscription->id );
-			$this->paymentIdentifierRepository->storePayPalIdentifier( $identifier );
+		} else {
+			$order = $this->createOrderWithAPI( $payment, $domainSpecificContext );
+			$identifier = new PayPalOrder( $payment, $order->id );
 		}
-		// We don't store the order id for one-time payments, because we don't need it.
-		// It'll be passed in the `token` parameter of the URL when the user returns from PayPal, together with the donation ID
+
+		$this->paymentIdentifierRepository->storePayPalIdentifier( $identifier );
 		return $payment;
 	}
 
@@ -64,15 +73,7 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 			$subscription = $this->createSubscriptionWithAPI( $payment, $domainSpecificContext );
 			return new PayPalURLGenerator( $subscription->confirmationLink );
 		} else {
-			$params = new OrderParameters(
-				(string)$domainSpecificContext->itemId,
-				$domainSpecificContext->invoiceId,
-				$this->config->productName,
-				$payment->getAmount(),
-				$this->urlAuthenticator->addAuthenticationTokensToApplicationUrl( $this->config->returnURL ),
-				$this->urlAuthenticator->addAuthenticationTokensToApplicationUrl( $this->config->cancelURL )
-			);
-			$order = $this->paypalAPI->createOrder( $params );
+			$order = $this->createOrderWithAPI( $payment, $domainSpecificContext );
 			return new PayPalURLGenerator( $order->confirmationLink );
 		}
 	}
@@ -93,6 +94,21 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 			$this->subscription = $this->paypalAPI->createSubscription( $params );
 		}
 		return $this->subscription;
+	}
+
+	private function createOrderWithAPI( PayPalPayment $payment, DomainSpecificContext $domainSpecificContext, ): Model\Order {
+		if ( $this->order === null ) {
+			$params = new OrderParameters(
+				(string)$domainSpecificContext->itemId,
+				$domainSpecificContext->invoiceId,
+				$this->config->productName,
+				$payment->getAmount(),
+				$this->urlAuthenticator->addAuthenticationTokensToApplicationUrl( $this->config->returnURL ),
+				$this->urlAuthenticator->addAuthenticationTokensToApplicationUrl( $this->config->cancelURL )
+			);
+			$this->order = $this->paypalAPI->createOrder( $params );
+		}
+		return $this->order;
 	}
 
 	/**
