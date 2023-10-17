@@ -5,7 +5,7 @@ namespace WMDE\Fundraising\PaymentContext\UseCases\CreatePayment;
 
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentCompletionURLGenerator;
 
 /**
  * This adapter does not contact external payment providers.
@@ -18,9 +18,9 @@ class DefaultPaymentProviderAdapter implements PaymentProviderAdapter {
 	}
 
 	public function modifyPaymentUrlGenerator(
-		PaymentProviderURLGenerator $paymentProviderURLGenerator,
+		PaymentCompletionURLGenerator $paymentProviderURLGenerator,
 		DomainSpecificContext $domainSpecificContext
-	): PaymentProviderURLGenerator {
+	): PaymentCompletionURLGenerator {
 		return $paymentProviderURLGenerator;
 	}
 

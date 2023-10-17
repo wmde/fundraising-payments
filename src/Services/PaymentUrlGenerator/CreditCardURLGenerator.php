@@ -6,10 +6,10 @@ namespace WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator;
 
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentCompletionURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 
-class CreditCardURLGenerator implements PaymentProviderURLGenerator {
+class CreditCardURLGenerator implements PaymentCompletionURLGenerator {
 
 	public function __construct(
 		private readonly CreditCardURLGeneratorConfig $config,
