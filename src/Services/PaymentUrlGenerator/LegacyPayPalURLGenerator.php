@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentCompletionURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 
 /**
@@ -20,7 +20,7 @@ use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
  *
  * @deprecated Use PayPalAPI instead. See https://phabricator.wikimedia.org/T329159
  */
-class LegacyPayPalURLGenerator implements PaymentProviderURLGenerator {
+class LegacyPayPalURLGenerator implements PaymentCompletionURLGenerator {
 
 	private const PAYMENT_RECUR = '1';
 	private const PAYMENT_REATTEMPT = '1';

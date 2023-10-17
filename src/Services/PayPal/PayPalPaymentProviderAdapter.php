@@ -9,7 +9,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalSubscription;
 use WMDE\Fundraising\PaymentContext\Domain\PayPalPaymentIdentifierRepository;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentCompletionURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\IncompletePayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\PayPalURLGenerator;
@@ -55,7 +55,7 @@ class PayPalPaymentProviderAdapter implements PaymentProviderAdapter {
 		return $payment;
 	}
 
-	public function modifyPaymentUrlGenerator( PaymentProviderURLGenerator $paymentProviderURLGenerator, DomainSpecificContext $domainSpecificContext ): PaymentProviderURLGenerator {
+	public function modifyPaymentUrlGenerator( PaymentCompletionURLGenerator $paymentProviderURLGenerator, DomainSpecificContext $domainSpecificContext ): PaymentCompletionURLGenerator {
 		if ( $paymentProviderURLGenerator instanceof LegacyPayPalURLGenerator ) {
 			// All logic for domain-specific information and authentication encapsulated in LegacyPayPalURLGenerator
 			return $paymentProviderURLGenerator;

@@ -7,12 +7,12 @@ namespace WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator;
 use RuntimeException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
-use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentProviderURLGenerator;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentCompletionURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\Request;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\SofortClient;
 use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 
-class SofortURLGenerator implements PaymentProviderURLGenerator {
+class SofortURLGenerator implements PaymentCompletionURLGenerator {
 
 	private const CURRENCY = 'EUR';
 
