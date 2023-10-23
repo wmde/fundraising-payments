@@ -7,7 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use WMDE\Euro\Euro as WMDEEuro;
-use WMDE\Fundraising\PaymentContext\DataAccess\ScalarTypeConverter;
+use WMDE\Fundraising\PaymentContext\ScalarTypeConverter;
 
 class Euro extends Type {
 

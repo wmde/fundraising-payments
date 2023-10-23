@@ -1,0 +1,126 @@
+{
+  "total_items": 2,
+  "total_pages": 0,
+  "plans": [
+    {
+      "id": "P-0HVWVNKK2LCV2VN57N79TLENELT78EKL",
+      "product_id": "donation",
+      "name": "monthly donation",
+      "status": "CREATED",
+      "billing_cycles": [
+        {
+          "tenure_type": "REGULAR",
+          "sequence": 0,
+          "total_cycles": 1,
+          "pricing_scheme": {
+            "version": 999,
+            "pricing_model": "VOLUME",
+            "tiers": [
+              {
+                "starting_quantity": null,
+                "ending_quantity": null,
+                "amount": null
+              }
+            ],
+            "fixed_price": {
+              "currency_code": "str",
+              "value": "string"
+            },
+            "create_time": "string",
+            "update_time": "string"
+          },
+          "frequency": {
+            "interval_unit": "MONTH",
+            "interval_count": 1
+          }
+        }
+      ],
+      "quantity_supported": false,
+      "links": [
+        {
+          "href": "string",
+          "rel": "string",
+          "method": "GET"
+        }
+      ],
+      "payment_preferences": {
+        "auto_bill_outstanding": true,
+        "setup_fee_failure_action": "CONTINUE",
+        "payment_failure_threshold": 0,
+        "setup_fee": {
+          "currency_code": "str",
+          "value": "string"
+        }
+      },
+      "taxes": {
+        "inclusive": true,
+        "percentage": "string"
+      },
+      "create_time": "string",
+      "update_time": "string"
+    },
+
+
+
+
+
+    {
+      "id": "string",
+      "product_id": "donation",
+      "name": "biannual donation",
+      "status": "CREATED",
+      "description": "some description",
+      "billing_cycles": [
+        {
+          "tenure_type": "REGULAR",
+          "sequence": 1,
+          "total_cycles": 1,
+          "pricing_scheme": {
+            "version": 999,
+            "pricing_model": "VOLUME",
+            "tiers": [
+              {
+                "starting_quantity": null,
+                "ending_quantity": null,
+                "amount": null
+              }
+            ],
+            "fixed_price": {
+              "currency_code": "str",
+              "value": "string"
+            },
+            "create_time": "string",
+            "update_time": "string"
+          },
+          "frequency": {
+            "interval_unit": "MONTH",
+            "interval_count": 6
+          }
+        }
+      ],
+      "quantity_supported": false,
+      "links": [
+        {
+          "href": "string",
+          "rel": "string",
+          "method": "GET"
+        }
+      ],
+      "payment_preferences": {
+        "auto_bill_outstanding": true,
+        "setup_fee_failure_action": "CONTINUE",
+        "payment_failure_threshold": 0,
+        "setup_fee": {
+          "currency_code": "str",
+          "value": "string"
+        }
+      },
+      "taxes": {
+        "inclusive": true,
+        "percentage": "string"
+      },
+      "create_time": "string",
+      "update_time": "string"
+    }
+  ]
+}

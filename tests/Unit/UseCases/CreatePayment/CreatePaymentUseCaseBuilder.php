@@ -11,14 +11,18 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\NullGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
 use WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckBankDataGenerator;
+use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
+use WMDE\Fundraising\PaymentContext\Services\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FixedPaymentReferenceCodeGenerator;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentCompletionURLGeneratorStub;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingIbanValidator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DefaultPaymentProviderAdapter;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapterFactory;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 
 class CreatePaymentUseCaseBuilder {
@@ -28,6 +32,7 @@ class CreatePaymentUseCaseBuilder {
 	private UrlGeneratorFactory $urlGeneratorFactory;
 	private ValidateIbanUseCase $validateIbanUseCase;
 	private PaymentValidator $paymentValidator;
+	private PaymentProviderAdapterFactory $paymentProviderAdapterFactory;
 
 	public function __construct() {
 		$this->idGenerator = $this->makeIdGeneratorStub();
@@ -36,6 +41,7 @@ class CreatePaymentUseCaseBuilder {
 		$this->urlGeneratorFactory = $this->makePaymentURLFactoryStub();
 		$this->validateIbanUseCase = $this->makeFailingIbanUseCase();
 		$this->paymentValidator = $this->makePaymentValidator();
+		$this->paymentProviderAdapterFactory = $this->makePaymentProviderAdapterFactory();
 	}
 
 	public function build(): CreatePaymentUseCase {
@@ -45,7 +51,8 @@ class CreatePaymentUseCaseBuilder {
 			$this->paymentReferenceCodeGenerator,
 			$this->paymentValidator,
 			$this->validateIbanUseCase,
-			$this->urlGeneratorFactory
+			$this->urlGeneratorFactory,
+			$this->paymentProviderAdapterFactory
 		);
 	}
 
@@ -75,8 +82,8 @@ class CreatePaymentUseCaseBuilder {
 
 	private function makePaymentURLFactoryStub(): UrlGeneratorFactory {
 		return new class implements UrlGeneratorFactory {
-			public function createURLGenerator( Payment $payment ): NullGenerator {
-				return new NullGenerator();
+			public function createURLGenerator( Payment $payment, URLAuthenticator $authenticator ): PaymentCompletionURLGeneratorStub {
+				return new PaymentCompletionURLGeneratorStub();
 			}
 		};
 	}
@@ -138,4 +145,25 @@ class CreatePaymentUseCaseBuilder {
 
 		};
 	}
+
+	private function makePaymentProviderAdapterFactory(): PaymentProviderAdapterFactory {
+		return new class implements PaymentProviderAdapterFactory {
+			public function createProvider( Payment $payment, URLAuthenticator $authenticator ): PaymentProviderAdapter {
+				return new DefaultPaymentProviderAdapter();
+			}
+		};
+	}
+
+	public function withPaymentProviderAdapter( PaymentProviderAdapter $paymentProviderAdapter ): self {
+		$this->paymentProviderAdapterFactory = new class( $paymentProviderAdapter ) implements PaymentProviderAdapterFactory {
+			public function __construct( private readonly PaymentProviderAdapter $paymentProviderAdapter ) {
+			}
+
+			public function createProvider( Payment $payment, URLAuthenticator $authenticator ): PaymentProviderAdapter {
+				return $this->paymentProviderAdapter;
+			}
+		};
+		return $this;
+	}
+
 }

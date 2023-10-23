@@ -34,7 +34,7 @@ class SofortPayment extends Payment implements BookablePayment {
 	private ?DateTimeImmutable $valuationDate = null;
 
 	private function __construct( int $id, Euro $amount, PaymentInterval $interval, ?PaymentReferenceCode $paymentReference ) {
-		if ( $interval !== PaymentInterval::OneTime ) {
+		if ( $interval->isRecurring() ) {
 			throw new \InvalidArgumentException( "Provided payment interval must be 0 (= one time payment) for Sofort payments." );
 		}
 		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );

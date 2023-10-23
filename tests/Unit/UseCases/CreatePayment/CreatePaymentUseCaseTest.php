@@ -5,6 +5,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CreatePayment;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\DomainSpecificPaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
@@ -15,14 +16,18 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentReferenceCodeGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\PaymentProviderURLGenerator;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\UrlGeneratorFactory;
+use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\PaymentCompletionURLGenerator;
+use WMDE\Fundraising\PaymentContext\Services\UrlGeneratorFactory;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
+use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValidator;
+use WMDE\Fundraising\PaymentContext\Tests\Fixtures\UrlGeneratorStub;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
+use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
 
 /**
@@ -226,8 +231,8 @@ class CreatePaymentUseCaseTest extends TestCase {
 			amountInEuroCents: 500,
 			interval: 0,
 			paymentType: 'PPL',
+			domainSpecificPaymentValidator: new FailingDomainSpecificValidator()
 		);
-		$request->setDomainSpecificPaymentValidator( new FailingDomainSpecificValidator() );
 		$result = $useCase->createPayment( $request );
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
@@ -251,10 +256,9 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$this->assertEquals( "An invalid IBAN was provided", $result->errorMessage );
 	}
 
-	public function testPaymentResponseContainsURLGeneratorFromFactory(): void {
-		$urlGenerator = $this->createStub( PaymentProviderURLGenerator::class );
+	public function testPaymentResponseContainsURLFromURLGeneratorFactory(): void {
 		$urlGeneratorFactory = $this->createStub( UrlGeneratorFactory::class );
-		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( $urlGenerator );
+		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( new UrlGeneratorStub() );
 		$useCase = $this->useCaseBuilder
 			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
@@ -264,11 +268,59 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
 			amountInEuroCents: 100,
 			interval: 0,
-			paymentType: 'PPL',
+			paymentType: 'MCP',
 		) );
 
 		$this->assertInstanceOf( SuccessResponse::class, $result );
-		$this->assertSame( $urlGenerator, $result->paymentProviderURLGenerator );
+		$this->assertSame( UrlGeneratorStub::URL, $result->paymentCompletionUrl );
+	}
+
+	public function testPaymentProviderAdapterCanReplaceUrlGenerator(): void {
+		$urlGeneratorFactory = $this->givenUrlGeneratorFactoryReturnsIncompleteUrlGenerator();
+		$adapterStub = $this->createStub( PaymentProviderAdapter::class );
+		$adapterStub->method( 'modifyPaymentUrlGenerator' )->willReturn( new UrlGeneratorStub() );
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
+			->withPaymentRepositorySpy()
+			->withUrlGeneratorFactory( $urlGeneratorFactory )
+			->withPaymentProviderAdapter( $adapterStub )
+			->build();
+
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
+			amountInEuroCents: 100,
+			interval: 0,
+			paymentType: 'MCP',
+		) );
+
+		$this->assertInstanceOf( SuccessResponse::class, $result );
+		$this->assertSame( UrlGeneratorStub::URL, $result->paymentCompletionUrl );
+	}
+
+	public function testPaymentProviderCanReplacePaymentBeforeStoring(): void {
+		$replacementPaymentId = 123;
+		$paymentFromAdapter = new CreditCardPayment( $replacementPaymentId, Euro::newFromCents( 789 ), PaymentInterval::OneTime );
+		$adapter = $this->createMock( PaymentProviderAdapter::class );
+		$adapter->expects( $this->once() )
+			->method( 'fetchAndStoreAdditionalData' )
+			->willReturn( $paymentFromAdapter );
+
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
+			->withPaymentRepositorySpy()
+			->withPaymentProviderAdapter( $adapter )
+			->build();
+
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
+			amountInEuroCents: 100,
+			interval: 0,
+			paymentType: 'MCP',
+		) );
+
+		$this->assertInstanceOf( SuccessResponse::class, $result );
+		$this->assertSame( $replacementPaymentId, $result->paymentId );
+		$repositorySpy = $this->useCaseBuilder->getPaymentRepository();
+		$storedPayment = $repositorySpy->getPaymentById( $replacementPaymentId );
+		$this->assertSame( $paymentFromAdapter, $storedPayment );
 	}
 
 	private function newPaymentCreationRequest(
@@ -277,13 +329,20 @@ class CreatePaymentUseCaseTest extends TestCase {
 		string $paymentType,
 		string $iban = '',
 		string $bic = '',
-		string $transferCodePrefix = ''
+		string $transferCodePrefix = '',
+		?DomainSpecificPaymentValidator $domainSpecificPaymentValidator = null
 	): PaymentCreationRequest {
-		$request = new PaymentCreationRequest(
-			$amountInEuroCents, $interval, $paymentType, $iban, $bic, $transferCodePrefix
+		return new PaymentCreationRequest(
+			$amountInEuroCents,
+			$interval,
+			$paymentType,
+			$domainSpecificPaymentValidator ?? new SucceedingDomainSpecificValidator(),
+			DomainSpecificContextForTesting::create(),
+			new FakeUrlAuthenticator(),
+			$iban,
+			$bic,
+			$transferCodePrefix
 		);
-		$request->setDomainSpecificPaymentValidator( new SucceedingDomainSpecificValidator() );
-		return $request;
 	}
 
 	private function makePaymentReferenceGenerator(): PaymentReferenceCodeGenerator {
@@ -298,5 +357,14 @@ class CreatePaymentUseCaseTest extends TestCase {
 	private function assertPaymentWasStored( Payment $expectedPayment ): void {
 		$actualPayment = $this->useCaseBuilder->getPaymentRepository()->getPaymentById( self::PAYMENT_ID );
 		$this->assertEquals( $expectedPayment, $actualPayment );
+	}
+
+	private function givenUrlGeneratorFactoryReturnsIncompleteUrlGenerator(): UrlGeneratorFactory {
+		$urlGenerator = $this->createStub( PaymentCompletionURLGenerator::class );
+		$urlGenerator->method( 'generateURL' )
+			->willThrowException( new \LogicException( 'The "original" URL generator should be replaced by the payment provider adapter' ) );
+		$urlGeneratorFactory = $this->createStub( UrlGeneratorFactory::class );
+		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( $urlGenerator );
+		return $urlGeneratorFactory;
 	}
 }

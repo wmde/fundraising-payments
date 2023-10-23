@@ -4,10 +4,9 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 
 use Doctrine\DBAL\Connection;
-use WMDE\Fundraising\PaymentContext\DataAccess\ScalarTypeConverter;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\ScalarTypeConverter;
 use WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 
 class DoctrineTransactionIdFinder implements TransactionIdFinder {
@@ -19,7 +18,7 @@ class DoctrineTransactionIdFinder implements TransactionIdFinder {
 			return [];
 		}
 		// A small performance shortcut to avoid a database hit
-		if ( $payment->getInterval() === PaymentInterval::OneTime ) {
+		if ( !$payment->getInterval()->isRecurring() ) {
 			return [ $payment->getTransactionId() => $payment->getId() ];
 		}
 		$parent = $payment->getParentPayment();

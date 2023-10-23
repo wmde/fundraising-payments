@@ -1,0 +1,25 @@
+parameters:
+    ignoreErrors:
+        # A workaround for Doctrine not specifying an UniqueConstraintViolationException being thrown
+        # See https://github.com/doctrine/orm/issues/7780
+        # This rule might be unnecessary in the future with a fixe discussed in
+        # https://github.com/phpstan/phpstan-doctrine/issues/295
+        - message: /Doctrine\\DBAL\\Exception\\UniqueConstraintViolationException is never thrown in the try block/
+          path: src/DataAccess/DoctrinePaymentRepository.php
+          count: 1
+
+        # Workaround for loading the Paypal configuration YAML file (mixed content) and assuming a certain array shape (validated with Symfony config)
+        # In the future, Symfony Config might generate PHPStan types that would allow us to at least type the input to PayPalAPIURLGeneratorConfigFactory
+        # and the output of PayPalPaymentProviderAdapterConfigReader
+        - message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Services\\\\PayPal\\\\PayPalPaymentProviderAdapterConfigFactory\\:\\:createConfig\\(\\) has parameter \\$allConfigs with no value type specified in iterable type array\\.$#"
+          count: 1
+          path: src/Services/PayPal/PayPalPaymentProviderAdapterConfigFactory.php
+        - message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Services\\\\PayPal\\\\PayPalPaymentProviderAdapterConfigReader\\:\\:checkProductAndSubscriptionPlanIdsAreUnique\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
+          count: 1
+          path: src/Services/PayPal/PayPalPaymentProviderAdapterConfigReader.php
+        - message: "#^Method WMDE\\\\Fundraising\\\\PaymentContext\\\\Services\\\\PayPal\\\\PayPalPaymentProviderAdapterConfigReader\\:\\:readConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
+          count: 1
+          path: src/Services/PayPal/PayPalPaymentProviderAdapterConfigReader.php
+        - message: "#^Call to an undefined method Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\NodeDefinition\\:\\:arrayPrototype\\(\\)\\.$#"
+          count: 1
+          path: src/Services/PayPal/PayPalPaymentProviderAdapterConfigSchema.php

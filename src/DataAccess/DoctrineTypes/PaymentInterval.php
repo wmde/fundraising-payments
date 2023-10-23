@@ -6,8 +6,8 @@ namespace WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use WMDE\Fundraising\PaymentContext\DataAccess\ScalarTypeConverter;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval as DomainPaymentInterval;
+use WMDE\Fundraising\PaymentContext\ScalarTypeConverter;
 
 class PaymentInterval extends Type {
 

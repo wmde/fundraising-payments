@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__.'/../vendor/autoload.php';
+
+use GuzzleHttp\Client;
+use Psr\Log\NullLogger;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Dotenv\Dotenv;
+use WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI;
+
+$dotenv = new Dotenv();
+$dotenv->load( __DIR__ . '/../.env' );
+
+function createPayPalAPI(): \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalAPI {
+	$clientId = $_ENV['PAYPAL_API_CLIENT_ID'] ?? '';
+	$secret = $_ENV['PAYPAL_API_CLIENT_SECRET'] ?? '';
+	$baseUri = $_ENV['PAYPAL_API_URL'] ?? '';
+	if ( !$clientId || !$secret || !$baseUri ) {
+		echo "You must put PAYPAL_API_URL, PAYPAL_API_CLIENT_ID and PAYPAL_API_CLIENT_SECRET\n";
+		exit( Command::FAILURE );
+	}
+
+	return new GuzzlePaypalAPI(
+		new Client( [ 'base_uri' => $baseUri ] ),
+		$clientId,
+		$secret,
+		new NullLogger()
+	);
+}
+
+$api = createPayPalAPI();
+
+$application = new Application();
+
+$application->add( new \WMDE\Fundraising\PaymentContext\Commands\ListSubscriptionPlansCommand( $api ) );
+$application->add( new \WMDE\Fundraising\PaymentContext\Commands\CreateSubscriptionPlansCommand( $api ) );
+
+
+$application->run();

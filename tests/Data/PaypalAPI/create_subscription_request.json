@@ -1,0 +1,30 @@
+{
+  "plan_id": "P-5ML4271244454362WXNWU5NQ",
+  "start_time": "2018-11-01T00:00:00Z",
+  "quantity": "1",
+  "plan": {
+    "billing_cycles": [
+      {
+        "sequence": 1,
+        "pricing_scheme": {
+          "fixed_price": {
+            "value": "42.23",
+            "currency_code": "EUR"
+          }
+        },
+        "tenure_type": "REGULAR",
+        "frequency": {
+          "interval_unit": "MONTH",
+          "interval_count": 1
+        },
+        "total_cycles": 0
+      }
+    ]
+  },
+  "application_context": {
+    "brand_name": "Wikimedia Deutschland",
+    "shipping_preference": "NO_SHIPPING",
+    "return_url": "https://example.com/returnUrl",
+    "cancel_url": "https://example.com/cancelUrl"
+  }
+}

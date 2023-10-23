@@ -4,9 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Fixtures;
 
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort\Request;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort\Response;
-use WMDE\Fundraising\PaymentContext\Domain\PaymentUrlGenerator\Sofort\SofortClient;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\Request;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\Response;
+use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\SofortClient;
 
 class SofortSofortClientSpy implements SofortClient {
 
