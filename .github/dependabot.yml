@@ -7,3 +7,5 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    # Temporarily disabled automated update PRs for this repository
+    open-pull-requests-limit: 0
