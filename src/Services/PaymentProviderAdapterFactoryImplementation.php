@@ -14,15 +14,22 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapte
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapterFactory;
 
 class PaymentProviderAdapterFactoryImplementation implements PaymentProviderAdapterFactory {
+	/**
+	 * @param PaypalAPI $paypalAPI
+	 * @param PayPalPaymentProviderAdapterConfig $payPalAdapterConfig
+	 * @param PayPalPaymentIdentifierRepository $paymentIdentifierRepository
+	 * @param bool $useLegacyPaypalPaymentAdapter Feature flag. Remove when https://phabricator.wikimedia.org/T329159 (Use PayPal API) is completely done
+	 */
 	public function __construct(
 		private readonly PaypalAPI $paypalAPI,
 		private readonly PayPalPaymentProviderAdapterConfig $payPalAdapterConfig,
 		private readonly PayPalPaymentIdentifierRepository $paymentIdentifierRepository,
+		private readonly bool $useLegacyPaypalPaymentAdapter = false
 	) {
 	}
 
 	public function createProvider( Payment $payment, URLAuthenticator $authenticator ): PaymentProviderAdapter {
-		if ( $payment instanceof PayPalPayment ) {
+		if ( $payment instanceof PayPalPayment && !$this->useLegacyPaypalPaymentAdapter ) {
 			return new PayPalPaymentProviderAdapter(
 				$this->paypalAPI,
 				$this->payPalAdapterConfig,
