@@ -87,6 +87,7 @@ class SofortPayment extends Payment implements BookablePayment {
 			}
 			throw new DomainException( $msg );
 		}
+		$valuationDate = $valuationDate->setTimezone( ValuationDateTimeZone::getTimeZone() );
 		$this->valuationDate = $valuationDate;
 		return $this;
 	}
