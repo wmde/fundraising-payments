@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model\BookingDataTra
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\CreditCardBookingTransformer;
+use WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\CreditCardBookingTransformer
@@ -62,15 +63,27 @@ class CreditCardBookingTransformerTest extends TestCase {
 		$this->assertEqualsWithDelta( time(), $transformer->getValuationDate()->getTimestamp(), 5 );
 	}
 
+	public function testGivenNoValuationDateAndGetValuationDateDateTimeInUTCTimeZone(): void {
+		$transformer = new CreditCardBookingTransformer( [
+			'transactionId' => 1,
+			'amount' => 123,
+			'sessionId' => 'deadbeef'
+		] );
+
+		$this->assertEqualsCanonicalizing( ValuationDateTimeZone::getTimeZone(), $transformer->getValuationDate()->getTimezone() );
+	}
+
 	public function testGivenValuationDateAndGetValuationDateReturnsValuationDate(): void {
-		$valuationDate = new \DateTimeImmutable();
+		$valuationDate = new \DateTimeImmutable( '2023-11-06 0:00:00', new \DateTimeZone( 'Europe/Berlin' ) );
+		$expectedValuationDate = new \DateTimeImmutable( '2023-11-05 23:00:00', ValuationDateTimeZone::getTimeZone() );
 		$transformer = new CreditCardBookingTransformer( [
 			'transactionId' => 1,
 			'amount' => 123,
 			'sessionId' => 'deadbeef'
 		], $valuationDate );
 
-		$this->assertEquals( $valuationDate, $transformer->getValuationDate() );
+		$this->assertEquals( ValuationDateTimeZone::getTimeZone(), $transformer->getValuationDate()->getTimezone() );
+		$this->assertEquals( $expectedValuationDate, $transformer->getValuationDate() );
 	}
 
 	public function testGivenBadBookingDataThrowsError(): void {

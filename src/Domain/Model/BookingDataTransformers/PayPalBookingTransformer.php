@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers;
 
+use WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone;
+
 class PayPalBookingTransformer {
 
 	private const PAYER_ID_KEY = 'payer_id';
@@ -92,6 +94,7 @@ class PayPalBookingTransformer {
 			) );
 		}
 
+		$valuationDate = $valuationDate->setTimezone( ValuationDateTimeZone::getTimeZone() );
 		$this->valuationDate = $valuationDate;
 		$this->transactionId = strval( $rawBookingData[self::TRANSACTION_ID_KEY] );
 		$this->rawBookingData = $this->anonymise( $rawBookingData );

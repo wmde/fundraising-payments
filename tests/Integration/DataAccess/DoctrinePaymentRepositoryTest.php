@@ -121,7 +121,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( 9900, $insertedPayment['amount'] );
 		$this->assertSame( 3, $insertedPayment['payment_interval'] );
 		$this->assertSame( 'PPL', $insertedPayment['payment_method'] );
-		$this->assertSame( '2012-12-02 10:54:49', $insertedPayment['valuation_date'] );
+		$this->assertSame( '2012-12-02 18:54:49', $insertedPayment['valuation_date'] );
 		$this->assertNull( $insertedPayment['parent_payment_id'] );
 		$this->assertSame( PayPalPaymentBookingData::newEncodedValidBookingData(), $insertedPayment['booking_data'] );
 	}

@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model\BookingDataTra
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
+use WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 
 /**
@@ -72,6 +73,16 @@ class PayPalBookingTransformerTest extends TestCase {
 		$transformer = new PayPalBookingTransformer( PayPalPaymentBookingData::newValidBookingData() );
 
 		$this->assertEquals( new \DateTimeImmutable( PayPalPaymentBookingData::PAYMENT_DATE ), $transformer->getValuationDate() );
+	}
+
+	public function testTransformerConvertsValuationDateToUTC(): void {
+		$transformer = new PayPalBookingTransformer( PayPalPaymentBookingData::newValidBookingData() );
+		$expectedValuationDate = new \DateTimeImmutable( PayPalPaymentBookingData::PAYMENT_DATE_UTC, ValuationDateTimeZone::getTimeZone() );
+
+		$valuationDate = $transformer->getValuationDate();
+
+		$this->assertEquals( ValuationDateTimeZone::getTimeZone(), $valuationDate->getTimezone() );
+		$this->assertEquals( $expectedValuationDate, $valuationDate );
 	}
 
 	public function testGetTransactionId(): void {

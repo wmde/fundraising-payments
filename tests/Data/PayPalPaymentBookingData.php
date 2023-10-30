@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Data;
 class PayPalPaymentBookingData {
 
 	public const PAYMENT_DATE = '10:54:49 Dec 02, 2012 PST';
+	public const PAYMENT_DATE_UTC = '2012-12-02 18:54:49';
 	public const TRANSACTION_ID = 'T4242';
 
 	/**

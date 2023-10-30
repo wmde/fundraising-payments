@@ -10,6 +10,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\SofortPaymentInspector;
 
@@ -76,7 +77,10 @@ class SofortPaymentTest extends TestCase {
 
 		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 
-		$this->assertEquals( new \DateTimeImmutable( '2001-12-24T17:30:00Z' ), $sofortPayment->getValuationDate() );
+		$this->assertEquals(
+			new \DateTimeImmutable( '2001-12-24T17:30:00', ValuationDateTimeZone::getTimeZone() ),
+			$sofortPayment->getValuationDate()
+		);
 	}
 
 	public function testBookPaymentSetsTransactionId(): void {

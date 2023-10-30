@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers;
 
 use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone;
 
 class CreditCardBookingTransformer {
 
@@ -32,12 +33,16 @@ class CreditCardBookingTransformer {
 
 	/**
 	 * @param array<string, scalar> $rawBookingData
-	 * @param \DateTimeImmutable|null $valuationDate
+	 * @param \DateTimeImmutable|null $valuationDate This parameter exists only for testing (and passing in a fixed time). The CreditCardPayment will always omit the parameter.
 	 */
 	public function __construct( array $rawBookingData, ?\DateTimeImmutable $valuationDate = null ) {
 		$this->validateRawData( $rawBookingData );
 		$this->rawBookingData = $rawBookingData;
-		$this->valuationDate = $valuationDate ?? new \DateTimeImmutable();
+		if ( $valuationDate === null ) {
+			$this->valuationDate = new \DateTimeImmutable( 'now', ValuationDateTimeZone::getTimeZone() );
+		} else {
+			$this->valuationDate = $valuationDate->setTimezone( ValuationDateTimeZone::getTimeZone() );
+		}
 	}
 
 	/**
