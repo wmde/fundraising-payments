@@ -54,7 +54,9 @@ class SofortURLGeneratorTest extends TestCase {
 		$urlGenerator->generateUrl( $requestContext );
 
 		$this->assertStringContainsString( "testAccessToken=LET_ME_IN", $client->request->getSuccessUrl() );
-		$this->assertStringContainsString( "testAccessToken=LET_ME_IN", $client->request->getNotificationUrl() );
+		$notificationUrl = $client->request->getNotificationUrl();
+		$this->assertStringContainsString( "id=p-test-param-", $notificationUrl );
+		$this->assertStringContainsString( "updateToken=p-test-param-", $notificationUrl );
 		$this->assertSame( $amount, $client->request->getAmount() );
 		$this->assertSame( $locale, $client->request->getLocale() );
 	}

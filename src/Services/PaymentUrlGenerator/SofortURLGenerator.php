@@ -40,7 +40,12 @@ class SofortURLGenerator implements PaymentCompletionURLGenerator {
 		);
 		$request->setAbortUrl( $this->config->getCancelUrl() );
 		$request->setNotificationUrl(
-			$this->authenticator->addAuthenticationTokensToApplicationUrl( $this->config->getNotificationUrl() )
+			$this->config->getNotificationUrl() . '?' . http_build_query(
+				$this->authenticator->getAuthenticationTokensForPaymentProviderUrl(
+					self::class,
+					[ 'id', 'updateToken' ]
+				)
+			)
 		);
 		$request->setLocale( $this->config->getLocale() );
 

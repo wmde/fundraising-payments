@@ -150,7 +150,7 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 			'return=https%3A%2F%2Fmy.donation.app%2Fdonation%2Fconfirm%2F%3Fid%3D1234%26testAccessToken%3DLET_ME_IN',
 			$generatedUrl
 		);
-		$this->assertStringContainsString( 'custom=p-test-token-0', $generatedUrl );
+		$this->assertStringContainsString( 'custom=p-test-param-0', $generatedUrl );
 	}
 
 	private function assertSinglePaymentRelatedParamsSet( string $generatedUrl ): void {

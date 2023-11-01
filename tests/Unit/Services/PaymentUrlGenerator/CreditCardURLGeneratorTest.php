@@ -91,7 +91,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 		$this->assertSame(
 			'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 			'paytext=Ich+spende+einmalig&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
-			'amount=100&theme=wikimedia&producttype=fee&lang=de&token=p-test-token-0&utoken=p-test-token-1&testmode=1',
+			'amount=100&theme=wikimedia&producttype=fee&lang=de&token=p-test-param-0&utoken=p-test-param-1&testmode=1',
 			$urlGenerator->generateUrl( $requestContext )
 		);
 	}
@@ -104,7 +104,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 			[
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 				'paytext=Ich+spende+einmalig&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
-				'amount=500&theme=wikimedia&producttype=fee&lang=de&token=p-test-token-0&utoken=p-test-token-1',
+				'amount=500&theme=wikimedia&producttype=fee&lang=de&token=p-test-param-0&utoken=p-test-param-1',
 				'Kai',
 				'Nissen',
 				'Ich spende einmalig',
@@ -118,7 +118,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 			[
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 				'paytext=Ich+spende+monatlich&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
-				'amount=123&theme=wikimedia&producttype=fee&lang=de&token=p-test-token-0&utoken=p-test-token-1',
+				'amount=123&theme=wikimedia&producttype=fee&lang=de&token=p-test-param-0&utoken=p-test-param-1',
 				'Kai',
 				'Nissen',
 				'Ich spende monatlich',
@@ -132,7 +132,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 			[
 				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
 				'paytext=Ich+spende+halbj%C3%A4hrlich&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&' .
-				'gfx=wikimedia_black&amount=1250&theme=wikimedia&producttype=fee&lang=de&token=p-test-token-0&utoken=p-test-token-1',
+				'gfx=wikimedia_black&amount=1250&theme=wikimedia&producttype=fee&lang=de&token=p-test-param-0&utoken=p-test-param-1',
 				'Kai',
 				'Nissen',
 				'Ich spende halbjährlich',

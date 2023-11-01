@@ -7,6 +7,7 @@ use WMDE\Fundraising\PaymentContext\Services\URLAuthenticator;
 
 class FakeUrlAuthenticator implements URLAuthenticator {
 	public const TOKEN_PARAM = 'testAccessToken=LET_ME_IN';
+	public const PAYMENT_PROVIDER_PARAM_PREFIX = 'p-test-param-';
 
 	public function addAuthenticationTokensToApplicationUrl( string $url ): string {
 		$urlParts = parse_url( $url );
@@ -39,7 +40,7 @@ class FakeUrlAuthenticator implements URLAuthenticator {
 	public function getAuthenticationTokensForPaymentProviderUrl( string $urlGeneratorClass, array $requestedParameters ): array {
 		$resultParameters = [];
 		foreach ( $requestedParameters as $idx => $parameter ) {
-			$resultParameters[$parameter] = 'p-test-token-' . $idx;
+			$resultParameters[$parameter] = self::PAYMENT_PROVIDER_PARAM_PREFIX . $idx;
 		}
 		return $resultParameters;
 	}
