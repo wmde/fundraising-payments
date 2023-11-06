@@ -4,6 +4,7 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\ScalarTypeConverter;
@@ -24,13 +25,14 @@ class DoctrineTransactionIdFinder implements TransactionIdFinder {
 		$parent = $payment->getParentPayment();
 		$paymentId = $parent === null ? $payment->getId() : $parent->getId();
 
+		// TODO check if the JOIN is really necessary
 		$qb = $this->db->createQueryBuilder();
 		$qb->select( 'ppl.transaction_id', 'p.id' )
 			->from( 'payment', 'p' )
 			->join( 'p', 'payment_paypal', 'ppl', 'ppl.id=p.id' )
 			->where( 'p.id=:paymentId' )
 			->orWhere( 'ppl.parent_payment_id=:paymentId' )
-			->setParameter( 'paymentId', $paymentId );
+			->setParameter( 'paymentId', $paymentId, ParameterType::INTEGER );
 
 		return $this->convertMixedTypes( $qb->executeQuery()->fetchAllKeyValue() );
 	}
