@@ -21,7 +21,7 @@ class PaymentValidator {
 	public function validatePaymentData( int $amount, int $interval, string $paymentType, DomainSpecificPaymentValidator $domainSpecificPaymentValidator ): ValidationResponse {
 		$this->errors = [];
 		$this->validateAmount( $amount );
-		$this->validateInterval( $interval );
+		$this->validateInterval( $interval, $paymentType );
 		$this->validatePaymentType( $paymentType );
 
 		if ( count( $this->errors ) > 0 ) {
@@ -39,9 +39,15 @@ class PaymentValidator {
 		}
 	}
 
-	private function validateInterval( int $interval ): void {
-		if ( PaymentInterval::tryFrom( $interval ) === null ) {
+	private function validateInterval( int $interval, string $paymentType ): void {
+		$domainInterval = PaymentInterval::tryFrom( $interval );
+		if ( $domainInterval === null ) {
 			$this->errors[] = new ConstraintViolation( $interval, 'Invalid Interval', self::SOURCE_INTERVAL );
+			return;
+		}
+
+		if ( PaymentType::tryFrom( $paymentType ) === PaymentType::Sofort && $domainInterval->isRecurring() ) {
+			$this->errors[] = new ConstraintViolation( $interval, 'Sofort payments cannot be recurring', self::SOURCE_INTERVAL );
 		}
 	}
 
