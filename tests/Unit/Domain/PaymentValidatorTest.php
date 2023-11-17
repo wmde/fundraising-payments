@@ -5,6 +5,7 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\DomainSpecificPaymentValidator;
+use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResponse;
@@ -63,6 +64,38 @@ class PaymentValidatorTest extends TestCase {
 		$errors = $result->getValidationErrors();
 		$this->assertCount( 1, $errors );
 		$this->assertSame( PaymentValidator::SOURCE_PAYMENT_TYPE, $errors[0]->getSource() );
+	}
+
+	public function testRecurringPaymentsNotAllowedForSofort(): void {
+		$validator = new PaymentValidator();
+
+		$result = $validator->validatePaymentData(
+			self::VALID_AMOUNT,
+			self::VALID_INTERVAL,
+			PaymentType::Sofort->value,
+			$this->makeSucceedingDomainSpecificValidator()
+		);
+
+		$this->assertFalse( $result->isSuccessful() );
+		$errors = $result->getValidationErrors();
+		$this->assertCount( 1, $errors );
+		$this->assertSame( PaymentValidator::SOURCE_INTERVAL, $errors[0]->getSource() );
+	}
+
+	public function testInvalidIntervalWithSofortPaymentDoesNotLeadToErrorForPaymentType(): void {
+		$validator = new PaymentValidator();
+
+		$result = $validator->validatePaymentData(
+			self::VALID_AMOUNT,
+			99,
+			PaymentType::Sofort->value,
+			$this->makeSucceedingDomainSpecificValidator()
+		);
+
+		$this->assertFalse( $result->isSuccessful() );
+		$errors = $result->getValidationErrors();
+		$this->assertCount( 1, $errors );
+		$this->assertSame( PaymentValidator::SOURCE_INTERVAL, $errors[0]->getSource() );
 	}
 
 	public function testDomainValidation(): void {

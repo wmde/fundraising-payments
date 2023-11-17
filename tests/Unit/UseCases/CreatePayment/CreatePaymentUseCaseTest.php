@@ -182,7 +182,7 @@ class CreatePaymentUseCaseTest extends TestCase {
 		) );
 
 		$this->assertInstanceOf( FailureResponse::class, $result );
-		$this->assertMatchesRegularExpression( '/Sofort.*interval/', $result->errorMessage );
+		$this->assertStringContainsString( 'Sofort payments cannot be recurring', $result->errorMessage );
 	}
 
 	public function testCreatePaymentWithInvalidIntervalFails(): void {

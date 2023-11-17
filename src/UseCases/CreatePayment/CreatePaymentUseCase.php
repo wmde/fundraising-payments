@@ -102,15 +102,12 @@ class CreatePaymentUseCase {
 		);
 	}
 
-	/**
-	 * @param PaymentParameters $parameters
-	 * @return SofortPayment
-	 * @throws PaymentCreationException
-	 */
 	private function createSofortPayment( PaymentParameters $parameters ): SofortPayment {
 		$paymentInterval = PaymentInterval::from( $parameters->interval );
+		// This check is a belt-and-suspenders approach to make sure the validator is working and was called
+		// before this method. It should never be triggered.
 		if ( $paymentInterval->isRecurring() ) {
-			throw new PaymentCreationException( "Sofort payment does not support recurring intervals (>0)." );
+			throw new \LogicException( "The validator did not catch the recurring payment, please check your code" );
 		}
 
 		return SofortPayment::create(
