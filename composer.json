@@ -6,8 +6,7 @@
 		"php": ">=8.1",
 
 		"wmde/euro": "~1.0",
-		"wmde/fun-validators": "~v4.0.0",
-		"wmde/freezable-value-object": "~2.0",
+		"wmde/fun-validators": "~v4.0",
 
 		"doctrine/orm": "^2.16.1",
 		"doctrine/dbal": "^3.3",
