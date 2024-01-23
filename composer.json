@@ -3,7 +3,7 @@
 	"license": "GPL-2.0-or-later",
 	"description": "Bounded Context for the Wikimedia Deutschland fundraising payment subdomain",
 	"require": {
-		"php": ">=8.1",
+		"php": ">=8.2",
 
 		"wmde/euro": "~1.0",
 		"wmde/fun-validators": "~v4.0",
@@ -13,11 +13,11 @@
 		"doctrine/migrations": "^3.5",
 		"guzzlehttp/guzzle": "^7.4",
 		"sofort/sofortlib-php": "^3.2",
-		"symfony/cache": "^6.3",
-		"symfony/console": "^6.3",
-		"symfony/dotenv": "^6.3",
-		"symfony/yaml": "^6.3",
-		"symfony/config": "^6.3"
+		"symfony/cache": "^7.0",
+		"symfony/console": "^7.0",
+		"symfony/dotenv": "^7.0",
+		"symfony/yaml": "^7.0",
+		"symfony/config": "^7.0"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~10.1",
