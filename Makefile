@@ -2,15 +2,15 @@ current_user  := $(shell id -u)
 current_group := $(shell id -g)
 BUILD_DIR     := $(PWD)
 DOCKER_FLAGS  := --interactive --tty
-DOCKER_IMAGE  := registry.gitlab.com/fun-tech/fundraising-frontend-docker/php-8.1
+DOCKER_IMAGE  := registry.gitlab.com/fun-tech/fundraising-frontend-docker
 COVERAGE_FLAGS := --coverage-html coverage
 WAIT_FOR_IT := build/wait-for-it.sh database:3306 -t 10 --
 
 install-php:
-	docker run --rm $(DOCKER_FLAGS) --volume $(BUILD_DIR):/app -w /app --volume ~/.composer:/composer --user $(current_user):$(current_group) composer install $(COMPOSER_FLAGS)
+	docker run --rm $(DOCKER_FLAGS) --volume $(BUILD_DIR):/app -w /app --volume ~/.composer:/composer -e COMPOSER_HOME=/composer --user $(current_user):$(current_group) composer install $(COMPOSER_FLAGS)
 
 update-php:
-	docker run --rm $(DOCKER_FLAGS) --volume $(BUILD_DIR):/app -w /app --volume ~/.composer:/composer --user $(current_user):$(current_group) composer update $(COMPOSER_FLAGS)
+	docker run --rm $(DOCKER_FLAGS) --volume $(BUILD_DIR):/app -w /app --volume ~/.composer:/composer -e COMPOSER_HOME=/composer --user $(current_user):$(current_group) composer update $(COMPOSER_FLAGS)
 
 ci: phpunit cs stan check-dependencies
 
