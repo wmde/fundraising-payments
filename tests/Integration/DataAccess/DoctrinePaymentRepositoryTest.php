@@ -85,7 +85,6 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$firstPayment = new CreditCardPayment( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly );
 		$firstPayment->bookPayment( [ 'transactionId' => 'badcaffee', 'amount' => 9900 ], new DummyPaymentIdRepository() );
 		$secondPayment = new CreditCardPayment( 1, Euro::newFromInt( 42 ), PaymentInterval::Monthly );
-		$this->entityManager->getConfiguration()->setRejectIdCollisionInIdentityMap( false );
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 		$repo->storePayment( $firstPayment );
 
