@@ -31,7 +31,7 @@ fix-cs:
 	docker-compose run --rm --no-deps app ./vendor/bin/phpcbf
 
 stan:
-	docker-compose run --rm --no-deps app php -d memory_limit=1G ./vendor/bin/phpstan analyse --level=9 --no-progress src/ tests/
+	docker-compose run --rm --no-deps app php -d memory_limit=1G ./vendor/bin/phpstan analyse --level=max --no-progress src/ tests/
 
 check-dependencies:
 	docker-compose run --rm --no-deps app php ./vendor/bin/deptrac --no-progress --fail-on-uncovered --report-uncovered
