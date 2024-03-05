@@ -83,7 +83,7 @@ class CreditCardBookingTransformer {
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * @return array<string, scalar>
 	 */
 	public function getLegacyData(): array {
 		$result = [];
