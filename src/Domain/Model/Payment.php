@@ -40,7 +40,7 @@ abstract class Payment implements LegacyDataTransformer {
 	abstract protected function getPaymentName(): string;
 
 	/**
-	 * @return array<string,mixed>
+	 * @return array<string,scalar>
 	 */
 	abstract protected function getPaymentSpecificLegacyData(): array;
 
@@ -59,7 +59,7 @@ abstract class Payment implements LegacyDataTransformer {
 	}
 
 	/**
-	 * @return array<string,mixed> Array containing all relevant payment values to display in user frontends
+	 * @return array<string,scalar> Array containing all relevant payment values to display in user frontends
 	 */
 	public function getDisplayValues(): array {
 		return [

@@ -27,7 +27,7 @@ class GetPaymentUseCase {
 	/**
 	 * @param int $paymentId (not a donation ID!)
 	 *
-	 * @return array<string, mixed>
+	 * @return array<string, scalar>
 	 *
 	 */
 	public function getPaymentDataArray( int $paymentId ): array {
@@ -89,7 +89,7 @@ class GetPaymentUseCase {
 	 * @param Payment $payment
 	 * @param Iban $iban
 	 *
-	 * @return array<string,mixed>
+	 * @return array<string,scalar>
 	 */
 	private function createExtendedPaymentFieldArray( Payment $payment, Iban $iban ): array {
 		$extendedBankData = $this->bankDataGenerator->getBankDataFromIban( $iban );
