@@ -9,7 +9,8 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
  *
  * The status will be stored in the donation (which may add another status for moderation).
  *
- * When https://phabricator.wikimedia.org/T281853 is done, you should delete this class and all code that uses it.
+ * @todo Now that https://phabricator.wikimedia.org/T281853 is done, you can delete this class and all the classes that use it
+ * @deprecated
  */
 enum LegacyPaymentStatus: string {
 	// direct debit
