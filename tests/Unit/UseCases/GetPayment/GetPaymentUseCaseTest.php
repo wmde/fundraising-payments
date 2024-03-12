@@ -13,7 +13,6 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
@@ -72,7 +71,6 @@ class GetPaymentUseCaseTest extends TestCase {
 			12,
 			'MCP',
 			[],
-			LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value
 		);
 		$payment = $this->createStub( CreditCardPayment::class );
 		$payment->method( 'getLegacyData' )->willReturn( $legacyPaymentData );
@@ -101,8 +99,7 @@ class GetPaymentUseCaseTest extends TestCase {
 			1299,
 			12,
 			'BEZ',
-			[ 'iban' => 'DE02100500000054540402' ],
-			LegacyPaymentStatus::DIRECT_DEBIT->value
+			[ 'iban' => 'DE02100500000054540402' ]
 		);
 		$payment = $this->createStub( DirectDebitPayment::class );
 		$payment->method( 'getLegacyData' )->willReturn( $legacyPaymentData );

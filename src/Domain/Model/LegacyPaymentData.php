@@ -19,14 +19,12 @@ class LegacyPaymentData {
 	 * @param int $intervalInMonths
 	 * @param string $paymentName 3-letter payment name, {@see PaymentType} values
 	 * @param array<string,scalar> $paymentSpecificValues Data that will be stored in the "data blob" of donations.
-	 * @param string $paymentStatus Deprecated status ({@see LegacyPaymentStatus}) it's not used anywhere in bounded contexts
 	 */
 	public function __construct(
 		public readonly int $amountInEuroCents,
 		public readonly int $intervalInMonths,
 		public readonly string $paymentName,
 		public readonly array $paymentSpecificValues,
-		public readonly string $paymentStatus
 	) {
 	}
 }
