@@ -12,7 +12,7 @@ class LegacyPaymentData {
 	 * @param int $amountInEuroCents
 	 * @param int $intervalInMonths
 	 * @param string $paymentName 3-letter payment name
-	 * @param array<string,mixed> $paymentSpecificValues
+	 * @param array<string,scalar> $paymentSpecificValues
 	 * @param string $paymentStatus Deprecated status, should be removed when https://phabricator.wikimedia.org/T281853 is done
 	 */
 	public function __construct(
