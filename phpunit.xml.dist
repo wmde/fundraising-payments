@@ -1,8 +1,16 @@
 <?xml version="1.0"?>
 <phpunit
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	bootstrap="tests/bootstrap.php"
 	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd"
+	bootstrap="tests/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	stopOnError="false"
+	stopOnFailure="false"
+	stopOnIncomplete="false"
+	cacheDirectory=".phpunit.cache"
+	backupStaticProperties="false"
+	requireCoverageMetadata="true"
 >
   <coverage includeUncoveredFiles="true"/>
   <testsuites>
