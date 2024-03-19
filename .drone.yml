@@ -2,22 +2,12 @@ kind: pipeline
 type: docker
 name: default
 steps:
-  - name: restore-cache
-    image: drillster/drone-volume-cache
-    settings:
-      restore: true
-      mount:
-        - ./vendor
-    volumes:
-      - name: cache
-        path: /cache
-  
   - name: build
     image: registry.gitlab.com/fun-tech/fundraising-frontend-docker:ci
     environment:
       COMPOSER_CACHE_DIR: /composer_cache
       TEST_DB_DSN: mysql://fundraising:T3st1ng@database:3306/fundraising
-      GITHUB_TOKEN: 
+      GITHUB_TOKEN:
         from_secret: github_token
     volumes:
       - name: cache
@@ -34,17 +24,6 @@ steps:
       - build/wait-for-it.sh database:3306 -t 120 -s -- php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-clover coverage.xml
       # Upload coverage to Scrutinizer
       - ocular code-coverage:upload --no-interaction --format=php-clover coverage.xml
-
-  - name: rebuild-cache
-    image: drillster/drone-volume-cache
-    settings:
-      rebuild: true
-      mount:
-        - ./vendor
-    volumes:
-      - name: cache
-        path: /cache
-
 volumes:
   - name: cache
     host:
