@@ -16,8 +16,6 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
  */
 class CreditCardPayment extends Payment implements BookablePayment {
 
-	use LegacyBookingStatusTrait;
-
 	private const PAYMENT_METHOD = 'MCP';
 
 	/**

@@ -28,8 +28,7 @@ class PaymentTest extends TestCase {
 			1199,
 			0,
 			'TST',
-			[ 'value' => 'infinite' ],
-			'Y'
+			[ 'value' => 'infinite' ]
 		);
 
 		$this->assertEquals( $expectedLegacyData, $payment->getLegacyData() );
@@ -76,10 +75,6 @@ class PaymentTest extends TestCase {
 
 			protected function getPaymentSpecificLegacyData(): array {
 				return [ 'value' => 'infinite' ];
-			}
-
-			protected function getLegacyPaymentStatus(): string {
-				return 'Y';
 			}
 
 			public function isCompleted(): bool {

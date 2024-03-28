@@ -12,8 +12,6 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 
 class SofortPayment extends Payment implements BookablePayment {
 
-	use LegacyBookingStatusTrait;
-
 	private const PAYMENT_METHOD = 'SUB';
 
 	private const LEGACY_TO_DISPLAY_KEY_MAP = [
@@ -104,19 +102,6 @@ class SofortPayment extends Payment implements BookablePayment {
 		// always have the payment reference code in here, to enable override of existing code, just in case.
 		$data['ueb_code'] = $this->paymentReferenceCode ? $this->paymentReferenceCode->getFormattedCode() : '';
 		return $data;
-	}
-
-	/**
-	 * We override the behavior of the LegacyBookingStatusTrait because Sofort payments need
-	 * to look like bank transfer statements when they are exported.
-	 *
-	 * @return string
-	 */
-	protected function getLegacyPaymentStatus(): string {
-		if ( $this->isBooked() ) {
-			return LegacyPaymentStatus::BANK_TRANSFER->value;
-		}
-		return LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value;
 	}
 
 	public function anonymise(): void {

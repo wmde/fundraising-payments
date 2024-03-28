@@ -12,8 +12,6 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 
 class PayPalPayment extends Payment implements BookablePayment {
 
-	use LegacyBookingStatusTrait;
-
 	private const PAYMENT_METHOD = 'PPL';
 
 	private ?string $transactionId = null;

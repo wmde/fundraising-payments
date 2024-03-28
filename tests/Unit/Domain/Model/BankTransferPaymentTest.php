@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
-use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 
@@ -39,8 +38,7 @@ class BankTransferPaymentTest extends TestCase {
 			7821,
 			1,
 			'UEB',
-			[ 'ueb_code' => 'XW-TAR-ARA-X' ],
-			LegacyPaymentStatus::BANK_TRANSFER->value
+			[ 'ueb_code' => 'XW-TAR-ARA-X' ]
 		);
 
 		$this->assertEquals( $expectedLegacyData, $payment->getLegacyData() );
@@ -58,8 +56,7 @@ class BankTransferPaymentTest extends TestCase {
 			7821,
 			1,
 			'UEB',
-			[ 'ueb_code' => 'XW-TAR-ARA-X' ],
-			LegacyPaymentStatus::CANCELLED->value
+			[ 'ueb_code' => 'XW-TAR-ARA-X' ]
 		);
 
 		$this->assertEquals( $expectedLegacyData, $payment->getLegacyData() );

@@ -81,16 +81,6 @@ class BankTransferPayment extends Payment implements CancellablePayment {
 		);
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function getLegacyPaymentStatus(): string {
-		if ( $this->isCancelled() ) {
-			return LegacyPaymentStatus::CANCELLED->value;
-		}
-		return LegacyPaymentStatus::BANK_TRANSFER->value;
-	}
-
 	public function isCompleted(): bool {
 		return true;
 	}

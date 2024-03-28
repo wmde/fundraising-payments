@@ -5,7 +5,6 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
@@ -137,7 +136,6 @@ class PayPalPaymentTest extends TestCase {
 
 		$this->assertSame( [], $legacyData->paymentSpecificValues );
 		$this->assertSame( 'PPL', $legacyData->paymentName );
-		$this->assertSame( LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value, $legacyData->paymentStatus );
 	}
 
 	public function testGetLegacyDataHasDataForBookedPayments(): void {
@@ -152,7 +150,6 @@ class PayPalPaymentTest extends TestCase {
 		$this->assertSame( '8RHHUM3W3PRH7QY6B59', $legacyData->paymentSpecificValues['ext_subscr_id'] );
 		$this->assertSame( PayPalPaymentBookingData::PAYMENT_DATE, $legacyData->paymentSpecificValues['ext_payment_timestamp'] );
 		// Check booked status
-		$this->assertSame( LegacyPaymentStatus::EXTERNAL_BOOKED->value, $legacyData->paymentStatus );
 		$this->assertArrayNotHasKey( 'parent_payment_id', $legacyData->paymentSpecificValues, "initial payments should not have parent payment id" );
 	}
 
