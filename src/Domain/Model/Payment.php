@@ -22,6 +22,16 @@ abstract class Payment implements LegacyDataTransformer {
 		return $this->id;
 	}
 
+	/**
+	 * Donations and memberships database tables currently (2024-03-12) store payment data.
+	 * Some code (in the Fundraising Operation Center ) still uses that legacy data instead of using the payment tables.
+	 * The following tickets track the progress of removing the legacy data:
+	 * https://phabricator.wikimedia.org/T320781 using new payments tables in FOC
+	 * https://phabricator.wikimedia.org/T359941 removing PaymentSpecificLegacyData from donation and membership
+	 * https://phabricator.wikimedia.org/T359950 removing amount, interval and payment name from donation and membership
+	 *
+	 * @return LegacyPaymentData
+	 */
 	public function getLegacyData(): LegacyPaymentData {
 		return new LegacyPaymentData(
 			$this->amount->getEuroCents(),
@@ -33,13 +43,17 @@ abstract class Payment implements LegacyDataTransformer {
 	}
 
 	/**
-	 * This is just for providing payment name for LegacyPaymentData
+	 * This is just for providing payment name for LegacyPaymentData.
+	 * Will be the string value from the {@see PaymentType} enum
 	 *
 	 * @return string
 	 */
 	abstract protected function getPaymentName(): string;
 
 	/**
+	 * Data for the donation "data blob" and the deprecated bank data columns in memberships.
+	 * See https://phabricator.wikimedia.org/T359941 for the current status of the removal.
+	 *
 	 * @return array<string,scalar>
 	 */
 	abstract protected function getPaymentSpecificLegacyData(): array;
@@ -72,7 +86,7 @@ abstract class Payment implements LegacyDataTransformer {
 	/**
 	 * Get the legacy status {@see LegacyPaymentStatus} for possible values
 	 *
-	 * @deprecated See https://phabricator.wikimedia.org/T281853
+	 * @deprecated We can remove this trait without breaking BC, see https://phabricator.wikimedia.org/T281853
 	 * @return string
 	 */
 	abstract protected function getLegacyPaymentStatus(): string;

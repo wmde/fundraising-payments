@@ -50,7 +50,7 @@ class LegacyPayPalURLGenerator implements PaymentCompletionURLGenerator {
 	/**
 	 * @param int $itemId
 	 * @param string $invoiceId
-	 * @return array<string,mixed>
+	 * @return array<string,scalar>
 	 */
 	private function getIntervalAgnosticParameters( int $itemId, string $invoiceId ): array {
 		return [
@@ -73,7 +73,7 @@ class LegacyPayPalURLGenerator implements PaymentCompletionURLGenerator {
 	}
 
 	/**
-	 * @return array<string,mixed>
+	 * @return array<string,scalar>
 	 * @deprecated The "Trial Period" was an attempt at using PayPal for memberships. We'll use the PayPal API with subscriptions instead.
 	 */
 	private function getPaymentDelayParameters(): array {
@@ -86,7 +86,7 @@ class LegacyPayPalURLGenerator implements PaymentCompletionURLGenerator {
 	/**
 	 * @param Euro $amount
 	 * @param int $interval
-	 * @return array<string,mixed>
+	 * @return array<string,scalar>
 	 */
 	private function getIntervalDependentParameters( Euro $amount, int $interval ): array {
 		if ( $interval > 0 ) {
@@ -103,7 +103,7 @@ class LegacyPayPalURLGenerator implements PaymentCompletionURLGenerator {
 	 * @param Euro $amount
 	 * @param int $interval
 	 *
-	 * @return array<string,mixed>
+	 * @return array<string,scalar>
 	 */
 	private function getSubscriptionParams( Euro $amount, int $interval ): array {
 		return [
@@ -126,7 +126,7 @@ class LegacyPayPalURLGenerator implements PaymentCompletionURLGenerator {
 	 *
 	 * @param int $delayInDays
 	 *
-	 * @return array<string,mixed>
+	 * @return array<string,scalar>
 	 * @deprecated The "Trial Period" was an attempt at using PayPal for memberships. We'll use the PayPal API with subscriptions instead.
 	 */
 	private function getDelayedSubscriptionParams( int $delayInDays ): array {

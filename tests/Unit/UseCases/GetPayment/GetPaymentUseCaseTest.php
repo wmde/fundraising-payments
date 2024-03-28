@@ -15,9 +15,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
-use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
-use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeTransactionIdFinder;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
@@ -44,7 +42,6 @@ class GetPaymentUseCaseTest extends TestCase {
 		$useCase = new GetPaymentUseCase(
 			new PaymentRepositorySpy( [ 7 => $testPayment ] ),
 			$this->makeBankDataGeneratorStub(),
-			new FakeTransactionIdFinder()
 		);
 
 		$resultArray = $useCase->getPaymentDataArray( 7 );
@@ -62,7 +59,7 @@ class GetPaymentUseCaseTest extends TestCase {
 	public function testGivenPaymentNotFound_ArrayMethodWillThrowException(): void {
 		$repo = $this->createStub( PaymentRepository::class );
 		$repo->method( 'getPaymentById' )->willThrowException( new PaymentNotFoundException() );
-		$useCase = new GetPaymentUseCase( $repo, $this->makeBankDataGeneratorDummy(), new FakeTransactionIdFinder() );
+		$useCase = new GetPaymentUseCase( $repo, $this->makeBankDataGeneratorDummy() );
 
 		$this->expectException( \DomainException::class );
 
@@ -82,7 +79,6 @@ class GetPaymentUseCaseTest extends TestCase {
 		$useCase = new GetPaymentUseCase(
 			new PaymentRepositorySpy( [ 7 => $payment ] ),
 			$this->makeBankDataGeneratorDummy(),
-			new FakeTransactionIdFinder()
 		);
 
 		$legacyData = $useCase->getLegacyPaymentDataObject( 7 );
@@ -93,7 +89,7 @@ class GetPaymentUseCaseTest extends TestCase {
 	public function testGivenPaymentNotFound_legacyObjectMethodWillThrowException(): void {
 		$repo = $this->createStub( PaymentRepository::class );
 		$repo->method( 'getPaymentById' )->willThrowException( new PaymentNotFoundException() );
-		$useCase = new GetPaymentUseCase( $repo, $this->makeBankDataGeneratorDummy(), new FakeTransactionIdFinder() );
+		$useCase = new GetPaymentUseCase( $repo, $this->makeBankDataGeneratorDummy() );
 
 		$this->expectException( \DomainException::class );
 
@@ -113,8 +109,7 @@ class GetPaymentUseCaseTest extends TestCase {
 		$payment->method( 'getIban' )->willReturn( new Iban( 'DE02100500000054540402' ) );
 		$useCase = new GetPaymentUseCase(
 			new PaymentRepositorySpy( [ 7 => $payment ] ),
-			$this->makeBankDataGeneratorStub(),
-			new FakeTransactionIdFinder()
+			$this->makeBankDataGeneratorStub()
 		);
 
 		$legacyData = $useCase->getLegacyPaymentDataObject( 7 );
@@ -125,33 +120,6 @@ class GetPaymentUseCaseTest extends TestCase {
 		$this->assertSame( '0054540402', $legacyData->paymentSpecificValues['konto'] );
 		$this->assertEquals( 'Landesbank Berlin', $legacyData->paymentSpecificValues['bankname'] );
 		$this->assertEquals( 'BELADEBE', $legacyData->paymentSpecificValues['bic'] );
-	}
-
-	public function testGivenPayPalPayment_legacyDataContainsAllTransactionIDs(): void {
-		$legacyPaymentData = new LegacyPaymentData(
-			2342,
-			1,
-			'PPL',
-			[],
-			LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value
-		);
-		$transactionIds = [
-			'V3NJK2NJ' => 7,
-			'V3HJKWHN' => 80,
-			'2QIQCVQ' => 142
-		];
-		$payment = $this->createStub( PayPalPayment::class );
-		$payment->method( 'getLegacyData' )->willReturn( $legacyPaymentData );
-		$useCase = new GetPaymentUseCase(
-			new PaymentRepositorySpy( [ 7 => $payment ] ),
-			$this->makeBankDataGeneratorDummy(),
-			new FakeTransactionIdFinder( $transactionIds )
-		);
-
-		$legacyData = $useCase->getLegacyPaymentDataObject( 7 );
-
-		$this->assertArrayHasKey( 'transactionIds', $legacyData->paymentSpecificValues );
-		$this->assertEquals( $transactionIds, $legacyData->paymentSpecificValues['transactionIds'] );
 	}
 
 	private function makeBankDataGeneratorStub(): BankDataGenerator {
