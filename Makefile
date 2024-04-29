@@ -8,21 +8,19 @@ WAIT_FOR_IT := build/wait-for-it.sh database:3306 -t 10 --
 
 install-php:
 	docker run --rm $(DOCKER_FLAGS) \
+		--volume ~/.composer:/composer \
 		--volume $(BUILD_DIR):/app \
 		-w /app \
-		--volume ~/.composer:/composer \
-		-e COMPOSER_HOME=/composer \
 		--user $(current_user):$(current_group) \
-		composer install $(COMPOSER_FLAGS)
+		$(DOCKER_IMAGE) composer install $(COMPOSER_FLAGS)
 
 update-php:
 	docker run --rm $(DOCKER_FLAGS) \
+		--volume ~/.composer:/composer \
 		--volume $(BUILD_DIR):/app \
 		-w /app \
-		--volume ~/.composer:/composer \
-		-e COMPOSER_HOME=/composer \
 		--user $(current_user):$(current_group) \
-		composer update $(COMPOSER_FLAGS)
+		$(DOCKER_IMAGE) composer update $(COMPOSER_FLAGS)
 
 ci: phpunit cs stan check-dependencies
 
@@ -34,11 +32,7 @@ phpunit:
 	docker-compose run --rm app $(WAIT_FOR_IT) ./vendor/bin/phpunit
 
 phpunit-with-coverage:
-	docker-compose \
-		-f docker-compose.yml \
-		-f docker-compose.debug.yml \
-		run --rm \
-		-e XDEBUG_MODE=coverage app_debug $(WAIT_FOR_IT) \
+	docker-compose run --rm -e XDEBUG_MODE=coverage app $(WAIT_FOR_IT) \
 		./vendor/bin/phpunit $(COVERAGE_FLAGS)
 
 cs:
