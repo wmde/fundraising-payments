@@ -6,7 +6,6 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
-use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentStatus;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
@@ -131,15 +130,6 @@ class SofortPaymentTest extends TestCase {
 		$legacyData = $sofortPayment->getLegacyData();
 
 		$this->assertEquals( $expectedLegacyData, $legacyData->paymentSpecificValues );
-	}
-
-	public function testStatusInLegacyDataChangesWithBookedStatus(): void {
-		$sofortPayment = $this->makeSofortPayment();
-		$bookedSofortPayment = $this->makeSofortPayment();
-		$bookedSofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
-
-		$this->assertSame( LegacyPaymentStatus::EXTERNAL_INCOMPLETE->value, $sofortPayment->getLegacyData()->paymentStatus );
-		$this->assertSame( LegacyPaymentStatus::BANK_TRANSFER->value, $bookedSofortPayment->getLegacyData()->paymentStatus );
 	}
 
 	public function testGetDisplayDataReturnsAllFieldsToDisplay(): void {
