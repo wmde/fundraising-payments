@@ -16,6 +16,9 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\S
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanForProductUseCase
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanRequest
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\ErrorResult
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\SuccessResult
  */
 class CreateSubscriptionPlansForProductTest extends TestCase {
 

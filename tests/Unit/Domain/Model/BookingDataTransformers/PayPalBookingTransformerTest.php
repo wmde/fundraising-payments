@@ -11,6 +11,7 @@ use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone
  */
 class PayPalBookingTransformerTest extends TestCase {
 

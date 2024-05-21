@@ -19,6 +19,9 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\SuccessRe
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\CreateBookedPayPalPaymentUseCase
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\FailingPaymentIdRepository
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\FailureResponse
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\SuccessResponse
  */
 class CreateBookedPayPalPaymentUseCaseTest extends TestCase {
 	private const PAYMENT_ID = 5;

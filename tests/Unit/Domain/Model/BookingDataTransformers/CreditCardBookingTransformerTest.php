@@ -11,6 +11,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\CreditCardBookingTransformer
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone
  */
 class CreditCardBookingTransformerTest extends TestCase {
 

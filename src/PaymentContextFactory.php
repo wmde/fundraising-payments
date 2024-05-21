@@ -7,6 +7,9 @@ namespace WMDE\Fundraising\PaymentContext;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 
+/**
+ * @codeCoverageIgnore
+ */
 class PaymentContextFactory {
 
 	private const DOCTRINE_CLASS_MAPPING_DIRECTORY = __DIR__ . '/../config/DoctrineClassMapping';

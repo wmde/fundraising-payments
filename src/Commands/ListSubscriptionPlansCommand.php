@@ -11,6 +11,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PaypalAPI;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[AsCommand(
 	name: 'app:list-subscription-plans',
 	description: 'Lists existing PayPal subscription plans.',

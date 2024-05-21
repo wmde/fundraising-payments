@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace Unit\Services\PaymentUrlGenerator;
+namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PaymentUrlGenerator;
 
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
@@ -16,6 +16,7 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGenerator
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext
  */
 class CreditCardURLGeneratorTest extends TestCase {
 
