@@ -30,6 +30,7 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapter
  * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfig
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext
  */
 class PayPalPaymentProviderAdapterTest extends TestCase {
 	private const ORDER_ID = 'SOME-ORDER-ID';

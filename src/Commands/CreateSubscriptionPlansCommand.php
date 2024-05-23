@@ -17,6 +17,9 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\C
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\ErrorResult;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\SuccessResult;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[AsCommand(
 	name: 'app:create-subscription-plans',
 	description: 'Create subscription plan for recurring payments with PayPal.',

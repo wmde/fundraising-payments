@@ -14,6 +14,7 @@ use WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\PayPalVerificationService
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationResponse
  */
 class PayPalVerificationServiceTest extends TestCase {
 

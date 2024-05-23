@@ -32,8 +32,11 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse;
 
 /**
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\CreatePaymentUseCase
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\FailureResponse
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest
  * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationException
+ * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\SuccessResponse
+ * @covers \WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext
  */
 class CreatePaymentUseCaseTest extends TestCase {
 
