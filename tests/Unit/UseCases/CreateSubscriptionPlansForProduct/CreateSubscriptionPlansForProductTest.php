@@ -76,7 +76,7 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	 * @return iterable<string,array{Product[],SubscriptionPlan[],bool,bool}>
 	 */
 	public static function apiDataProvider(): iterable {
-		yield 'no pre-existing product and plan' => [ [] , [], false, false ];
+		yield 'no pre-existing product and plan' => [ [], [], false, false ];
 		yield 'product already exists, create new plan' => [ [ self::createProduct( "id1" ) ], [], true, false ];
 		yield 'different product exists, create new product and plan' => [ [ self::createProduct( 'id42' ) ], [], false, false ];
 		yield 'different product and with a plan exists, create new product and plan' => [

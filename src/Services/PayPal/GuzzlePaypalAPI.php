@@ -139,7 +139,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	 * @return SubscriptionPlan
 	 */
 	public function createSubscriptionPlanForProduct( SubscriptionPlan $subscriptionPlan ): SubscriptionPlan {
-		$response = $this->sendPOSTRequest( self::ENDPOINT_SUBSCRIPTION_PLANS,  $subscriptionPlan->toJSON() );
+		$response = $this->sendPOSTRequest( self::ENDPOINT_SUBSCRIPTION_PLANS, $subscriptionPlan->toJSON() );
 
 		$serverResponse = $response->getBody()->getContents();
 		$jsonSubscriptionPlanResponse = $this->safelyDecodeJSON( $serverResponse );

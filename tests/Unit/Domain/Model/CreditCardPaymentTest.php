@@ -99,7 +99,7 @@ class CreditCardPaymentTest extends TestCase {
 	public function testGivenNewPayment_paymentLegacyDataIsEmptyArray(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
-		$this->assertSame( [],  $creditCardPayment->getLegacyData()->paymentSpecificValues );
+		$this->assertSame( [], $creditCardPayment->getLegacyData()->paymentSpecificValues );
 	}
 
 	public function testGetDisplayDataReturnsAllFieldsToDisplayForBookedPayment(): void {
