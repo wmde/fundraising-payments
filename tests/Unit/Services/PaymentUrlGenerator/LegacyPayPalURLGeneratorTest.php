@@ -4,7 +4,9 @@ declare( strict_types = 1 );
 
 namespace Unit\Services\PaymentUrlGenerator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
@@ -15,11 +17,8 @@ use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDes
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeLegacyPayPalURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGenerator
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGeneratorConfig
- *
- */
+#[CoversClass( LegacyPayPalURLGenerator::class )]
+#[CoversClass( LegacyPayPalURLGeneratorConfig::class )]
 class LegacyPayPalURLGeneratorTest extends TestCase {
 
 	private const BASE_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr?';
@@ -80,7 +79,7 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 	}
 
 	public function testGivenIncompletePayPalUrlConfig_exceptionIsThrown(): void {
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( RuntimeException::class );
 		$this->newIncompletePayPalUrlConfig();
 	}
 

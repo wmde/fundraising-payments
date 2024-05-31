@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Inspectors;
 
+use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 
 class PayPalPaymentInspector
@@ -42,7 +44,7 @@ class PayPalPaymentInspector
     public function getParentPayment(): ?PayPalPayment
     {
         $value = $this->getPrivateValue('parentPayment');
-        assert($value === null || $value instanceof \WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment);
+        assert($value === null || $value instanceof PayPalPayment);
         return $value;
     }
 
@@ -60,17 +62,17 @@ class PayPalPaymentInspector
         return $value;
     }
 
-    public function getAmount(): \WMDE\Euro\Euro
+    public function getAmount(): Euro
     {
         $value = $this->getPrivateValue('amount');
-        assert($value instanceof \WMDE\Euro\Euro);
+        assert($value instanceof Euro);
         return $value;
     }
 
-    public function getInterval(): \WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval
+    public function getInterval(): PaymentInterval
     {
         $value = $this->getPrivateValue('interval');
-        assert($value instanceof \WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval);
+        assert($value instanceof PaymentInterval);
         return $value;
     }
 

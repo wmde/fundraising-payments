@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CreatePayment;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DomainSpecificContextForTesting;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FailingDomainSpecificValidator;
@@ -11,10 +12,8 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SucceedingDomainSpecificValid
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentParameters;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentCreationRequest
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentParameters
- */
+#[CoversClass( PaymentCreationRequest::class )]
+#[CoversClass( PaymentParameters::class )]
 class PaymentCreationRequestTest extends TestCase {
 	public function testRequestCanBeStringified(): void {
 		$request = new PaymentCreationRequest(

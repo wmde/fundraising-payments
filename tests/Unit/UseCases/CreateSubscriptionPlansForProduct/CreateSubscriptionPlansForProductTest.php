@@ -2,7 +2,10 @@
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CreateSubscriptionPlansForProduct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use UnexpectedValueException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\PayPalAPIException;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
@@ -14,12 +17,10 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\C
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\ErrorResult;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\SuccessResult;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanForProductUseCase
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanRequest
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\ErrorResult
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\SuccessResult
- */
+#[CoversClass( CreateSubscriptionPlanForProductUseCase::class )]
+#[CoversClass( CreateSubscriptionPlanRequest::class )]
+#[CoversClass( ErrorResult::class )]
+#[CoversClass( SuccessResult::class )]
 class CreateSubscriptionPlansForProductTest extends TestCase {
 
 	private const SUBSCRIPTION_PLAN_ID = 'P-0HVWVNKK2LCV2VN57N79TLENELT78EKL';
@@ -64,11 +65,8 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 		$this->assertSame( 'Failed to create product', $result->message );
 	}
 
-	/**
-	 * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateSubscriptionPlansForProduct\CreateSubscriptionPlanRequest
-	 */
 	public function testThrowsExceptionWhenRequestedWithOneTimePaymentInterval(): void {
-		$this->expectException( \UnexpectedValueException::class );
+		$this->expectException( UnexpectedValueException::class );
 		new CreateSubscriptionPlanRequest( '', '', PaymentInterval::OneTime, 'One-Time Payment' );
 	}
 
@@ -98,10 +96,10 @@ class CreateSubscriptionPlansForProductTest extends TestCase {
 	}
 
 	/**
-	 * @dataProvider apiDataProvider
 	 * @param Product[] $products
 	 * @param SubscriptionPlan[] $subscriptionPlans
 	 */
+	#[DataProvider( 'apiDataProvider' )]
 	public function testFetchesOrCreatesNewProductsAndPlansAndGivesSuccessResult( array $products, array $subscriptionPlans, bool $productExists, bool $subscriptionPlanExists ): void {
 		$product = self::createProduct( "id1" );
 		$expectedSubscriptionPlan = new SubscriptionPlan( 'A test plan', 'id1', PaymentInterval::HalfYearly, FakePayPalAPIForSetup::GENERATED_ID );

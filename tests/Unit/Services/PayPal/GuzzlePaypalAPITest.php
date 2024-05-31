@@ -2,12 +2,14 @@
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal;
 
+use DateTimeImmutable;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
@@ -21,9 +23,9 @@ use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\PsrLogTestDoubles\LoggerSpy;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\GuzzlePaypalAPI
- */
+#[CoversClass( GuzzlePaypalAPI::class )]
+#[CoversClass( SubscriptionParameters::class )]
+#[CoversClass( OrderParameters::class )]
 class GuzzlePaypalAPITest extends TestCase {
 
 	/**
@@ -426,16 +428,13 @@ RESPONSE;
 		}
 	}
 
-	/**
-	 * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionParameters
-	 */
 	public function testCreateSubscriptionBuildsJsonRequestFromSubscriptionParameters(): void {
 		$response = $this->createCreateSubscriptionResponse();
 		$client = $this->givenClientWithResponses( $response );
 		$guzzlePaypalApi = new GuzzlePaypalAPI( $client, 'testUserName', 'testPassword', new NullLogger() );
 		$testPlan = new SubscriptionPlan( 'monthly', 'ServerPRODUCT-42', PaymentInterval::Monthly, 'P-5ML4271244454362WXNWU5NQ' );
 
-		$fixedTimeStamp = new \DateTimeImmutable( '2018-11-01T00:00:00Z' );
+		$fixedTimeStamp = new DateTimeImmutable( '2018-11-01T00:00:00Z' );
 
 		$guzzlePaypalApi->createSubscription(
 			new SubscriptionParameters(
@@ -462,9 +461,6 @@ RESPONSE;
 		$this->assertSame( 'application/json', $createRequest->getHeaderLine( 'Accept' ) );
 	}
 
-	/**
-	 * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\Model\OrderParameters
-	 */
 	public function testCreateOrderBuildsJsonRequestFromOrderParameters(): void {
 		$response = $this->createCreateOrderResponse();
 		$client = $this->givenClientWithResponses( $response );

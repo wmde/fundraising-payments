@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PaymentReferenceCodeGenerator;
 
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
@@ -16,9 +17,7 @@ use WMDE\Fundraising\PaymentContext\Services\PaymentReferenceCodeGenerator\Uniqu
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FixedPaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentReferenceCodeGenerator\UniquePaymentReferenceCodeGenerator
- */
+#[CoversClass( UniquePaymentReferenceCodeGenerator::class )]
 class UniquePaymentReferenceCodeGeneratorTest extends TestCase {
 
 	private EntityManager $entityManager;

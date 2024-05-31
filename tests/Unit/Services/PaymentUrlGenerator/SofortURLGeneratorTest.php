@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace Unit\Services\PaymentUrlGenerator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Euro\Euro;
@@ -18,9 +19,7 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\ExceptionThrowingSofortSofort
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SofortSofortClientSpy;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGenerator
- */
+#[CoversClass( SofortURLGenerator::class )]
 class SofortURLGeneratorTest extends TestCase {
 
 	public function testSofortUrlGeneratorPassesValuesInRequestToClient(): void {

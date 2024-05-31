@@ -3,12 +3,12 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode
- */
+#[CoversClass( PaymentReferenceCode::class )]
 class PaymentReferenceCodeTest extends TestCase {
 	/**
 	 * @param string $prefix
@@ -16,9 +16,8 @@ class PaymentReferenceCodeTest extends TestCase {
 	 * @param string $checksum
 	 * @param string $expectedInErrorMessage
 	 * @return void
-	 *
-	 * @dataProvider invalidInputProvider
 	 */
+	#[DataProvider( 'invalidInputProvider' )]
 	public function testInvalidInputThrowsException( string $prefix, string $code, string $checksum, string $expectedInErrorMessage ): void {
 		$this->expectException( \UnexpectedValueException::class );
 		$this->expectExceptionMessageMatches( $expectedInErrorMessage );
@@ -54,9 +53,7 @@ class PaymentReferenceCodeTest extends TestCase {
 		$this->assertSame( 'XW-DAR-E99-T', $code->getFormattedCode() );
 	}
 
-	/**
-	 * @dataProvider invalidCodeProvider
-	 */
+	#[DataProvider( 'invalidCodeProvider' )]
 	public function testConversionFromStringFailsOnInvalidCodes( string $code ): void {
 		$this->expectException( \UnexpectedValueException::class );
 

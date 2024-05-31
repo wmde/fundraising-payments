@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Integration\UseCases\ValidateIban;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
 use WMDE\Fundraising\PaymentContext\Domain\IbanValidator;
@@ -17,9 +18,7 @@ use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResult;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase
- */
+#[CoversClass( ValidateIbanUseCase::class )]
 class ValidateIbanUseCaseTest extends TestCase {
 
 	private IbanBlockList $ibanBlocklist;

@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
@@ -12,9 +13,7 @@ use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\PayPalPaymentInspector;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment
- */
+#[CoversClass( PayPalPayment::class )]
 class PayPalPaymentTest extends TestCase {
 
 	private const PAYER_ID = '42DFPNJDF8RED';

@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
@@ -10,9 +11,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment
- */
+#[CoversClass( BankTransferPayment::class )]
 class BankTransferPaymentTest extends TestCase {
 	public function testGivenNewPayment_itReturnsFormattedReferenceCode(): void {
 		$payment = $this->makeBankTransferPayment();

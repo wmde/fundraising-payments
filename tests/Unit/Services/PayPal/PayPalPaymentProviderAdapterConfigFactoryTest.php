@@ -4,14 +4,13 @@ declare( strict_types = 1 );
 
 namespace Unit\Services\PayPal;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfigFactory;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfigFactory
- */
+#[CoversClass( PayPalPaymentProviderAdapterConfigFactory::class )]
 class PayPalPaymentProviderAdapterConfigFactoryTest extends TestCase {
 	public function testCreateConfigForProductAndLanguage(): void {
 		$config = PayPalPaymentProviderAdapterConfigFactory::createConfig( $this->givenConfig(), 'donation', 'en' );

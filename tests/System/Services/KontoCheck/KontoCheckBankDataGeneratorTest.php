@@ -5,6 +5,9 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\System\Services\KontoCheck;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
@@ -13,20 +16,16 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckBankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckIbanValidator;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckBankDataGenerator
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\ExtendedBankData
- * @requires extension konto_check
- */
+#[CoversClass( KontoCheckBankDataGenerator::class )]
+#[CoversClass( ExtendedBankData::class )]
+#[RequiresPhpExtension( 'konto_check' )]
 class KontoCheckBankDataGeneratorTest extends TestCase {
 
 	public function testWhenUsingConfigLutPath_constructorCreatesConverter(): void {
 		$this->assertInstanceOf( KontoCheckBankDataGenerator::class, $this->newBankDataConverter() );
 	}
 
-	/**
-	 * @dataProvider ibanTestProvider
-	 */
+	#[DataProvider( 'ibanTestProvider' )]
 	public function testWhenGivenInvalidIban_converterThrowsException( string $ibanToTest ): void {
 		$bankConverter = $this->newBankDataConverter();
 
@@ -81,9 +80,7 @@ class KontoCheckBankDataGeneratorTest extends TestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider accountTestProvider
-	 */
+	#[DataProvider( 'accountTestProvider' )]
 	public function testWhenGivenInvalidAccountData_converterThrowsException( string $accountToTest, string $bankCodeToTest ): void {
 		$bankConverter = $this->newBankDataConverter();
 

@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PaymentUrlGenerator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
@@ -14,13 +16,11 @@ use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGe
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDescription;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\CreditCardURLGenerator
- * @covers \WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext
- */
+#[CoversClass( CreditCardURLGenerator::class )]
+#[CoversClass( DomainSpecificContext::class )]
 class CreditCardURLGeneratorTest extends TestCase {
 
-	/** @dataProvider donationProvider */
+	#[DataProvider( 'donationProvider' )]
 	public function testUrlGeneration(
 		string $expected,
 		string $firstName,

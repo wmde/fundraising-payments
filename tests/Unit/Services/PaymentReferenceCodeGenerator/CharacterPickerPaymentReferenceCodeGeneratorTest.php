@@ -4,14 +4,13 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PaymentReferenceCodeGenerator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Services\PaymentReferenceCodeGenerator\CharacterPickerPaymentReferenceCodeGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentReferenceCodeGenerator\RandomCharacterIndexGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\IncrementalCharacterIndexGenerator;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentReferenceCodeGenerator\CharacterPickerPaymentReferenceCodeGenerator
- */
+#[CoversClass( CharacterPickerPaymentReferenceCodeGenerator::class )]
 class CharacterPickerPaymentReferenceCodeGeneratorTest extends TestCase {
 
 	private const NUM_RANDOM_SAMPLES = 1000;

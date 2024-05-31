@@ -4,15 +4,15 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model\BookingDataTransformers;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer;
 use WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone
- */
+#[CoversClass( \WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\PayPalBookingTransformer::class )]
+#[CoversClass( \WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone::class )]
 class PayPalBookingTransformerTest extends TestCase {
 
 	public function testAnonymisesRawBookingData(): void {
@@ -33,11 +33,11 @@ class PayPalBookingTransformerTest extends TestCase {
 	}
 
 	/**
-	 * @dataProvider invalidBookingDataProvider
 	 *
 	 * @param array<scalar> $transactionData
 	 * @return void
 	 */
+	#[DataProvider( 'invalidBookingDataProvider' )]
 	public function testGivenMissingFields_constructorThrowsException( array $transactionData ): void {
 		$this->expectException( \InvalidArgumentException::class );
 
@@ -53,7 +53,7 @@ class PayPalBookingTransformerTest extends TestCase {
 		yield 'empty transaction ID' => [ [ 'payer_id' => 72, 'payment_date' => PayPalPaymentBookingData::PAYMENT_DATE ] ];
 	}
 
-	/** @dataProvider invalidValuationDateProvider */
+	#[DataProvider( 'invalidValuationDateProvider' )]
 	public function testGivenInvalidValuationDate_ItThrowsException( string|int $invalidValuationDate ): void {
 		$this->expectException( \InvalidArgumentException::class );
 

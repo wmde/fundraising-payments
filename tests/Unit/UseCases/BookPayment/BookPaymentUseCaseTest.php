@@ -4,7 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\BookPayment;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentNotFoundException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
@@ -28,12 +30,10 @@ use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationService;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationServiceFactory;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\BookPayment\BookPaymentUseCase
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\BookPayment\FollowUpSuccessResponse
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\BookPayment\SuccessResponse
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\BookPayment\FailureResponse
- */
+#[CoversClass( BookPaymentUseCase::class )]
+#[CoversClass( FollowUpSuccessResponse::class )]
+#[CoversClass( SuccessResponse::class )]
+#[CoversClass( FailureResponse::class )]
 class BookPaymentUseCaseTest extends TestCase {
 
 	private const PAYMENT_ID = 7;
@@ -75,7 +75,7 @@ class BookPaymentUseCaseTest extends TestCase {
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
 		$useCase = $this->makeBookPaymentUseCase( $repo );
 
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( RuntimeException::class );
 
 		$useCase->bookPayment( self::PAYMENT_ID, CreditCardPaymentBookingData::newValidBookingData() );
 	}

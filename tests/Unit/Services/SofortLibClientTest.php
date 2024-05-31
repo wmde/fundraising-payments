@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Sofort\SofortLib\Sofortueberweisung;
@@ -11,9 +12,7 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\Request;
 use WMDE\Fundraising\PaymentContext\Services\SofortLibClient;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\SofortLibClient
- */
+#[CoversClass( SofortLibClient::class )]
 class SofortLibClientTest extends TestCase {
 
 	public function testGet(): void {

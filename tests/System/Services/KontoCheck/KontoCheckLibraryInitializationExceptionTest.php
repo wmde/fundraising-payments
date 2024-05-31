@@ -3,12 +3,11 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\System\Services\KontoCheck;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckLibraryInitializationException;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckLibraryInitializationException
- */
+#[CoversClass( KontoCheckLibraryInitializationException::class )]
 class KontoCheckLibraryInitializationExceptionTest extends TestCase {
 	public function testGivenNoCode_ExceptionHasDefaultMessageAndCode(): void {
 		$ex = new KontoCheckLibraryInitializationException();

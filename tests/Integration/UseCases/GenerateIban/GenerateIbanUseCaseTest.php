@@ -4,7 +4,9 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Integration\UseCases\GenerateIban;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
@@ -13,13 +15,13 @@ use WMDE\Fundraising\PaymentContext\UseCases\BankDataSuccessResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData\GenerateBankDataFromGermanLegacyBankDataUseCase;
 
 /**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData\GenerateBankDataFromGermanLegacyBankDataUseCase
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\BankDataSuccessResponse
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\BankDataFailureResponse
  *
  * @license GPL-2.0-or-later
  * @author Kai Nissen <kai.nissen@wikimedia.de>
  */
+#[CoversClass( GenerateBankDataFromGermanLegacyBankDataUseCase::class )]
+#[CoversClass( BankDataSuccessResponse::class )]
+#[CoversClass( BankDataFailureResponse::class )]
 class GenerateIbanUseCaseTest extends TestCase {
 
 	private BankDataGenerator $bankDataGenerator;
@@ -63,7 +65,7 @@ class GenerateIbanUseCaseTest extends TestCase {
 
 	public function testWhenBankDataGeneratorThrowsException_failureResponseIsReturned(): void {
 		$this->bankDataGenerator = $this->createMock( BankDataGenerator::class );
-		$this->bankDataGenerator->method( $this->anything() )->willThrowException( new \RuntimeException( 'IBAN is too short' ) );
+		$this->bankDataGenerator->method( $this->anything() )->willThrowException( new RuntimeException( 'IBAN is too short' ) );
 
 		$useCase = $this->newGenerateIbanUseCase();
 		$response = $useCase->generateIban( '1015754241', '20050550' );

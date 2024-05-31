@@ -4,13 +4,12 @@ declare( strict_types = 1 );
 
 namespace Unit\Services\PaymentUrlGenerator\Sofort;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\Request;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\Request
- */
+#[CoversClass( Request::class )]
 class RequestTest extends TestCase {
 
 	public function testAccessors(): void {

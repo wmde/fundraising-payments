@@ -2,12 +2,11 @@
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Product
- */
+#[CoversClass( Product::class )]
 class ProductTest extends TestCase {
 
 	public function testToJSONSerialization(): void {

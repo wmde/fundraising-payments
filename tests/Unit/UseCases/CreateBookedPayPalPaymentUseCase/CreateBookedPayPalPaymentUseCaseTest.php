@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CreateBookedPayPalPaymentUseCase;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
@@ -14,15 +15,14 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\CreateBookedPayPalPaymentUseCase;
+use WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\FailingPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\SuccessResponse;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\CreateBookedPayPalPaymentUseCase
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\FailingPaymentIdRepository
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\FailureResponse
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CreateBookedPayPalPayment\SuccessResponse
- */
+#[CoversClass( CreateBookedPayPalPaymentUseCase::class )]
+#[CoversClass( FailingPaymentIdRepository::class )]
+#[CoversClass( FailureResponse::class )]
+#[CoversClass( SuccessResponse::class )]
 class CreateBookedPayPalPaymentUseCaseTest extends TestCase {
 	private const PAYMENT_ID = 5;
 

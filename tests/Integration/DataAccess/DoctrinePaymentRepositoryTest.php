@@ -4,9 +4,11 @@ declare( strict_types=1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Integration\DataAccess;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentRepository;
@@ -32,12 +34,10 @@ use WMDE\Fundraising\PaymentContext\Tests\Inspectors\PayPalPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\SofortPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentRepository
- * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\Euro
- * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\PaymentInterval
- * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\Iban
- */
+#[CoversClass( DoctrinePaymentRepository::class )]
+#[CoversClass( \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\Euro::class )]
+#[CoversClass( \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\PaymentInterval::class )]
+#[CoversClass( \WMDE\Fundraising\PaymentContext\DataAccess\DoctrineTypes\Iban::class )]
 class DoctrinePaymentRepositoryTest extends TestCase {
 
 	private Connection $connection;
@@ -439,7 +439,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	/**
 	 * @return array<string,mixed>
-	 * @throws \Doctrine\DBAL\Exception
+	 * @throws Exception
 	 */
 	private function fetchRawCreditCardPaymentData(): array {
 		$data = $this->connection->createQueryBuilder()
@@ -467,7 +467,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	/**
 	 * @param int $paymentId
 	 * @return array<string,mixed>
-	 * @throws \Doctrine\DBAL\Exception
+	 * @throws Exception
 	 */
 	private function fetchRawPayPalPaymentData( int $paymentId = 1 ): array {
 		$data = $this->connection->createQueryBuilder()
@@ -501,7 +501,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	/**
 	 * @return array<string,mixed>
-	 * @throws \Doctrine\DBAL\Exception
+	 * @throws Exception
 	 */
 	private function fetchRawBankTransferPaymentData(): array {
 		$data = $this->connection->createQueryBuilder()
@@ -532,7 +532,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	 * @param array<string,mixed> $extraData
 	 *
 	 * @return void
-	 * @throws \Doctrine\DBAL\Exception
+	 * @throws Exception
 	 */
 	private function insertRawDirectDebitPaymentData( array $extraData = [] ): void {
 		$this->connection->insert( 'payment', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'BEZ' ] );
@@ -549,7 +549,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	/**
 	 * @return array<string,mixed>
-	 * @throws \Doctrine\DBAL\Exception
+	 * @throws Exception
 	 */
 	private function fetchRawDirectDebitPaymentData(): array {
 		$data = $this->connection->createQueryBuilder()
@@ -566,7 +566,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	/**
 	 * @return array<string,mixed>
-	 * @throws \Doctrine\DBAL\Exception
+	 * @throws Exception
 	 */
 	private function fetchRawSofortPaymentData(): array {
 		$data = $this->connection->createQueryBuilder()
@@ -622,7 +622,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	/**
 	 * @return array<string,mixed>
-	 * @throws \Doctrine\DBAL\Exception
+	 * @throws Exception
 	 */
 	private function fetchRawPaymentReferenceCode(): array {
 		$data = $this->connection->createQueryBuilder()
@@ -637,7 +637,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	/**
 	 * @return array<string,mixed>
-	 * @throws \Doctrine\DBAL\Exception
+	 * @throws Exception
 	 */
 	private function fetchRawPayPalIdentifier( int $paymentId ): array {
 		$data = $this->connection->createQueryBuilder()

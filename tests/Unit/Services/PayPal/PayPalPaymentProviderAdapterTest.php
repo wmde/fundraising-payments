@@ -3,6 +3,9 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal;
 
+use DateTimeImmutable;
+use LogicException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
@@ -27,11 +30,9 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePayPalAPIForPayments;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapter
- * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfig
- * @covers \WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext
- */
+#[CoversClass( PayPalPaymentProviderAdapter::class )]
+#[CoversClass( PayPalPaymentProviderAdapterConfig::class )]
+#[CoversClass( DomainSpecificContext::class )]
 class PayPalPaymentProviderAdapterTest extends TestCase {
 	private const ORDER_ID = 'SOME-ORDER-ID';
 	private const SUBSCRIPTION_ID = 'SUB-1234';
@@ -65,7 +66,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 	}
 
 	public function testAdapterOnlyAcceptsIncompletePayPalUrlGenerator(): void {
-		$this->expectException( \LogicException::class );
+		$this->expectException( LogicException::class );
 		$this->expectExceptionMessage( 'Expected instance of ' . IncompletePayPalURLGenerator::class . ', got ' . PayPalURLGenerator::class );
 		$api = $this->createStub( PaypalAPI::class );
 		$adapter = new PayPalPaymentProviderAdapter(
@@ -113,7 +114,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 	}
 
 	public function testAdapterOnlyAcceptsPayPalPayments(): void {
-		$this->expectException( \LogicException::class );
+		$this->expectException( LogicException::class );
 		$this->expectExceptionMessage( PayPalPaymentProviderAdapter::class . ' only accepts ' . PayPalPayment::class );
 		$api = $this->createStub( PaypalAPI::class );
 		$adapter = new PayPalPaymentProviderAdapter(
@@ -147,7 +148,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 
 	public function testReplacesPlaceholdersInConfig(): void {
 		$fakePayPalAPI = new FakePayPalAPIForPayments(
-			[ new Subscription( self::SUBSCRIPTION_ID, new \DateTimeImmutable(), 'https://sandbox.paypal.com/confirm-subscription' ) ],
+			[ new Subscription( self::SUBSCRIPTION_ID, new DateTimeImmutable(), 'https://sandbox.paypal.com/confirm-subscription' ) ],
 			[ new Order( self::ORDER_ID, 'https://sandbox.paypal.com/confirm-order' ) ],
 		);
 		$adapter = new PayPalPaymentProviderAdapter(
@@ -222,7 +223,7 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 		$api->expects( $this->once() )
 			->method( 'createSubscription' )
 			->willReturn(
-				new Subscription( self::SUBSCRIPTION_ID, new \DateTimeImmutable(), 'https://sandbox.paypal.com/confirm-subscription' )
+				new Subscription( self::SUBSCRIPTION_ID, new DateTimeImmutable(), 'https://sandbox.paypal.com/confirm-subscription' )
 			);
 		return $api;
 	}

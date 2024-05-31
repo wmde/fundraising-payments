@@ -4,15 +4,17 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\System\Services\KontoCheck;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckIbanValidator;
 
 /**
  * Valid IBAN number examples taken from http://www.iban-rechner.eu/ibancalculator/iban.html#examples.
- *
- * @covers \WMDE\Fundraising\PaymentContext\Services\KontoCheck\KontoCheckIbanValidator
- * @requires extension konto_check
  */
+#[CoversClass( KontoCheckIbanValidator::class )]
+#[RequiresPhpExtension( 'konto_check' )]
 class KontoCheckIbanValidatorTest extends TestCase {
 
 	private function newValidator(): KontoCheckIbanValidator {
@@ -34,9 +36,7 @@ class KontoCheckIbanValidatorTest extends TestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider validIbanProvider
-	 */
+	#[DataProvider( 'validIbanProvider' )]
 	public function testGivenValidIban_validateReturnsTrue( string $iban ): void {
 		$validator = $this->newValidator();
 		$this->assertTrue( $validator->validate( $iban )->isSuccessful() );
@@ -57,9 +57,7 @@ class KontoCheckIbanValidatorTest extends TestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider wellFormedInvalidIbanProvider
-	 */
+	#[DataProvider( 'wellFormedInvalidIbanProvider' )]
 	public function testGivenWellFormedButInvalidIban_validateReturnsFalse( string $iban ): void {
 		$validator = $this->newValidator();
 		$this->assertFalse( $validator->validate( $iban )->isSuccessful() );
@@ -77,17 +75,13 @@ class KontoCheckIbanValidatorTest extends TestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider notWellFormedIbanProvider
-	 */
+	#[DataProvider( 'notWellFormedIbanProvider' )]
 	public function testGivenNotWellFormedIban_validateReturnsFalse( string $iban ): void {
 		$validator = $this->newValidator();
 		$this->assertFalse( $validator->validate( $iban )->isSuccessful() );
 	}
 
-	/**
-	 * @dataProvider notWellFormedIbanProvider
-	 */
+	#[DataProvider( 'notWellFormedIbanProvider' )]
 	public function testGivenNotWellFormedIban_validationResultIsOneViolationWithStringifiedIban( string $malformedIban ): void {
 		$validator = $this->newValidator();
 

@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\System\Services\ExternalVerificationService;
 
 use GuzzleHttp\Client;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
@@ -14,9 +15,7 @@ use WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\Externa
 use WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\PayPalVerificationService;
 use WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\SucceedingVerificationService;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\ExternalVerificationServiceFactory
- */
+#[CoversClass( ExternalVerificationServiceFactory::class )]
 class ExternalVerificationServiceFactoryTest extends TestCase {
 
 	public function testOnGivenPayPalPaymentReturnsPayPalVerifier(): void {

@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\DomainSpecificPaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentType;
@@ -10,9 +11,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentValidator;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResponse;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\PaymentValidator
- */
+#[CoversClass( PaymentValidator::class )]
 class PaymentValidatorTest extends TestCase {
 	private const VALID_AMOUNT = 100;
 	private const VALID_INTERVAL = 1;

@@ -5,15 +5,14 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Integration\DataAccess;
 
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentId;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentIdRepository
- */
+#[CoversClass( DoctrinePaymentIdRepository::class )]
 class DoctrinePaymentIdRepositoryTest extends TestCase {
 
 	private EntityManager $entityManager;

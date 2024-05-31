@@ -3,14 +3,13 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PaymentUrlGenerator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\UrlGenerator\DomainSpecificContext;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\ConfirmationPageUrlGenerator;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\ConfirmationPageUrlGenerator
- */
+#[CoversClass( ConfirmationPageUrlGenerator::class )]
 class ConfirmationPageUrlGeneratorTest extends TestCase {
 	public function testItAppendsAuthenticationTokensToConfirmationUrl(): void {
 		$generator = new ConfirmationPageUrlGenerator(

@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Inspectors;
 
+use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
+use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 
 class DirectDebitPaymentInspector
@@ -28,10 +31,10 @@ class DirectDebitPaymentInspector
         return $prop->getValue($this->inspectionObject);
     }
 
-    public function getIban(): ?\WMDE\Fundraising\PaymentContext\Domain\Model\Iban
+    public function getIban(): ?Iban
     {
         $value = $this->getPrivateValue('iban');
-        assert($value === null || $value instanceof \WMDE\Fundraising\PaymentContext\Domain\Model\Iban);
+        assert($value === null || $value instanceof Iban);
         return $value;
     }
 
@@ -56,17 +59,17 @@ class DirectDebitPaymentInspector
         return $value;
     }
 
-    public function getAmount(): \WMDE\Euro\Euro
+    public function getAmount(): Euro
     {
         $value = $this->getPrivateValue('amount');
-        assert($value instanceof \WMDE\Euro\Euro);
+        assert($value instanceof Euro);
         return $value;
     }
 
-    public function getInterval(): \WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval
+    public function getInterval(): PaymentInterval
     {
         $value = $this->getPrivateValue('interval');
-        assert($value instanceof \WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval);
+        assert($value instanceof PaymentInterval);
         return $value;
     }
 
