@@ -11,6 +11,10 @@
 	cacheDirectory=".phpunit.cache"
 	backupStaticProperties="false"
 	requireCoverageMetadata="true"
+	displayDetailsOnTestsThatTriggerDeprecations="true"
+	displayDetailsOnTestsThatTriggerNotices="true"
+	displayDetailsOnTestsThatTriggerWarnings="true"
+	displayDetailsOnTestsThatTriggerErrors="true"
 >
   <coverage includeUncoveredFiles="true"/>
   <testsuites>
