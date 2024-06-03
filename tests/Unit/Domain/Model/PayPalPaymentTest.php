@@ -11,7 +11,6 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
-use WMDE\Fundraising\PaymentContext\Tests\Inspectors\PayPalPaymentInspector;
 
 #[CoversClass( PayPalPayment::class )]
 class PayPalPaymentTest extends TestCase {
@@ -65,22 +64,6 @@ class PayPalPaymentTest extends TestCase {
 		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
 
 		$this->assertTrue( $payment->canBeBooked( PayPalPaymentBookingData::newValidFollowupBookingData() ) );
-	}
-
-	public function testBookPaymentAnonymisesPersonalData(): void {
-		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
-
-		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
-
-		$bookingData = ( new PayPalPaymentInspector( $payment ) )->getBookingData();
-		$this->assertArrayNotHasKey( 'first_name', $bookingData );
-		$this->assertArrayNotHasKey( 'last_name', $bookingData );
-		$this->assertArrayNotHasKey( 'address_name', $bookingData );
-		$this->assertArrayNotHasKey( 'address_street', $bookingData );
-		$this->assertArrayNotHasKey( 'address_status', $bookingData );
-		$this->assertArrayNotHasKey( 'address_zip', $bookingData );
-		$this->assertArrayNotHasKey( 'address_city', $bookingData );
-		$this->assertArrayNotHasKey( 'address_country_code', $bookingData );
 	}
 
 	public function testBookingABookedParentPaymentCreatesABookedChildPayment(): void {

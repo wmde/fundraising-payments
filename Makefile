@@ -51,9 +51,7 @@ check-dependencies:
 		php \
 		./vendor/bin/deptrac --no-progress --fail-on-uncovered --report-uncovered
 
-generate-test-inspectors:
-	docker-compose run --rm --no-deps app php ./tests/generate_inspectors
 
-setup: install-php generate-test-inspectors
+setup: install-php
 
-.PHONY: install-php update-php ci ci-with-coverage test phpunit phpunit-with-coverage cs fix-cs stan generate-test-inspectors setup
+.PHONY: install-php update-php ci ci-with-coverage test phpunit phpunit-with-coverage cs fix-cs stan setup

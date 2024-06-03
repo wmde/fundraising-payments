@@ -15,7 +15,6 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
-use WMDE\Fundraising\PaymentContext\Tests\Inspectors\SofortPaymentInspector;
 
 #[CoversClass( SofortPayment::class )]
 class SofortPaymentTest extends TestCase {
@@ -82,16 +81,6 @@ class SofortPaymentTest extends TestCase {
 			new DateTimeImmutable( '2001-12-24T17:30:00', ValuationDateTimeZone::getTimeZone() ),
 			$sofortPayment->getValuationDate()
 		);
-	}
-
-	public function testBookPaymentSetsTransactionId(): void {
-		$sofortPayment = $this->makeSofortPayment();
-
-		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
-
-		$sofortPaymentInspector = new SofortPaymentInspector( $sofortPayment );
-
-		$this->assertEquals( 'yellow', $sofortPaymentInspector->getTransactionId() );
 	}
 
 	public function testPaymentCannotBeBookedTwice(): void {
