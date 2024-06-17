@@ -8,14 +8,14 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\PayPalVerificationService;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\PayPalVerificationService
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationResponse
- */
+#[CoversClass( \WMDE\Fundraising\PaymentContext\Services\ExternalVerificationService\PayPal\PayPalVerificationService::class )]
+#[CoversClass( \WMDE\Fundraising\PaymentContext\UseCases\BookPayment\VerificationResponse::class )]
 class PayPalVerificationServiceTest extends TestCase {
 
 	private const VALID_ACCOUNT_EMAIL = 'foerderpp@wikimedia.de';
@@ -202,7 +202,7 @@ class PayPalVerificationServiceTest extends TestCase {
 		if ( count( $this->receivedRequests ) === 0 ) {
 			$this->fail( 'No verification requests received' );
 		}
-		/** @var \GuzzleHttp\Psr7\Request $req */
+		/** @var Request $req */
 		$req = $this->receivedRequests[0]['request'];
 		parse_str( $req->getBody()->getContents(), $receivedArguments );
 

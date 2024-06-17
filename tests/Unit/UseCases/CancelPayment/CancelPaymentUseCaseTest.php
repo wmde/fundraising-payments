@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\CancelPayment;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentNotFoundException;
@@ -18,11 +19,9 @@ use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\CancelPaymentUseCase;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\FailureResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\SuccessResponse;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\CancelPaymentUseCase
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\SuccessResponse
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\CancelPayment\FailureResponse
- */
+#[CoversClass( CancelPaymentUseCase::class )]
+#[CoversClass( SuccessResponse::class )]
+#[CoversClass( FailureResponse::class )]
 class CancelPaymentUseCaseTest extends TestCase {
 
 	public function testCancelsPayment(): void {

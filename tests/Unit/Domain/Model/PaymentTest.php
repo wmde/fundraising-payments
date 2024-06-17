@@ -3,16 +3,15 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\Payment
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\LegacyPaymentData
- */
+#[CoversClass( Payment::class )]
+#[CoversClass( LegacyPaymentData::class )]
 class PaymentTest extends TestCase {
 	private const PAYMENT_ID = 49;
 

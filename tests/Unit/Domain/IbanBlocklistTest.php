@@ -4,12 +4,11 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\IbanBlockList;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\IbanBlockList
- */
+#[CoversClass( IbanBlockList::class )]
 class IbanBlocklistTest extends TestCase {
 
 	private const IBAN = 'DE33100205000001194700';

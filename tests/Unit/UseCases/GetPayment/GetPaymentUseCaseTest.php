@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\GetPayment;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\BankDataGenerator;
@@ -18,9 +19,7 @@ use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\PaymentRepositorySpy;
 use WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\GetPayment\GetPaymentUseCase
- */
+#[CoversClass( GetPaymentUseCase::class )]
 class GetPaymentUseCaseTest extends TestCase {
 
 	public function testGivenPaymentId_itReturnsArrayForPayment(): void {

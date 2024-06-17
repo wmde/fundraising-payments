@@ -5,15 +5,12 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
 use DateTime;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\DefaultPaymentDelayCalculator;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\DefaultPaymentDelayCalculator
- *
- * @license GPL-2.0-or-later
- * @author Kai Nissen < kai.nissen@wikimedia.de >
- */
-class DefaultPaymentDelayCalculatorTest extends \PHPUnit\Framework\TestCase {
+#[CoversClass( DefaultPaymentDelayCalculator::class )]
+class DefaultPaymentDelayCalculatorTest extends TestCase {
 
 	private const PAYMENT_DELAY_IN_DAYS = 45;
 

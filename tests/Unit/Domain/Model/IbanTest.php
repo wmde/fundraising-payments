@@ -4,24 +4,19 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\Iban
- *
- * @license GPL-2.0-or-later
- * @author Gabriel Birke < gabriel.birke@wikimedia.de >
- */
+#[CoversClass( Iban::class )]
 class IbanTest extends TestCase {
 
 	private const TEST_IBAN_WITH_WHITESPACE = 'DE12 5001 0517 0648 4898 90 ';
 	private const TEST_IBAN = 'DE12500105170648489890';
 	private const TEST_LOWERCASE_IBAN = 'de12500105170648489890';
 
-	/**
-	 * @dataProvider getValidIbansWithDisallowedCharacters
-	 */
+	#[DataProvider( 'getValidIbansWithDisallowedCharacters' )]
 	public function testGivenIbanWithDisallowedCharacters_onlySaneCharactersAreConsidered( string $input, string $expected ): void {
 		$iban = new Iban( $input );
 		$this->assertSame( $expected, $iban->toString() );

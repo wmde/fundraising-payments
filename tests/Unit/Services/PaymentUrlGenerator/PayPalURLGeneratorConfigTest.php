@@ -4,13 +4,12 @@ declare( strict_types = 1 );
 
 namespace Unit\Services\PaymentUrlGenerator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGeneratorConfig;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\TranslatableDescription;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\LegacyPayPalURLGeneratorConfig
- */
+#[CoversClass( LegacyPayPalURLGeneratorConfig::class )]
 class PayPalURLGeneratorConfigTest extends TestCase {
 
 	public function testGivenIncompletePayPalUrlConfig_exceptionIsThrown(): void {

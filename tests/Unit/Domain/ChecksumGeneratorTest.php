@@ -4,14 +4,11 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\ChecksumGenerator;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\ChecksumGenerator
- *
- * @license GPL-2.0-or-later
- */
+#[CoversClass( ChecksumGenerator::class )]
 class ChecksumGeneratorTest extends TestCase {
 
 	public function testCannotConstructWithLessThanTwoCharacters(): void {

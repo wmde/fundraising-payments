@@ -5,6 +5,8 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Integration\Services\Transaction
 
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
@@ -22,9 +24,7 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\SequentialPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\TransactionIdFinder\DoctrineTransactionIdFinder
- */
+#[CoversClass( DoctrineTransactionIdFinder::class )]
 class DoctrineTransactionIdFinderTest extends TestCase {
 	private Connection $connection;
 	private EntityManager $entityManager;
@@ -35,9 +35,7 @@ class DoctrineTransactionIdFinderTest extends TestCase {
 		$this->connection = $this->entityManager->getConnection();
 	}
 
-	/**
-	 * @dataProvider provideNonPayPalPayments
-	 */
+	#[DataProvider( 'provideNonPayPalPayments' )]
 	public function testGivenNonPayPalPayment_itReturnsEmptyArray( Payment $payment ): void {
 		$finder = new DoctrineTransactionIdFinder( $this->connection );
 

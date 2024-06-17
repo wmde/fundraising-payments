@@ -3,13 +3,13 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Order;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\PayPalAPIException;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Order
- */
+#[CoversClass( Order::class )]
 class OrderTest extends TestCase {
 
 	public function testCreateFromApiResponse(): void {
@@ -39,9 +39,9 @@ class OrderTest extends TestCase {
 	}
 
 	/**
-	 * @dataProvider responsesMissingProperID
 	 * @param array<string,mixed> $responseBody
 	 */
+	#[DataProvider( 'responsesMissingProperID' )]
 	public function testIdIsRequiredField( array $responseBody, string $exceptionMessage ): void {
 		$this->expectException( PayPalAPIException::class );
 		$this->expectExceptionMessage( $exceptionMessage );

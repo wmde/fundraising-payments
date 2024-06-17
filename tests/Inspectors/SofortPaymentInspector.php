@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Inspectors;
 
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode;
+use WMDE\Euro\Euro;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 
 class SofortPaymentInspector
@@ -28,10 +31,10 @@ class SofortPaymentInspector
         return $prop->getValue($this->inspectionObject);
     }
 
-    public function getPaymentReferenceCode(): ?\WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode
+    public function getPaymentReferenceCode(): ?PaymentReferenceCode
     {
         $value = $this->getPrivateValue('paymentReferenceCode');
-        assert($value === null || $value instanceof \WMDE\Fundraising\PaymentContext\Domain\Model\PaymentReferenceCode);
+        assert($value === null || $value instanceof PaymentReferenceCode);
         return $value;
     }
 
@@ -56,17 +59,17 @@ class SofortPaymentInspector
         return $value;
     }
 
-    public function getAmount(): \WMDE\Euro\Euro
+    public function getAmount(): Euro
     {
         $value = $this->getPrivateValue('amount');
-        assert($value instanceof \WMDE\Euro\Euro);
+        assert($value instanceof Euro);
         return $value;
     }
 
-    public function getInterval(): \WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval
+    public function getInterval(): PaymentInterval
     {
         $value = $this->getPrivateValue('interval');
-        assert($value instanceof \WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval);
+        assert($value instanceof PaymentInterval);
         return $value;
     }
 

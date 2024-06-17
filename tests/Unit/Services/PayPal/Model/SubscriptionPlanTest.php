@@ -3,13 +3,13 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\Model\SubscriptionPlan
- */
+#[CoversClass( SubscriptionPlan::class )]
 class SubscriptionPlanTest extends TestCase {
 	public function testToJSONSerialization(): void {
 		$plan = new SubscriptionPlan(
@@ -89,9 +89,7 @@ class SubscriptionPlanTest extends TestCase {
 		$this->assertSame( PaymentInterval::Yearly, $plan->monthlyInterval );
 	}
 
-	/**
-	 * @dataProvider brokenBillingCycleDataProvider
-	 */
+	#[DataProvider( 'brokenBillingCycleDataProvider' )]
 	public function testCreateFromJSONFailsOnReadingIntervalFromBillingCycle( mixed $testBillingCycleValues, string $exptectedExceptionmessage ): void {
 		$this->expectExceptionMessage( $exptectedExceptionmessage );
 		$plan = SubscriptionPlan::from( [

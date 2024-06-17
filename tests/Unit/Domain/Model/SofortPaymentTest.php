@@ -4,6 +4,10 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
+use DateTimeImmutable;
+use DomainException;
+use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
@@ -13,9 +17,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Inspectors\SofortPaymentInspector;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment
- */
+#[CoversClass( SofortPayment::class )]
 class SofortPaymentTest extends TestCase {
 
 	public function testGetPaymentCode(): void {
@@ -39,7 +41,7 @@ class SofortPaymentTest extends TestCase {
 	}
 
 	public function testGivenNonOneTimePaymentIntervalThrowsException(): void {
-		$this->expectException( \InvalidArgumentException::class );
+		$this->expectException( InvalidArgumentException::class );
 
 		SofortPayment::create( 1, Euro::newFromCents( 1000 ), PaymentInterval::HalfYearly, new PaymentReferenceCode( 'XW', 'DARE99', 'X' ) );
 	}
@@ -56,7 +58,7 @@ class SofortPaymentTest extends TestCase {
 	public function testBookPaymentValidatesDate(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
-		$this->expectException( \DomainException::class );
+		$this->expectException( DomainException::class );
 		$this->expectExceptionMessageMatches( '/Error in valuation date/' );
 
 		$sofortPayment->bookPayment( [ 'transactionId' => 'yellow', 'valuationDate' => '2001-12-24' ], new DummyPaymentIdRepository() );
@@ -65,7 +67,7 @@ class SofortPaymentTest extends TestCase {
 	public function testBookPaymentValidatesTransactionIdNotEmpty(): void {
 		$sofortPayment = $this->makeSofortPayment();
 
-		$this->expectException( \DomainException::class );
+		$this->expectException( DomainException::class );
 		$this->expectExceptionMessageMatches( '/Transaction ID missing/' );
 
 		$sofortPayment->bookPayment( [ 'transactionId' => '', 'valuationDate' => '2001-12-24T17:30:00Z' ], new DummyPaymentIdRepository() );
@@ -77,7 +79,7 @@ class SofortPaymentTest extends TestCase {
 		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 
 		$this->assertEquals(
-			new \DateTimeImmutable( '2001-12-24T17:30:00', ValuationDateTimeZone::getTimeZone() ),
+			new DateTimeImmutable( '2001-12-24T17:30:00', ValuationDateTimeZone::getTimeZone() ),
 			$sofortPayment->getValuationDate()
 		);
 	}
@@ -96,7 +98,7 @@ class SofortPaymentTest extends TestCase {
 		$sofortPayment = $this->makeSofortPayment();
 		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 
-		$this->expectException( \DomainException::class );
+		$this->expectException( DomainException::class );
 
 		$sofortPayment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
 	}

@@ -3,14 +3,14 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal;
 
+use DomainException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfigReader;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\PayPalPaymentProviderAdapterConfigReader
- */
+#[CoversClass( PayPalPaymentProviderAdapterConfigReader::class )]
 class PayPalPaymentProviderConfigReaderTest extends TestCase {
 	public function testReadsExistingYamlFile(): void {
 		$config = PayPalPaymentProviderAdapterConfigReader::readConfig( __DIR__ . '/../../../Data/PayPalAPIURLGeneratorConfig/paypal_api_correct.yml' );
@@ -18,13 +18,13 @@ class PayPalPaymentProviderConfigReaderTest extends TestCase {
 	}
 
 	public function testProductIdsMustBeUnique(): void {
-		$this->expectException( \DomainException::class );
+		$this->expectException( DomainException::class );
 		$this->expectExceptionMessage( "All product IDs in the configuration file must be unique!" );
 		PayPalPaymentProviderAdapterConfigReader::readConfig( __DIR__ . '/../../../Data/PayPalAPIURLGeneratorConfig/paypal_api_duplicate_product_id.yml' );
 	}
 
 	public function testSubscriptionPlanIdsMustBeUnique(): void {
-		$this->expectException( \DomainException::class );
+		$this->expectException( DomainException::class );
 		$this->expectExceptionMessage( "All subscription plan IDs in the configuration file must be unique!" );
 		PayPalPaymentProviderAdapterConfigReader::readConfig( __DIR__ . '/../../../Data/PayPalAPIURLGeneratorConfig/paypal_api_duplicate_plan_id.yml' );
 	}
@@ -42,7 +42,7 @@ class PayPalPaymentProviderConfigReaderTest extends TestCase {
 	}
 
 	public function testReadingFromEmptyFileThrowsException(): void {
-		$this->expectException( \DomainException::class );
+		$this->expectException( DomainException::class );
 		$this->expectExceptionMessage( 'Configuration file must contain a nested array structure!' );
 		PayPalPaymentProviderAdapterConfigReader::readConfig( __DIR__ . '/../../../Data/PayPalAPIURLGeneratorConfig/paypal_api_empty.yml' );
 	}

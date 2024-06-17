@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services;
 
+use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
@@ -27,9 +29,7 @@ use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGenera
 use WMDE\Fundraising\PaymentContext\Tests\Data\TestIban;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentURLFactory
- */
+#[CoversClass( PaymentURLFactory::class )]
 class PaymentURLFactoryTest extends TestCase {
 
 	private const CONFIRMATION_PAGE_URL = 'https://spenden.wikimedia.de/confirmation';
@@ -110,7 +110,7 @@ class PaymentURLFactoryTest extends TestCase {
 		$urlFactory = $this->createTestURLFactory();
 		$payment = $this->createMock( Payment::class );
 
-		$this->expectException( \InvalidArgumentException::class );
+		$this->expectException( InvalidArgumentException::class );
 		$urlFactory->createURLGenerator( $payment, new FakeUrlAuthenticator() );
 	}
 

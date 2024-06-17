@@ -4,15 +4,14 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model\BookingDataTransformers;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\CreditCardBookingTransformer;
 use WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\CreditCardBookingTransformer
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone
- */
+#[CoversClass( \WMDE\Fundraising\PaymentContext\Domain\Model\BookingDataTransformers\CreditCardBookingTransformer::class )]
+#[CoversClass( \WMDE\Fundraising\PaymentContext\Domain\Model\ValuationDateTimeZone::class )]
 class CreditCardBookingTransformerTest extends TestCase {
 
 	public function testGetBookingDataReturnsArrayOfStrings(): void {

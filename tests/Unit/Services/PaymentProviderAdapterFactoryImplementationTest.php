@@ -3,6 +3,8 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
@@ -22,13 +24,9 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakePaymentReferenceCode;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DefaultPaymentProviderAdapter;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PaymentProviderAdapterFactoryImplementation
- */
+#[CoversClass( PaymentProviderAdapterFactoryImplementation::class )]
 class PaymentProviderAdapterFactoryImplementationTest extends TestCase {
-	/**
-	 * @dataProvider allPaymentsExceptPayPal
-	 */
+	#[DataProvider( 'allPaymentsExceptPayPal' )]
 	public function testItCreatesDefaultAdapterForAllPaymentTypesExceptPayPal( Payment $payment ): void {
 		$factory = new PaymentProviderAdapterFactoryImplementation(
 			$this->createStub( PaypalAPI::class ),

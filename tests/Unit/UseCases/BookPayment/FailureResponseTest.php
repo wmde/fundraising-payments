@@ -3,12 +3,11 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\UseCases\BookPayment;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\UseCases\BookPayment\FailureResponse;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\UseCases\BookPayment\FailureResponse
- */
+#[CoversClass( FailureResponse::class )]
 class FailureResponseTest extends TestCase {
 	public function testWhenUsingAlreadyCompletedConstructor_isAlreadyCompletedReturnsTrue(): void {
 		$response = FailureResponse::newAlreadyCompletedResponse();

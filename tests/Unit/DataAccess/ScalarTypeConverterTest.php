@@ -3,23 +3,19 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\DataAccess;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\ScalarTypeConverter;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\ScalarTypeConverter
- */
+#[CoversClass( ScalarTypeConverter::class )]
 class ScalarTypeConverterTest extends TestCase {
-	/**
-	 * @dataProvider integerConvertibleScalars
-	 */
+	#[DataProvider( 'integerConvertibleScalars' )]
 	public function testItConvertToIntegers( mixed $value, int $expected ): void {
 		$this->assertSame( $expected, ScalarTypeConverter::toInt( $value ) );
 	}
 
-	/**
-	 * @dataProvider noScalars
-	 */
+	#[DataProvider( 'noScalars' )]
 	public function testToIntThrowsOnNonScalars( mixed $value ): void {
 		$this->expectException( \InvalidArgumentException::class );
 		ScalarTypeConverter::toInt( $value );
@@ -49,16 +45,12 @@ class ScalarTypeConverterTest extends TestCase {
 		yield [ true, 1 ];
 	}
 
-	/**
-	 * @dataProvider stringConvertibleScalars
-	 */
+	#[DataProvider( 'stringConvertibleScalars' )]
 	public function testItConvertToString( mixed $value, string $expected ): void {
 		$this->assertSame( $expected, ScalarTypeConverter::toString( $value ) );
 	}
 
-	/**
-	 * @dataProvider noScalars
-	 */
+	#[DataProvider( 'noScalars' )]
 	public function testToStringThrowsOnNonScalars( mixed $value ): void {
 		$this->expectException( \InvalidArgumentException::class );
 		ScalarTypeConverter::toString( $value );

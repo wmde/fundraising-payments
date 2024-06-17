@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
@@ -11,9 +12,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Tests\Data\CreditCardPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment
- */
+#[CoversClass( CreditCardPayment::class )]
 class CreditCardPaymentTest extends TestCase {
 
 	private const OTHER_TRANSACTION_ID = '3388998877';
@@ -99,7 +98,7 @@ class CreditCardPaymentTest extends TestCase {
 	public function testGivenNewPayment_paymentLegacyDataIsEmptyArray(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
-		$this->assertSame( [],  $creditCardPayment->getLegacyData()->paymentSpecificValues );
+		$this->assertSame( [], $creditCardPayment->getLegacyData()->paymentSpecificValues );
 	}
 
 	public function testGetDisplayDataReturnsAllFieldsToDisplayForBookedPayment(): void {

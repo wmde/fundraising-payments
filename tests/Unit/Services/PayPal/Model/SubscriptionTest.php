@@ -3,13 +3,13 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Services\PayPal\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\PayPalAPIException;
 use WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Services\PayPal\Model\Subscription
- */
+#[CoversClass( Subscription::class )]
 class SubscriptionTest extends TestCase {
 
 	public function testCreateFromApiResponse(): void {
@@ -41,9 +41,9 @@ class SubscriptionTest extends TestCase {
 	}
 
 	/**
-	 * @dataProvider responsesWithMissingFields
 	 * @param array<string,string|bool> $apiResponse
 	 */
+	#[DataProvider( 'responsesWithMissingFields' )]
 	public function testIdAndStartTimeAreRequiredField( array $apiResponse ): void {
 		$this->expectException( PayPalAPIException::class );
 		$this->expectExceptionMessage( 'Fields "id" and "start_time" are required' );
@@ -60,9 +60,7 @@ class SubscriptionTest extends TestCase {
 		yield [ [ 'id' => false ] ];
 	}
 
-	/**
-	 * @dataProvider malformedDates
-	 */
+	#[DataProvider( 'malformedDates' )]
 	public function testMalformedStartTimeThrowsAnException( mixed $malformedDate ): void {
 		$this->expectException( PayPalAPIException::class );
 		$this->expectExceptionMessage( 'Malformed date formate for start_time' );

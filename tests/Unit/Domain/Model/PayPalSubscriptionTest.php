@@ -3,16 +3,17 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPaymentIdentifier;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalSubscription;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\PayPalSubscription
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPaymentIdentifier
- */
+#[CoversClass( PayPalSubscription::class )]
+#[CoversClass( PayPalPaymentIdentifier::class )]
 class PayPalSubscriptionTest extends TestCase {
 	private const SUBSCRIPTION_ID = 'I-BW452GLLEP1G';
 
@@ -22,9 +23,7 @@ class PayPalSubscriptionTest extends TestCase {
 		new PayPalSubscription( new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime ), self::SUBSCRIPTION_ID );
 	}
 
-	/**
-	 * @dataProvider provideEmptySubscriptionIDs
-	 */
+	#[DataProvider( 'provideEmptySubscriptionIDs' )]
 	public function testConstructorEnforcesNonEmptySubscriptionId( string $subscriptionId ): void {
 		$this->expectException( \DomainException::class );
 

@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace WMDE\Fundraising\PaymentContext\Tests\Unit\Domain\Model;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
@@ -10,9 +11,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
 use WMDE\Fundraising\PaymentContext\Tests\Data\DirectDebitBankData;
 
-/**
- * @covers \WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment
- */
+#[CoversClass( DirectDebitPayment::class )]
 class DirectDebitPaymentTest extends TestCase {
 	private const PAYMENT_ID = 78;
 
