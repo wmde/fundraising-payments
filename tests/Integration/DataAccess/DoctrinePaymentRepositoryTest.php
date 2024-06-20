@@ -27,11 +27,6 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentIdRepository;
 use WMDE\Fundraising\PaymentContext\Tests\Data\PayPalPaymentBookingData;
 use WMDE\Fundraising\PaymentContext\Tests\Fixtures\DummyPaymentIdRepository;
-use WMDE\Fundraising\PaymentContext\Tests\Inspectors\BankTransferPaymentInspector;
-use WMDE\Fundraising\PaymentContext\Tests\Inspectors\CreditCardPaymentInspector;
-use WMDE\Fundraising\PaymentContext\Tests\Inspectors\DirectDebitPaymentInspector;
-use WMDE\Fundraising\PaymentContext\Tests\Inspectors\PayPalPaymentInspector;
-use WMDE\Fundraising\PaymentContext\Tests\Inspectors\SofortPaymentInspector;
 use WMDE\Fundraising\PaymentContext\Tests\TestEnvironment;
 
 #[CoversClass( DoctrinePaymentRepository::class )]
@@ -42,10 +37,10 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	private Connection $connection;
 	private EntityManager $entityManager;
-
 	private const IBAN = 'DE00123456789012345678';
 	private const BIC = 'SCROUSDBXXX';
 	private const FOLLOWUP_PAYMENT_ID = 2;
+	private const VALUATION_DATE = '2021-12-24 23:00:00';
 
 	protected function setUp(): void {
 		$factory = TestEnvironment::newInstance()->getFactory();
@@ -100,11 +95,11 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$payment = $repo->getPaymentById( 1 );
 
 		$this->assertInstanceOf( CreditCardPayment::class, $payment );
-		$paymentSpy = new CreditCardPaymentInspector( $payment );
-		$this->assertSame( 4223, $paymentSpy->getAmount()->getEuroCents() );
-		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
-		$this->assertEquals( new \DateTimeImmutable( '2021-12-24 23:00:00' ), $paymentSpy->getValuationDate() );
-		$this->assertSame( [ 'transactionId' => '1eetcaffee' ], $paymentSpy->getBookingData() );
+		$this->assertSame( 4223, $payment->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::Yearly, $payment->getInterval() );
+		$this->assertEquals( new \DateTimeImmutable( self::VALUATION_DATE ), $payment->getValuationDate() );
+		$displayValues = $payment->getDisplayValues();
+		$this->assertSame( '1eetcaffee', $displayValues['ext_payment_id'] );
 	}
 
 	public function testStorePayPalPayment(): void {
@@ -122,6 +117,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->assertSame( 'PPL', $insertedPayment['payment_method'] );
 		$this->assertSame( '2012-12-02 18:54:49', $insertedPayment['valuation_date'] );
 		$this->assertNull( $insertedPayment['parent_payment_id'] );
+		$this->assertSame( PayPalPaymentBookingData::TRANSACTION_ID, $insertedPayment['transaction_id'] );
 		$this->assertSame( PayPalPaymentBookingData::newEncodedValidBookingData(), $insertedPayment['booking_data'] );
 	}
 
@@ -147,25 +143,27 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$followupPayment = $repo->getPaymentById( 2 );
 		$this->assertInstanceOf( PayPalPayment::class, $payment );
 
-		$paymentSpy = new PayPalPaymentInspector( $payment );
-		$this->assertSame( 4223, $paymentSpy->getAmount()->getEuroCents() );
-		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
-		$this->assertEquals( new \DateTimeImmutable( '2021-12-24 23:00:00' ), $paymentSpy->getValuationDate() );
+		$this->assertSame( 4223, $payment->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::Yearly, $payment->getInterval() );
+		$this->assertEquals( new \DateTimeImmutable( self::VALUATION_DATE ), $payment->getValuationDate() );
 		$this->assertSame( [
-			'item_number' => "1",
-			'mc_currency' => 'EUR',
-			'mc_fee' => '2.70',
-			'mc_gross' => '2.70',
-			'payer_id' => '42DFPNJDF8RED',
-			'payer_status' => 'verified',
-			'payment_date' => '10:54:49 Dec 02, 2012 PST',
-			'payment_status' => 'processed',
-			'payment_type' => 'instant',
-			'settle_amount' => '2.70',
-			'subscr_id' => '8RHHUM3W3PRH7QY6B59',
-			'txn_id' => 'T4242',
-			'txn_type' => 'express_checkout'
-		], $paymentSpy->getBookingData() );
+			'amount' => 4223,
+			'interval' => 12,
+			'paymentType' => 'PPL',
+			'paypal_payer_id' => '42DFPNJDF8RED',
+			'paypal_subscr_id' => '8RHHUM3W3PRH7QY6B59',
+			'paypal_payer_status' => 'verified',
+			'paypal_mc_gross' => '2.70',
+			'paypal_mc_currency' => 'EUR',
+			'paypal_mc_fee' => '2.70',
+			'paypal_settle_amount' => '2.70',
+			'ext_payment_id' => 'T4242',
+			'ext_subscr_id' => '8RHHUM3W3PRH7QY6B59',
+			'ext_payment_type' => 'instant',
+			'ext_payment_status' => 'processed/express_checkout',
+			'ext_payment_account' => '42DFPNJDF8RED',
+			'ext_payment_timestamp' => '10:54:49 Dec 02, 2012 PST',
+		], $payment->getDisplayValues() );
 
 		$this->assertSame( 1, $followupPayment->getLegacyData()->paymentSpecificValues['parent_payment_id'] );
 	}
@@ -218,12 +216,12 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$payment = $repo->getPaymentById( 1 );
 
 		$this->assertInstanceOf( DirectDebitPayment::class, $payment );
-		$paymentSpy = new DirectDebitPaymentInspector( $payment );
-		$this->assertSame( 4223, $paymentSpy->getAmount()->getEuroCents() );
-		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
-		$this->assertSame( self::IBAN, $paymentSpy->getIban()?->toString() );
-		$this->assertSame( self::BIC, $paymentSpy->getBic() );
-		$this->assertFalse( $paymentSpy->getIsCancelled() );
+		$this->assertSame( 4223, $payment->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::Yearly, $payment->getInterval() );
+		$displayValues = $payment->getDisplayValues();
+		$this->assertSame( self::IBAN, $displayValues['iban'] );
+		$this->assertSame( self::BIC, $displayValues['bic'] );
+		$this->assertFalse( $payment->isCancelled() );
 	}
 
 	public function testFindCancelledDirectDebitPayment(): void {
@@ -233,12 +231,9 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$payment = $repo->getPaymentById( 1 );
 
 		$this->assertInstanceOf( DirectDebitPayment::class, $payment );
-		$paymentSpy = new DirectDebitPaymentInspector( $payment );
-		$this->assertSame( 4223, $paymentSpy->getAmount()->getEuroCents() );
-		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
-		$this->assertSame( self::IBAN, $paymentSpy->getIban()?->toString() );
-		$this->assertSame( self::BIC, $paymentSpy->getBic() );
-		$this->assertTrue( $paymentSpy->getIsCancelled() );
+		$this->assertSame( 4223, $payment->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::Yearly, $payment->getInterval() );
+		$this->assertTrue( $payment->isCancelled() );
 	}
 
 	public function testFindAnonymisedDirectDebitPayment(): void {
@@ -248,11 +243,11 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$payment = $repo->getPaymentById( 1 );
 
 		$this->assertInstanceOf( DirectDebitPayment::class, $payment );
-		$paymentSpy = new DirectDebitPaymentInspector( $payment );
-		$this->assertSame( 4223, $paymentSpy->getAmount()->getEuroCents() );
-		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
-		$this->assertNull( $paymentSpy->getBic() );
-		$this->assertNull( $paymentSpy->getIban()?->toString() );
+		$this->assertSame( 4223, $payment->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::Yearly, $payment->getInterval() );
+		$displayValues = $payment->getDisplayValues();
+		$this->assertSame( '', $displayValues['iban'] );
+		$this->assertSame( '', $displayValues['bic'] );
 	}
 
 	public function testStoreBankTransferPayment(): void {
@@ -281,11 +276,10 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$payment = $repo->getPaymentById( 1 );
 		$this->assertInstanceOf( BankTransferPayment::class, $payment );
 
-		$paymentSpy = new BankTransferPaymentInspector( $payment );
-		$this->assertSame( 4223, $paymentSpy->getAmount()->getEuroCents() );
-		$this->assertSame( PaymentInterval::Yearly, $paymentSpy->getInterval() );
-		$this->assertNotNull( $paymentSpy->getPaymentReferenceCode() );
-		$this->assertSame( 'XW-RAA-RR4-Y', $paymentSpy->getPaymentReferenceCode()->getFormattedCode() );
+		$this->assertSame( 4223, $payment->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::Yearly, $payment->getInterval() );
+		$displayValues = $payment->getDisplayValues();
+		$this->assertSame( 'XW-RAA-RR4-Y', $displayValues['paymentReferenceCode'] );
 	}
 
 	public function testFindAnonymisedBankTransferPayment(): void {
@@ -294,9 +288,8 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 		$payment = $repo->getPaymentById( 1 );
 		$this->assertInstanceOf( BankTransferPayment::class, $payment );
-
-		$paymentSpy = new BankTransferPaymentInspector( $payment );
-		$this->assertNull( $paymentSpy->getPaymentReferenceCode() );
+		$displayValues = $payment->getDisplayValues();
+		$this->assertArrayNotHasKey( 'paymentReferenceCode', $displayValues );
 	}
 
 	public function testOnAnonymiseBankTransferPayment_PaymentReferenceCodeIsKeptAndDetached(): void {
@@ -350,13 +343,11 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 		$payment = $repo->getPaymentById( 42 );
 		$this->assertInstanceOf( SofortPayment::class, $payment );
-		$paymentSpy = new SofortPaymentInspector( $payment );
-		$this->assertSame( 1233, $paymentSpy->getAmount()->getEuroCents() );
-		$this->assertSame( PaymentInterval::OneTime, $paymentSpy->getInterval() );
-		$this->assertEquals( new \DateTimeImmutable( '2021-06-24T23:00:00Z' ), $paymentSpy->getValuationDate() );
-		$this->assertSame( 'imatransID42', $paymentSpy->getTransactionId() );
-		$this->assertNotNull( $paymentSpy->getPaymentReferenceCode() );
-		$this->assertSame( 'XW-TAR-ARA-Y', $paymentSpy->getPaymentReferenceCode()->getFormattedCode() );
+		$this->assertSame( 1233, $payment->getAmount()->getEuroCents() );
+		$this->assertSame( PaymentInterval::OneTime, $payment->getInterval() );
+		$this->assertEquals( new \DateTimeImmutable( '2021-06-24T23:00:00Z' ), $payment->getValuationDate() );
+		$displayValues = $payment->getDisplayValues();
+		$this->assertSame( 'XW-TAR-ARA-Y', $displayValues['paymentReferenceCode'] );
 	}
 
 	public function testFindAnonymisedSofortPayment(): void {
@@ -365,8 +356,8 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 		$payment = $repo->getPaymentById( 42 );
 		$this->assertInstanceOf( SofortPayment::class, $payment );
-		$paymentSpy = new SofortPaymentInspector( $payment );
-		$this->assertNull( $paymentSpy->getPaymentReferenceCode() );
+		$displayValues = $payment->getDisplayValues();
+		$this->assertSame( '', $displayValues['paymentReferenceCode'] );
 	}
 
 	public function testOnAnonymiseSofortPayment_PaymentReferenceCodeIsKeptAndDetached(): void {
@@ -456,7 +447,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 
 	private function insertRawBookedCreditCardData(): void {
 		$this->connection->insert( 'payment', [ 'id' => 1, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'MCP' ] );
-		$this->connection->insert( 'payment_credit_card', [ 'id' => 1, 'valuation_date' => '2021-12-24 23:00:00', 'booking_data' => '{"transactionId":"1eetcaffee"}' ] );
+		$this->connection->insert( 'payment_credit_card', [ 'id' => 1, 'valuation_date' => self::VALUATION_DATE, 'booking_data' => '{"transactionId":"1eetcaffee","amount":"42.23"}' ] );
 	}
 
 	private function insertRawUnBookedCreditCardData(): void {
@@ -471,7 +462,15 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	 */
 	private function fetchRawPayPalPaymentData( int $paymentId = 1 ): array {
 		$data = $this->connection->createQueryBuilder()
-			->select( 'p.amount', 'p.payment_interval', 'p.payment_method', 'ppp.valuation_date', 'ppp.booking_data', 'ppp.parent_payment_id' )
+			->select(
+				'p.amount',
+				'p.payment_interval',
+				'p.payment_method',
+				'ppp.valuation_date',
+				'ppp.transaction_id',
+				'ppp.booking_data',
+				'ppp.parent_payment_id'
+			)
 			->from( 'payment', 'p' )
 			->join( 'p', 'payment_paypal', 'ppp', 'p.id=ppp.id' )
 			->where( 'p.id=:paymentId' )
@@ -488,7 +487,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$this->connection->insert( 'payment', [ 'id' => 2, 'amount' => '4223', 'payment_interval' => 12, 'payment_method' => 'PPL' ] );
 		$this->connection->insert( 'payment_paypal', [
 			'id' => 1,
-			'valuation_date' => '2021-12-24 23:00:00',
+			'valuation_date' => self::VALUATION_DATE,
 			'booking_data' => PayPalPaymentBookingData::newEncodedValidBookingData()
 		] );
 		$this->connection->insert( 'payment_paypal', [
