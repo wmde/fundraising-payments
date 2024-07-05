@@ -1,8 +1,18 @@
-kind: pipeline
-type: docker
-name: default
+clone:
+  git:
+    image: woodpeckerci/plugin-git
+    settings:
+      # "partial: false" and depth will copy several commits from the source repo,
+      # enabling history checks for the ocular tool
+      # "lfs: false" disables downloading resources from LFS, which we don't use
+      partial: false
+      depth: 10
+      lfs: false
+
 steps:
   - name: build
+    when: 
+      - event: [ push, pull_request, cron, manual ]
     image: registry.gitlab.com/fun-tech/fundraising-frontend-docker:latest
     environment:
       COMPOSER_CACHE_DIR: /composer_cache
@@ -10,8 +20,7 @@ steps:
       GITHUB_TOKEN:
         from_secret: github_token
     volumes:
-      - name: cache
-        path: /composer_cache
+      - /tmp/woodpeckerci/cache:/composer_cache
     commands:
       # Environment setup
       - echo -e "machine github.com\n  login $GITHUB_TOKEN" > ~/.netrc
@@ -24,13 +33,6 @@ steps:
       - build/wait-for-it.sh database:3306 -t 120 -s -- php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-clover coverage.xml
       # Upload coverage to Scrutinizer
       - ocular code-coverage:upload --no-interaction --format=php-clover coverage.xml
-volumes:
-  - name: cache
-    host:
-      path: /tmp/drone/cache
-  - name: dbstorage
-    temp:
-      medium: memory
 
 services:
   - name: database
@@ -41,5 +43,4 @@ services:
       MARIADB_PASSWORD: T3st1ng
       MARIADB_DATABASE: fundraising
     volumes:
-      - name: dbstorage
-        path: /var/lib/mysql
+      - /dev/shm:/var/lib/mysql
