@@ -43,4 +43,4 @@ services:
       MARIADB_PASSWORD: T3st1ng
       MARIADB_DATABASE: fundraising
     volumes:
-      - /dev/shm:/var/lib/mysql
+      - /dev/shm/mysql-ci-memberships:/var/lib/mysql
