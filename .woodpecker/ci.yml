@@ -11,7 +11,7 @@ clone:
 
 steps:
   - name: build
-    when: 
+    when:
       - event: [ push, pull_request, cron, manual ]
     image: registry.gitlab.com/fun-tech/fundraising-frontend-docker:latest
     environment:
@@ -43,4 +43,4 @@ services:
       MARIADB_PASSWORD: T3st1ng
       MARIADB_DATABASE: fundraising
     volumes:
-      - /dev/shm/mysql-ci-memberships:/var/lib/mysql
+      - /dev/shm/mysql-ci-payments:/var/lib/mysql
