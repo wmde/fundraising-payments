@@ -29,25 +29,25 @@ ci-with-coverage: phpunit-with-coverage cs stan check-dependencies
 test: phpunit
 
 phpunit:
-	docker-compose run --rm app $(WAIT_FOR_IT) ./vendor/bin/phpunit
+	docker compose run --rm app $(WAIT_FOR_IT) ./vendor/bin/phpunit
 
 phpunit-with-coverage:
-	docker-compose run --rm -e XDEBUG_MODE=coverage app $(WAIT_FOR_IT) \
+	docker compose run --rm -e XDEBUG_MODE=coverage app $(WAIT_FOR_IT) \
 		./vendor/bin/phpunit $(COVERAGE_FLAGS)
 
 cs:
-	docker-compose run --rm --no-deps app ./vendor/bin/phpcs
+	docker compose run --rm --no-deps app ./vendor/bin/phpcs
 
 fix-cs:
-	docker-compose run --rm --no-deps app ./vendor/bin/phpcbf
+	docker compose run --rm --no-deps app ./vendor/bin/phpcbf
 
 stan:
-	docker-compose run --rm --no-deps app \
+	docker compose run --rm --no-deps app \
 		php -d memory_limit=1G \
 		./vendor/bin/phpstan analyse --level=9 --no-progress src/ tests/
 
 check-dependencies:
-	docker-compose run --rm --no-deps app \
+	docker compose run --rm --no-deps app \
 		php \
 		./vendor/bin/deptrac --no-progress --fail-on-uncovered --report-uncovered
 

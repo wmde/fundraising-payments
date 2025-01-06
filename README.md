@@ -38,7 +38,7 @@ See [Configuring the PayPal API](docs/paypal_api.md) for more details on these c
 ## Development
 
 This project has a [Makefile](Makefile) that runs all tasks in Docker containers via
-`docker-compose`. You need to have Docker and the `docker-compose` CLI
+`docker compose`. You need to have Docker and the `docker compose` plugin
 installed on your machine.
 
 ### Installing dependencies
@@ -61,7 +61,7 @@ To run the PHPUnit tests run
 
 To run a subset of PHPUnit tests or otherwise pass flags to PHPUnit, run
 
-    docker-compose run --rm app ./vendor/bin/phpunit --filter SomeClassNameOrFilter
+    docker compose run --rm app ./vendor/bin/phpunit --filter SomeClassNameOrFilter
 
 ## Architecture
 
@@ -74,9 +74,9 @@ You can also look at [the dependency graph of the different namespaces](docs/dep
 To regenerate the dependency graph, you can either use `deptrac` directly (on a system or container that has both PHP 
 and [GraphViz](https://graphviz.org/) available):
 
-    docker-compose run --rm --no-deps app php ./vendor/bin/deptrac --formatter=graphviz-image --output=docs/dependency-graph.svg
+    docker compose run --rm --no-deps app php ./vendor/bin/deptrac --formatter=graphviz-image --output=docs/dependency-graph.svg
 
 Or you can use `deptrac` to generate the input file inside the Docker container and use `dot` to create the SVG:
     
-    docker-compose run --rm --no-deps app php ./vendor/bin/deptrac --formatter=graphviz-dot --output=docs/dependency-graph.dot 
+    docker compose run --rm --no-deps app php ./vendor/bin/deptrac --formatter=graphviz-dot --output=docs/dependency-graph.dot 
     dot -odocs/dependency-graph.svg -Tsvg docs/dependency-graph.dot

@@ -59,10 +59,10 @@ For the payment code itself, the product and language keys are arbitrary. The co
 
 The commands are part of a "console" binary. In this bounded context it's `bin/console`.
 
-If you want to run the commands inside a container, prefix them with the necessary `docker` or `docker-compose` commands, e.g.
+If you want to run the commands inside a container, prefix them with the necessary `docker` or `docker compose` commands, e.g.
 
 ```shell
-docker-compose run app php bin/console app:list-subscription-plans
+docker compose run app php bin/console app:list-subscription-plans
 ```
 
 ### Creating subscription plans
