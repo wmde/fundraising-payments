@@ -45,7 +45,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 	 *
 	 * @return PayPalAPIException
 	 */
-	private function createLoggedException( string $errorMessage, array $context, \Exception $e = null ): PayPalAPIException {
+	private function createLoggedException( string $errorMessage, array $context, ?\Exception $e = null ): PayPalAPIException {
 		$this->logger->error( $errorMessage, $context );
 		throw new PayPalAPIException( $errorMessage, 0, $e );
 	}

@@ -24,7 +24,7 @@ class DirectDebitPayment extends Payment implements CancellablePayment {
 
 	private bool $isCancelled = false;
 
-	private function __construct( int $id, Euro $amount, PaymentInterval $interval, Iban $iban = null, string $bic = null ) {
+	private function __construct( int $id, Euro $amount, PaymentInterval $interval, ?Iban $iban = null, ?string $bic = null ) {
 		parent::__construct( $id, $amount, $interval, self::PAYMENT_METHOD );
 		$this->iban = $iban;
 		$this->bic = $bic;
