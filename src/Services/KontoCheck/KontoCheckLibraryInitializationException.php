@@ -6,7 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\Services\KontoCheck;
 
 class KontoCheckLibraryInitializationException extends \RuntimeException {
 
-	public function __construct( ?int $code = null, \Exception $previous = null ) {
+	public function __construct( ?int $code = null, ?\Exception $previous = null ) {
 		$message = 'Could not initialize library with bank data file.';
 		if ( $code !== null ) {
 			$message .= ' Reason: ' . \kto_check_retval2txt( $code );
