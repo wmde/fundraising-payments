@@ -3,10 +3,10 @@
 	"license": "GPL-2.0-or-later",
 	"description": "Bounded Context for the Wikimedia Deutschland fundraising payment subdomain",
 	"require": {
-		"php": ">=8.2",
+		"php": ">=8.3",
 
 		"wmde/euro": "~1.0",
-		"wmde/fun-validators": "~v4.0",
+		"wmde/fun-validators": "~v5.0",
 
 		"doctrine/orm": "~2.18 | ~3.0",
 		"doctrine/dbal": "~3.8 | ~4.0",
