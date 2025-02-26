@@ -8,6 +8,7 @@ vendor/
 coverage/
 
 .phpunit.result.cache
+.phpunit.cache
 
 .deptrac.cache
 
