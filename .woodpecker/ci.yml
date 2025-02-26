@@ -31,8 +31,6 @@ steps:
       - php -d memory_limit=1G vendor/bin/phpstan analyse --level=9 --no-progress src/ tests/
       - vendor/bin/deptrac --no-progress --fail-on-uncovered --report-uncovered
       - build/wait-for-it.sh database:3306 -t 120 -s -- php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-clover coverage.xml
-      # Upload coverage to Scrutinizer
-      - ocular code-coverage:upload --no-interaction --format=php-clover coverage.xml
 
 services:
   - name: database
