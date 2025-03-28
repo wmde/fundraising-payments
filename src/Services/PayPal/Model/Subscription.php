@@ -40,6 +40,7 @@ class Subscription {
 			throw new PayPalAPIException( 'Fields must contain array with links!' );
 		}
 
+		/** @phpstan-ignore-next-line argument.type */
 		$url = self::getUrlFromLinks( $apiResponse['links'] );
 
 		return new Subscription( $apiResponse['id'], $subscriptionStart, $url );

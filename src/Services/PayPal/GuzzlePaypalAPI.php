@@ -62,11 +62,15 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		$serverResponse = $productResponse->getBody()->getContents();
 		$jsonProductResponse = $this->safelyDecodeJSON( $serverResponse );
 
+		/** @phpstan-ignore-next-line function.alreadyNarrowedType */
 		if ( !is_array( $jsonProductResponse ) || !isset( $jsonProductResponse['products'] ) ) {
 			throw $this->createLoggedException( "Listing products failed!", [ "serverResponse" => $serverResponse ] );
 		}
 
-		if ( isset( $jsonProductResponse['total_pages'] ) && $jsonProductResponse['total_pages'] > 1 ) {
+		/** @phpstan-ignore-next-line function.alreadyNarrowedType */
+		if ( ( !is_array( $jsonProductResponse ) || isset( $jsonProductResponse['total_pages'] ) )
+				&& $jsonProductResponse['total_pages'] > 1
+			) {
 			throw $this->createLoggedException(
 				"Paging is not supported because we don't have that many products!",
 				[ "serverResponse" => $serverResponse ]
@@ -74,7 +78,14 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		}
 
 		$products = [];
+		if ( !is_array( $jsonProductResponse['products'] ) ) {
+			throw $this->createLoggedException(
+				"Products must be iterable!",
+				[ "serverResponse" => $serverResponse ]
+			);
+		}
 		foreach ( $jsonProductResponse['products'] as $product ) {
+			/** @phpstan-ignore-next-line argument.type */
 			$products[] = new Product( $product['id'], $product['name'], $product['description'] ?? '' );
 		}
 		return $products;
@@ -86,7 +97,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		$serverResponse = $response->getBody()->getContents();
 		$jsonProductResponse = $this->safelyDecodeJSON( $serverResponse );
 
-		if ( !is_array( $jsonProductResponse ) || empty( $jsonProductResponse['name'] ) || empty( $jsonProductResponse['id'] ) ) {
+		if ( empty( $jsonProductResponse['name'] ) || empty( $jsonProductResponse['id'] ) ) {
 			throw $this->createLoggedException(
 				'Server did not send product data back',
 				[ "serverResponse" => $serverResponse ]
@@ -116,6 +127,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		$serverResponse = $planResponse->getBody()->getContents();
 		$jsonPlanResponse = $this->safelyDecodeJSON( $serverResponse );
 
+		/** @phpstan-ignore-next-line function.alreadyNarrowedType */
 		if ( !is_array( $jsonPlanResponse ) || !isset( $jsonPlanResponse['plans'] ) ) {
 			throw $this->createLoggedException( "Listing subscription plans failed!", [ "serverResponse" => $serverResponse ] );
 		}
@@ -128,6 +140,12 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		}
 
 		$plans = [];
+		if ( !is_iterable( $jsonPlanResponse['plans'] ) ) {
+			throw $this->createLoggedException(
+				"Plans must be iterable!",
+				[ "serverResponse" => $serverResponse ]
+			);
+		}
 		foreach ( $jsonPlanResponse['plans'] as $plan ) {
 			$plans[] = SubscriptionPlan::from( $plan );
 		}
