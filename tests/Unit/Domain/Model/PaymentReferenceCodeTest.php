@@ -49,7 +49,6 @@ class PaymentReferenceCodeTest extends TestCase {
 	public function testCanBeConvertedFromString(): void {
 		$code = PaymentReferenceCode::newFromString( 'XW-DAR-E99-T' );
 
-		$this->assertNotNull( $code );
 		$this->assertSame( 'XW-DAR-E99-T', $code->getFormattedCode() );
 	}
 

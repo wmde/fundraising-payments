@@ -62,7 +62,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		$serverResponse = $productResponse->getBody()->getContents();
 		$jsonProductResponse = $this->safelyDecodeJSON( $serverResponse );
 
-		if ( !is_array( $jsonProductResponse ) || !isset( $jsonProductResponse['products'] ) ) {
+		if ( !isset( $jsonProductResponse['products'] ) ) {
 			throw $this->createLoggedException( "Listing products failed!", [ "serverResponse" => $serverResponse ] );
 		}
 
@@ -86,7 +86,8 @@ class GuzzlePaypalAPI implements PaypalAPI {
 		$serverResponse = $response->getBody()->getContents();
 		$jsonProductResponse = $this->safelyDecodeJSON( $serverResponse );
 
-		if ( !is_array( $jsonProductResponse ) || empty( $jsonProductResponse['name'] ) || empty( $jsonProductResponse['id'] ) ) {
+
+		if ( empty( $jsonProductResponse['name'] ) || empty( $jsonProductResponse['id'] ) ) {
 			throw $this->createLoggedException(
 				'Server did not send product data back',
 				[ "serverResponse" => $serverResponse ]
@@ -115,8 +116,7 @@ class GuzzlePaypalAPI implements PaypalAPI {
 
 		$serverResponse = $planResponse->getBody()->getContents();
 		$jsonPlanResponse = $this->safelyDecodeJSON( $serverResponse );
-
-		if ( !is_array( $jsonPlanResponse ) || !isset( $jsonPlanResponse['plans'] ) ) {
+		if ( !isset( $jsonPlanResponse['plans'] ) ) {
 			throw $this->createLoggedException( "Listing subscription plans failed!", [ "serverResponse" => $serverResponse ] );
 		}
 

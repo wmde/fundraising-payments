@@ -177,6 +177,9 @@ class PayPalVerificationServiceTest extends TestCase {
 	 */
 	private function newClient( string $body, array $expectedParams = [] ): Client {
 		$this->receivedRequests = [];
+		/**
+		 * @phpstan-ignore-next-line assign.propertyType
+		 */
 		$history = Middleware::history( $this->receivedRequests );
 		$mock = new MockHandler( [
 			new Response( 200, [], $body )
