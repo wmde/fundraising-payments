@@ -28,6 +28,9 @@ class Order {
 			throw new PayPalAPIException( 'Fields must contain array with links!' );
 		}
 
+		/**
+		 * @phpstan-ignore-next-line argument.type
+		 */
 		return new self( $apiResponse['id'], self::getUrlFromLinks( $apiResponse['links'] ) );
 	}
 
