@@ -38,15 +38,24 @@ class SubscriptionPlan {
 		if ( empty( $apiReponse['billing_cycles'] ) || !is_array( $apiReponse['billing_cycles'] ) || count( $apiReponse['billing_cycles'] ) !== 1 ) {
 			throw new PayPalAPIException( 'Wrong billing cycle data' );
 		}
+
+		/** @var array<string,mixed> $billingCycle */
 		$billingCycle = $apiReponse['billing_cycles'][0];
 
-		if ( !isset( $billingCycle['frequency'] ) || !isset( $billingCycle['frequency']['interval_count'] ) ) {
+		if (
+			( !isset( $billingCycle['frequency'] ) || !is_array( $billingCycle['frequency'] ) ) ||
+			!isset( $billingCycle['frequency']['interval_count'] )
+		) {
 			throw new PayPalAPIException( 'Wrong frequency data in billing cycle' );
 		}
 		$frequency = $billingCycle['frequency'];
 
 		if ( ( $frequency['interval_unit'] ?? '' ) !== 'MONTH' ) {
 			throw new PayPalAPIException( 'interval_unit must be MONTH' );
+		}
+
+		if ( !is_scalar( $frequency['interval_count'] ) ) {
+			throw new PayPalAPIException( "interval_count value must be scalar!" );
 		}
 		$monthlyInterval = PaymentInterval::from( intval( $frequency['interval_count'] ) );
 		$description = $apiReponse['description'] ?? '';

@@ -516,6 +516,9 @@ RESPONSE;
 
 	private function givenClientWithResponses( Response ...$responses ): Client {
 		$mock = new MockHandler( array_values( $responses ) );
+		/**
+		 * @phpstan-ignore-next-line assign.propertyType
+		 */
 		$history = Middleware::history( $this->guzzleHistory );
 		$handlerStack = HandlerStack::create( $mock );
 		$handlerStack->push( $history );

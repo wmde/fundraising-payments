@@ -29,7 +29,8 @@ class TestEnvironment {
 		];
 		if ( isset( $_ENV['TEST_DB_DSN'] ) ) {
 			$dsnParser = new DsnParser( [ 'mysql' => 'pdo_mysql' ] );
-			$connectionParams = $dsnParser->parse( $_ENV['TEST_DB_DSN'] );
+			/** @phpstan-ignore-next-line argument.type */
+			$connectionParams = $dsnParser->parse( strval( $_ENV['TEST_DB_DSN'] ) );
 		}
 		$environment = new self( [ 'db' => $connectionParams ] );
 
