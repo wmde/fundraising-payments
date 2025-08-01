@@ -15,3 +15,6 @@ parameters:
         - message: "#^Call to an undefined method Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\NodeDefinition\\:\\:arrayPrototype\\(\\)\\.$#"
           count: 1
           path: src/Services/PayPal/PayPalPaymentProviderAdapterConfigSchema.php
+        - message: "#^Strict comparison using === between non-empty-array and false will always evaluate to false\\.$#"
+          count: 1
+          path: src/Services/KontoCheck/KontoCheckBankDataGenerator.php
