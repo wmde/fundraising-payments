@@ -10,6 +10,7 @@ use WMDE\Fundraising\PaymentContext\Domain\DomainSpecificPaymentValidator;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\FeeChangePayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
@@ -173,6 +174,28 @@ class CreatePaymentUseCaseTest extends TestCase {
 			PaymentInterval::Quarterly,
 			new Iban( DirectDebitBankData::IBAN ),
 			DirectDebitBankData::BIC
+		) );
+	}
+
+	public function testCreateFeeChangePayment(): void {
+		$useCase = $this->useCaseBuilder
+			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
+			->withPaymentRepositorySpy()
+			->build();
+
+		$result = $useCase->createPayment( $this->newPaymentCreationRequest(
+			amountInEuroCents: 400,
+			interval: 3,
+			paymentType: 'FCH'
+		) );
+
+		$this->assertInstanceOf( SuccessResponse::class, $result );
+		$this->assertSame( self::PAYMENT_ID, $result->paymentId );
+		$this->assertTrue( $result->paymentComplete );
+		$this->assertPaymentWasStored( FeeChangePayment::create(
+			self::PAYMENT_ID,
+			Euro::newFromCents( 400 ),
+			PaymentInterval::Quarterly
 		) );
 	}
 
