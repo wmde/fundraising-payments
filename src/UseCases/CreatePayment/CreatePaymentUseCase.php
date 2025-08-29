@@ -7,6 +7,7 @@ use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\FeeChangePayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
@@ -72,6 +73,7 @@ class CreatePaymentUseCase {
 			PaymentType::Sofort => $this->createSofortPayment( $parameters ),
 			PaymentType::BankTransfer => $this->createBankTransferPayment( $parameters ),
 			PaymentType::DirectDebit => $this->createDirectDebitPayment( $parameters ),
+			PaymentType::FeeChange => $this->createFeeChangePayment( $parameters ),
 			default => throw new \LogicException( sprintf(
 				'Invalid payment type not caught by %s: %s', PaymentValidator::class, $parameters->paymentType
 			) )
@@ -147,6 +149,14 @@ class CreatePaymentUseCase {
 			PaymentInterval::from( $parameters->interval ),
 			new Iban( $parameters->iban ),
 			$parameters->bic
+		);
+	}
+
+	private function createFeeChangePayment( PaymentParameters $parameters ): FeeChangePayment {
+		return FeeChangePayment::create(
+			$this->idGenerator->getNewId(),
+			Euro::newFromCents( $parameters->amountInEuroCents ),
+			PaymentInterval::from( $parameters->interval ),
 		);
 	}
 

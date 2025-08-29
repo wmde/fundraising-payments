@@ -9,4 +9,5 @@ enum PaymentType: string {
 	case CreditCard = 'MCP';
 	case Paypal = 'PPL';
 	case Sofort = 'SUB';
+	case FeeChange = 'FCH';
 }
