@@ -24,7 +24,7 @@
 		"wmde/fundraising-phpcs": "~12.0",
 		"phpstan/phpstan": "~2.1.11",
 		"phpstan/phpstan-phpunit": "^2.0.6",
-        "deptrac/deptrac": "^3.0",
+        "deptrac/deptrac": "^4.1",
         "wmde/psr-log-test-doubles": "~v3.4.0"
 	},
 	"repositories": [
