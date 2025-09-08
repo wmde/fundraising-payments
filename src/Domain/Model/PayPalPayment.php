@@ -51,7 +51,6 @@ class PayPalPayment extends Payment implements BookablePayment {
 	 * @param PaymentIdRepository $idGenerator Used for creating followup payments
 	 *
 	 * @return PayPalPayment
-	 *
 	 */
 	public function bookPayment( array $transactionData, PaymentIdRepository $idGenerator ): PayPalPayment {
 		$transformer = new PayPalBookingTransformer( $transactionData );

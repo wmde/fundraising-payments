@@ -13,7 +13,6 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
  * and look up the name of their bank. We use DTO to represent that data.
  *
  * Any field except $iban may be an empty string
- *
  */
 class ExtendedBankData {
 	public function __construct(

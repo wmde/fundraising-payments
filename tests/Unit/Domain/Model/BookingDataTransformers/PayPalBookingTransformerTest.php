@@ -33,7 +33,6 @@ class PayPalBookingTransformerTest extends TestCase {
 	}
 
 	/**
-	 *
 	 * @param array<scalar> $transactionData
 	 * @return void
 	 */

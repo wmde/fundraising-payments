@@ -39,8 +39,8 @@ class PayPalVerificationService implements VerificationService {
 	/**
 	 * @var string Email address of our PayPal account
 	 * @todo Convert to array and remove phpstan-ignore when we allow multiple receivers
-	 * @phpstan-ignore-next-line
 	 */
+	// @phpstan-ignore-next-line
 	private string $accountEmailAddress;
 
 	public function __construct( Client $httpClient, string $baseUrl, string $accountEmailAddress ) {

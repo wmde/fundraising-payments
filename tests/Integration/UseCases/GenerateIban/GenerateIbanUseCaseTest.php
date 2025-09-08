@@ -15,7 +15,6 @@ use WMDE\Fundraising\PaymentContext\UseCases\BankDataSuccessResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\GenerateBankData\GenerateBankDataFromGermanLegacyBankDataUseCase;
 
 /**
- *
  * @license GPL-2.0-or-later
  * @author Kai Nissen <kai.nissen@wikimedia.de>
  */
