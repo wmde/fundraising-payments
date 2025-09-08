@@ -25,7 +25,6 @@ class GetPaymentUseCase {
 	 * @param int $paymentId (not a donation ID!)
 	 *
 	 * @return array<string, scalar>
-	 *
 	 */
 	public function getPaymentDataArray( int $paymentId ): array {
 		try {

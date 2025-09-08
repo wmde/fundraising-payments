@@ -14,7 +14,6 @@ namespace WMDE\Fundraising\PaymentContext\Domain\Model;
  * - some people are writing this by hand, on paper, so the character set must be unambiguous
  *
  * The smaller the character set gets, the longer the resulting code will be.
- *
  */
 class PaymentReferenceCode {
 	public const ALLOWED_CHARACTERS = 'ACDEFKLMNPRTWXYZ349';

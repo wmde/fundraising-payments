@@ -55,7 +55,7 @@ class ChecksumGeneratorTest extends TestCase {
 			yield implode(
 				'',
 				array_map(
-					fn () => $characters[mt_rand( 0, $characterCount - 1 )],
+					static fn () => $characters[mt_rand( 0, $characterCount - 1 )],
 					array_fill( 0, 10, null )
 				)
 			);
