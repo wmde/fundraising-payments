@@ -7,8 +7,8 @@ namespace WMDE\Fundraising\PaymentContext\Domain\UrlGenerator;
 interface PaymentCompletionURLGenerator {
 
 	/**
-	 * Generate a URL to use (refer the donor to) to finalize the payment on a 3rd party payment provider page
-	 * or redirect them to the confirmation page of the application (for "local" payment types, e.g. Direct Debit or Bank Transfer)
+	 * Generate a URL to use (refer the donor to), to finalize the payment on a 3rd party payment provider page
+	 * OR redirect them to the confirmation page of the application (for "local" payment types, e.g. Direct Debit or Bank Transfer)
 	 *
 	 * @param DomainSpecificContext $requestContext
 	 * @return string

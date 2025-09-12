@@ -22,6 +22,15 @@ use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\Sofort\SofortCl
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGenerator;
 use WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator\SofortURLGeneratorConfig;
 
+/**
+ * This class creates a payment-specific {@see PaymentCompletionURLGenerator}.
+ *
+ * For external payments, this will create the payment provider URL to redirect to.
+ * For "local" payments, this will create an application-specific confirmation page (membership, donation, etc.),
+ * which is why the $confirmationPageURL is a parameter.
+ *
+ * NOTE: Whenever you add a new payment type, you *have* to return a new URL generator for it!
+ */
 class PaymentURLFactory implements UrlGeneratorFactory {
 
 	public function __construct(
