@@ -7,6 +7,7 @@ namespace WMDE\Fundraising\PaymentContext\Services;
 use WMDE\Fundraising\PaymentContext\Domain\Model\BankTransferPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\CreditCardPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
+use WMDE\Fundraising\PaymentContext\Domain\Model\FeeChangePayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Payment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\SofortPayment;
@@ -40,6 +41,7 @@ class PaymentURLFactory implements UrlGeneratorFactory {
 			$payment instanceof PayPalPayment => $this->createPayPalUrlGenerator( $payment, $authenticator ),
 			$payment instanceof DirectDebitPayment => new ConfirmationPageUrlGenerator( $this->confirmationPageUrl, $authenticator ),
 			$payment instanceof BankTransferPayment => new ConfirmationPageUrlGenerator( $this->confirmationPageUrl, $authenticator ),
+			$payment instanceof FeeChangePayment => new ConfirmationPageUrlGenerator( $this->confirmationPageUrl, $authenticator ),
 			default => throw new \InvalidArgumentException( 'Unknown payment type: ' . get_class( $payment ) ),
 		};
 	}
