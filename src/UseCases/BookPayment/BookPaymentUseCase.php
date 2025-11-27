@@ -95,12 +95,17 @@ class BookPaymentUseCase {
 	 * @return bool
 	 */
 	private function paypalPaymentWasAlreadyBooked( PayPalPayment $payment, array $transactionData ): bool {
-		if ( empty( $transactionData[PayPalBookingTransformer::TRANSACTION_ID_KEY] ) ) {
+		$transactionIdKey = PayPalBookingTransformer::TRANSACTION_ID_KEY;
+
+		if ( empty( $transactionData[ $transactionIdKey ] ) ) {
 			return false;
 		}
-		$currentTransactionId = $transactionData[PayPalBookingTransformer::TRANSACTION_ID_KEY];
+
+		/** @var string $currentTransactionId */
+		$currentTransactionId = $transactionData[ $transactionIdKey ];
+
 		$previousTransactionIds = $this->transactionIdFinder->getAllTransactionIDs( $payment );
 
-		return !empty( $previousTransactionIds[$currentTransactionId] );
+		return !empty( $previousTransactionIds[ $currentTransactionId ] );
 	}
 }
