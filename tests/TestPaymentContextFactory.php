@@ -29,6 +29,7 @@ class TestPaymentContextFactory {
 			$this->contextFactory->getDoctrineMappingPaths(),
 			true
 		);
+		$this->doctrineConfig->enableNativeLazyObjects( true );
 		$this->entityManager = null;
 	}
 

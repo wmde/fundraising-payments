@@ -98,6 +98,8 @@ class BookPaymentUseCase {
 		if ( empty( $transactionData[PayPalBookingTransformer::TRANSACTION_ID_KEY] ) ) {
 			return false;
 		}
+
+		/** @var string $currentTransactionId */
 		$currentTransactionId = $transactionData[PayPalBookingTransformer::TRANSACTION_ID_KEY];
 		$previousTransactionIds = $this->transactionIdFinder->getAllTransactionIDs( $payment );
 
