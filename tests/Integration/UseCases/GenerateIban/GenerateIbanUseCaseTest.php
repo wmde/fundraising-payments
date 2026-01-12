@@ -32,7 +32,7 @@ class GenerateIbanUseCaseTest extends TestCase {
 	}
 
 	private function newSucceedingBankDataGenerator(): BankDataGenerator {
-		$generator = $this->createMock( BankDataGenerator::class );
+		$generator = $this->createStub( BankDataGenerator::class );
 
 		$generator->method( $this->anything() )->willReturn( DirectDebitBankData::validBankData() );
 
@@ -63,7 +63,7 @@ class GenerateIbanUseCaseTest extends TestCase {
 	}
 
 	public function testWhenBankDataGeneratorThrowsException_failureResponseIsReturned(): void {
-		$this->bankDataGenerator = $this->createMock( BankDataGenerator::class );
+		$this->bankDataGenerator = $this->createStub( BankDataGenerator::class );
 		$this->bankDataGenerator->method( $this->anything() )->willThrowException( new RuntimeException( 'IBAN is too short' ) );
 
 		$useCase = $this->newGenerateIbanUseCase();

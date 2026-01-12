@@ -27,7 +27,7 @@ class PayPalURLGeneratorConfigTest extends TestCase {
 				LegacyPayPalURLGeneratorConfig::CONFIG_KEY_RETURN_URL => 'http://my.donation.app/donation/confirm/',
 				LegacyPayPalURLGeneratorConfig::CONFIG_KEY_CANCEL_URL => '',
 			],
-			$this->createMock( TranslatableDescription::class )
+			$this->createStub( TranslatableDescription::class )
 		);
 	}
 

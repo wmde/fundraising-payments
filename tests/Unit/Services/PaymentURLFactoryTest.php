@@ -108,7 +108,7 @@ class PaymentURLFactoryTest extends TestCase {
 
 	public function testPaymentURLFactoryThrowsExceptionOnUnknownPaymentType(): void {
 		$urlFactory = $this->createTestURLFactory();
-		$payment = $this->createMock( Payment::class );
+		$payment = $this->createStub( Payment::class );
 
 		$this->expectException( InvalidArgumentException::class );
 		$urlFactory->createURLGenerator( $payment, new FakeUrlAuthenticator() );

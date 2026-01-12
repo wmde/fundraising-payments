@@ -33,9 +33,10 @@ class CreditCardURLGeneratorTest extends TestCase {
 		Euro $amount,
 		PaymentInterval $interval
 	): void {
-		$translatableDescriptionMock = $this->createMock( TranslatableDescription::class );
-		$translatableDescriptionMock->method( 'getText' )->willReturn( $description );
-
+		$translatableDescriptionStub = $this->createConfiguredStub(
+			TranslatableDescription::class,
+			[ 'getText' => $description ]
+		);
 		$urlGenerator = new CreditCardURLGenerator(
 			CreditCardURLGeneratorConfig::newFromConfig(
 				[
@@ -47,7 +48,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 					'theme' => 'wikimedia',
 					'testmode' => false
 				],
-				$translatableDescriptionMock
+				$translatableDescriptionStub
 			),
 			new FakeUrlAuthenticator(),
 			new CreditCardPayment( 42, $amount, $interval )
@@ -65,8 +66,10 @@ class CreditCardURLGeneratorTest extends TestCase {
 	}
 
 	public function testWhenTestModeIsEnabled_urlPassesProperParameter(): void {
-		$translatableDescriptionMock = $this->createStub( TranslatableDescription::class );
-		$translatableDescriptionMock->method( 'getText' )->willReturn( 'Ich spende einmalig' );
+		$translatableDescriptionStub = $this->createConfiguredStub(
+			TranslatableDescription::class,
+			[ 'getText' => 'Ich spende einmalig' ]
+		);
 		$urlGenerator = new CreditCardURLGenerator(
 			CreditCardURLGeneratorConfig::newFromConfig(
 				[
@@ -78,7 +81,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 					'theme' => 'wikimedia',
 					'testmode' => true
 				],
-				$translatableDescriptionMock
+				$translatableDescriptionStub
 			),
 			new FakeUrlAuthenticator(),
 			new CreditCardPayment( 32, Euro::newFromCents( 100 ), PaymentInterval::OneTime )

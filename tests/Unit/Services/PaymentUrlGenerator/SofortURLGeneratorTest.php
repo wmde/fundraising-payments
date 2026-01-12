@@ -27,7 +27,7 @@ class SofortURLGeneratorTest extends TestCase {
 		$externalItemId = 'wx529836';
 		$amount = Euro::newFromCents( 600 );
 		$locale = 'DE';
-		$translatableDescription = $this->createMock( TranslatableDescription::class );
+		$translatableDescription = $this->createStub( TranslatableDescription::class );
 
 		$config = new SofortURLGeneratorConfig(
 			$locale,
@@ -41,7 +41,7 @@ class SofortURLGeneratorTest extends TestCase {
 			$internalItemId,
 			$amount,
 			PaymentInterval::OneTime,
-			$this->createMock( PaymentReferenceCode::class ) );
+			$this->createStub( PaymentReferenceCode::class ) );
 
 		$urlGenerator = new SofortURLGenerator( $config, $client, new FakeUrlAuthenticator(), $payment );
 
@@ -62,13 +62,13 @@ class SofortURLGeneratorTest extends TestCase {
 
 	public function testSofortUrlGeneratorReturnsUrlFromClient(): void {
 		$expectedUrl = 'https://dn.ht/picklecat/';
-		$translatableDescriptionMock = $this->createMock( TranslatableDescription::class );
+		$translatableDescriptionStub = $this->createStub( TranslatableDescription::class );
 		$config = new SofortURLGeneratorConfig(
 			'DE',
 			'https://us.org/yes',
 			'https://us.org/no',
 			'https://us.org/callback',
-			$translatableDescriptionMock
+			$translatableDescriptionStub
 		);
 		$client = new SofortSofortClientSpy( $expectedUrl );
 
@@ -76,7 +76,7 @@ class SofortURLGeneratorTest extends TestCase {
 			23,
 			Euro::newFromCents( 600 ),
 			PaymentInterval::OneTime,
-			$this->createMock( PaymentReferenceCode::class ) );
+			$this->createStub( PaymentReferenceCode::class ) );
 
 		$urlGenerator = new SofortURLGenerator( $config, $client, new FakeUrlAuthenticator(), $payment );
 
@@ -104,7 +104,7 @@ class SofortURLGeneratorTest extends TestCase {
 			23,
 			Euro::newFromCents( 600 ),
 			PaymentInterval::OneTime,
-			$this->createMock( PaymentReferenceCode::class )
+			$this->createStub( PaymentReferenceCode::class )
 		);
 
 		$urlGenerator = new SofortURLGenerator( $config, $client, new FakeUrlAuthenticator(), $payment );

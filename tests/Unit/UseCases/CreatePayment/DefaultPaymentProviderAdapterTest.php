@@ -39,7 +39,7 @@ class DefaultPaymentProviderAdapterTest extends TestCase {
 					'theme' => 'wikimedia',
 					'testmode' => false
 				],
-				$this->createMock( TranslatableDescription::class )
+				$this->createStub( TranslatableDescription::class )
 			),
 			new FakeUrlAuthenticator(),
 			$payment );

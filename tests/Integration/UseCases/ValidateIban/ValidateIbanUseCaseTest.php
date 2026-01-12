@@ -34,9 +34,10 @@ class ValidateIbanUseCaseTest extends TestCase {
 	}
 
 	private function newSucceedingIbanValidator(): IbanValidator {
-		$validator = $this->createMock( IbanValidator::class );
-		$validator->method( 'validate' )->willReturn( new ValidationResult() );
-		return $validator;
+		return $this->createConfiguredStub(
+			IbanValidator::class,
+			[ 'validate' => new ValidationResult() ]
+		);
 	}
 
 	public function testSucceedingIbanCheckReturnsGeneratedBankData(): void {
@@ -66,12 +67,16 @@ class ValidateIbanUseCaseTest extends TestCase {
 	}
 
 	public function testWhenIbanIsInvalid_failureResponseIsReturned(): void {
-		$this->ibanValidator = $this->createMock( IbanValidator::class );
-		$this->ibanValidator->method( 'validate' )->willReturn(
-			new ValidationResult( new ConstraintViolation(
-				DirectDebitBankData::IBAN,
-				'Too many odd digits'
-			) )
+		$this->ibanValidator = $this->createConfiguredStub(
+			IbanValidator::class,
+			[
+				'validate' => new ValidationResult(
+					new ConstraintViolation(
+						DirectDebitBankData::IBAN,
+						'Too many odd digits'
+					)
+				),
+			]
 		);
 
 		$useCase = $this->newCheckIbanUseCase();
