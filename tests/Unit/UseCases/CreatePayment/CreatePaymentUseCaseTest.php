@@ -285,8 +285,10 @@ class CreatePaymentUseCaseTest extends TestCase {
 	}
 
 	public function testPaymentResponseContainsURLFromURLGeneratorFactory(): void {
-		$urlGeneratorFactory = $this->createStub( UrlGeneratorFactory::class );
-		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( new UrlGeneratorStub() );
+		$urlGeneratorFactory = $this->createConfiguredStub(
+			UrlGeneratorFactory::class,
+			[ 'createURLGenerator' => new UrlGeneratorStub() ]
+		);
 		$useCase = $this->useCaseBuilder
 			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
@@ -305,8 +307,10 @@ class CreatePaymentUseCaseTest extends TestCase {
 
 	public function testPaymentProviderAdapterCanReplaceUrlGenerator(): void {
 		$urlGeneratorFactory = $this->givenUrlGeneratorFactoryReturnsIncompleteUrlGenerator();
-		$adapterStub = $this->createStub( PaymentProviderAdapter::class );
-		$adapterStub->method( 'modifyPaymentUrlGenerator' )->willReturn( new UrlGeneratorStub() );
+		$adapterStub = $this->createConfiguredStub(
+			PaymentProviderAdapter::class,
+			[ 'modifyPaymentUrlGenerator' => new UrlGeneratorStub() ]
+		);
 		$useCase = $this->useCaseBuilder
 			->withIdGenerator( new SequentialPaymentIdRepository( self::PAYMENT_ID ) )
 			->withPaymentRepositorySpy()
@@ -391,8 +395,9 @@ class CreatePaymentUseCaseTest extends TestCase {
 		$urlGenerator = $this->createStub( PaymentCompletionURLGenerator::class );
 		$urlGenerator->method( 'generateURL' )
 			->willThrowException( new \LogicException( 'The "original" URL generator should be replaced by the payment provider adapter' ) );
-		$urlGeneratorFactory = $this->createStub( UrlGeneratorFactory::class );
-		$urlGeneratorFactory->method( 'createURLGenerator' )->willReturn( $urlGenerator );
-		return $urlGeneratorFactory;
+		return $this->createConfiguredStub(
+			UrlGeneratorFactory::class,
+			[ 'createURLGenerator' => $urlGenerator ]
+		);
 	}
 }

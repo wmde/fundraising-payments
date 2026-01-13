@@ -180,9 +180,10 @@ class PayPalPaymentTest extends TestCase {
 	}
 
 	private function makeIdGeneratorForFollowupPayments(): PaymentIdRepository {
-		$idGeneratorStub = $this->createStub( PaymentIdRepository::class );
-		$idGeneratorStub->method( 'getNewId' )->willReturn( self::FOLLOWUP_PAYMENT_ID );
-		return $idGeneratorStub;
+		return $this->createConfiguredStub(
+			PaymentIdRepository::class,
+			[ 'getNewId' => self::FOLLOWUP_PAYMENT_ID ]
+		);
 	}
 
 	/**
