@@ -105,8 +105,10 @@ class BookPaymentUseCaseTest extends TestCase {
 	}
 
 	public function testBookedPaymentsThatAllowFollowups_CreateFollowUpPaymentsWhenTheyAreBooked(): void {
-		$idGeneratorStub = $this->createStub( PaymentIdRepository::class );
-		$idGeneratorStub->method( 'getNewId' )->willReturn( self::CHILD_PAYMENT_ID );
+		$idGeneratorStub = $this->createConfiguredStub(
+			PaymentIdRepository::class,
+			[ 'getNewId' => self::CHILD_PAYMENT_ID ]
+		);
 		$payment = $this->makeBookedPayPalPayment( $idGeneratorStub );
 		$repo = new PaymentRepositorySpy( [ self::PAYMENT_ID => $payment ] );
 		$useCase = new BookPaymentUseCase( $repo, $idGeneratorStub, $this->makeSucceedingVerificationServiceFactory(), new FakeTransactionIdFinder() );
