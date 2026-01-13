@@ -74,14 +74,13 @@ class SofortLibClientTest extends TestCase {
 	public function testWhenApiReturnsErrorAnExceptionWithApiErrorMessageIsThrown(): void {
 		$client = new SofortLibClient( '47:11:00' );
 
-		$api = $this->createMock( Sofortueberweisung::class );
-
-		$api
-			->method( 'isError' )
-			->willReturn( true );
-		$api
-			->method( 'getError' )
-			->willReturn( 'boo boo' );
+		$api = $this->createConfiguredStub(
+			Sofortueberweisung::class,
+			[
+				'isError' => true,
+				'getError' => 'boo boo',
+			]
+		);
 
 		$client->setApi( $api );
 

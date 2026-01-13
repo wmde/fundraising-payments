@@ -58,7 +58,7 @@ class BookPaymentUseCaseTest extends TestCase {
 	}
 
 	public function testBookingMissingPaymentWillReturnFailureResult(): void {
-		$repo = $this->createMock( PaymentRepository::class );
+		$repo = $this->createStub( PaymentRepository::class );
 		$repo->method( 'getPaymentById' )->willThrowException(
 			new PaymentNotFoundException( 'Me fail English, that\'s unpossible' )
 		);
@@ -180,23 +180,27 @@ class BookPaymentUseCaseTest extends TestCase {
 	}
 
 	private function makeSucceedingVerificationServiceFactory(): VerificationServiceFactory {
-		$validator = $this->createMock( VerificationService::class );
-		$validator->method( 'validate' )->willReturn( VerificationResponse::newSuccessResponse() );
+		$validator = $this->createConfiguredStub(
+			VerificationService::class,
+			[ 'validate' => VerificationResponse::newSuccessResponse() ]
+		);
 
-		$factory = $this->createMock( VerificationServiceFactory::class );
-		$factory->method( 'create' )->willReturn( $validator );
-
-		return $factory;
+		return $this->createConfiguredStub(
+			VerificationServiceFactory::class,
+			[ 'create' => $validator ]
+		);
 	}
 
 	private function makeFailingVerificationServiceFactory( string $failureMessage ): VerificationServiceFactory {
-		$validator = $this->createMock( VerificationService::class );
-		$validator->method( 'validate' )->willReturn( VerificationResponse::newFailureResponse( $failureMessage ) );
+		$validator = $this->createConfiguredStub(
+			VerificationService::class,
+			[ 'validate' => VerificationResponse::newFailureResponse( $failureMessage ) ]
+		);
 
-		$factory = $this->createMock( VerificationServiceFactory::class );
-		$factory->method( 'create' )->willReturn( $validator );
-
-		return $factory;
+		return $this->createConfiguredStub(
+			VerificationServiceFactory::class,
+			[ 'create' => $validator ]
+		);
 	}
 
 	private function makeBookedPayPalPayment( PaymentIdRepository $idGenerator ): PayPalPayment {

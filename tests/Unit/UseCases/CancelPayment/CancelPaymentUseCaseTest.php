@@ -77,7 +77,7 @@ class CancelPaymentUseCaseTest extends TestCase {
 	}
 
 	public function testCancelMissingPaymentThrowsException(): void {
-		$repository = $this->createMock( PaymentRepository::class );
+		$repository = $this->createStub( PaymentRepository::class );
 		$repository->method( 'getPaymentById' )->willThrowException(
 			new PaymentNotFoundException( 'Me fail English, that\'s unpossible' )
 		);
@@ -90,7 +90,7 @@ class CancelPaymentUseCaseTest extends TestCase {
 	}
 
 	public function testRestoreMissingPaymentThrowsException(): void {
-		$repository = $this->createMock( PaymentRepository::class );
+		$repository = $this->createStub( PaymentRepository::class );
 		$repository->method( 'getPaymentById' )->willThrowException(
 			new PaymentNotFoundException( 'Me fail English, that\'s unpossible' )
 		);

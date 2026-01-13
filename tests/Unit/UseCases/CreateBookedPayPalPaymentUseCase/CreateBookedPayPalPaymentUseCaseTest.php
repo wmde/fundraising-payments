@@ -94,14 +94,16 @@ class CreateBookedPayPalPaymentUseCaseTest extends TestCase {
 	}
 
 	private function makeSucceedingVerifier(): PayPalVerificationService {
-		$validator = $this->createMock( PayPalVerificationService::class );
-		$validator->method( 'validate' )->willReturn( VerificationResponse::newSuccessResponse() );
-		return $validator;
+		return $this->createConfiguredStub(
+			PayPalVerificationService::class,
+			[ 'validate' => VerificationResponse::newSuccessResponse() ]
+		);
 	}
 
 	private function makeFailingVerifier(): PayPalVerificationService {
-		$validator = $this->createMock( PayPalVerificationService::class );
-		$validator->method( 'validate' )->willReturn( VerificationResponse::newFailureResponse( '' ) );
-		return $validator;
+		return $this->createConfiguredStub(
+			PayPalVerificationService::class,
+			[ 'validate' => VerificationResponse::newFailureResponse( '' ) ]
+		);
 	}
 }
