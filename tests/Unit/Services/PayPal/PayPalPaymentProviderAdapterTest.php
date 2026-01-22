@@ -211,11 +211,12 @@ class PayPalPaymentProviderAdapterTest extends TestCase {
 	}
 
 	private function givenAPIExpectingCreateOrder(): PaypalAPI {
-		$api = $this->createStub( PayPalAPI::class );
-		$api->method( 'createOrder' )->willReturn(
-			new Order( self::ORDER_ID, 'https://sandbox.paypal.com/confirm-order' )
+		return $this->createConfiguredStub(
+			PayPalAPI::class,
+			[
+				'createOrder' => new Order( self::ORDER_ID, 'https://sandbox.paypal.com/confirm-order' ),
+			]
 		);
-		return $api;
 	}
 
 	private function givenAPIExpectingCreateSubscription(): PaypalAPI {

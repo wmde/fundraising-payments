@@ -71,8 +71,10 @@ class GetPaymentUseCaseTest extends TestCase {
 			'MCP',
 			[],
 		);
-		$payment = $this->createStub( CreditCardPayment::class );
-		$payment->method( 'getLegacyData' )->willReturn( $legacyPaymentData );
+		$payment = $this->createConfiguredStub(
+			CreditCardPayment::class,
+			[ 'getLegacyData' => $legacyPaymentData ]
+		);
 		$useCase = new GetPaymentUseCase(
 			new PaymentRepositorySpy( [ 7 => $payment ] ),
 			$this->makeBankDataGeneratorDummy(),
@@ -100,9 +102,13 @@ class GetPaymentUseCaseTest extends TestCase {
 			'BEZ',
 			[ 'iban' => 'DE02100500000054540402' ]
 		);
-		$payment = $this->createStub( DirectDebitPayment::class );
-		$payment->method( 'getLegacyData' )->willReturn( $legacyPaymentData );
-		$payment->method( 'getIban' )->willReturn( new Iban( 'DE02100500000054540402' ) );
+		$payment = $this->createConfiguredStub(
+			DirectDebitPayment::class,
+			[
+				'getLegacyData' => $legacyPaymentData,
+				'getIban' => new Iban( 'DE02100500000054540402' ),
+			]
+		);
 		$useCase = new GetPaymentUseCase(
 			new PaymentRepositorySpy( [ 7 => $payment ] ),
 			$this->makeBankDataGeneratorStub()
@@ -119,16 +125,18 @@ class GetPaymentUseCaseTest extends TestCase {
 	}
 
 	private function makeBankDataGeneratorStub(): BankDataGenerator {
-		$generator = $this->createStub( BankDataGenerator::class );
-		$generator->method( 'getBankDataFromIban' )
-			->willReturn( new ExtendedBankData(
-				new Iban( 'DE02100500000054540402' ),
-				'BELADEBE',
-				'0054540402',
-				'10050000',
-				'Landesbank Berlin'
-			) );
-		return $generator;
+		return $this->createConfiguredStub(
+			BankDataGenerator::class,
+			[
+				'getBankDataFromIban' => new ExtendedBankData(
+					new Iban( 'DE02100500000054540402' ),
+					'BELADEBE',
+					'0054540402',
+					'10050000',
+					'Landesbank Berlin'
+				),
+			]
+		);
 	}
 
 	private function makeBankDataGeneratorDummy(): BankDataGenerator {

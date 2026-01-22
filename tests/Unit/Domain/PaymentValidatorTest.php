@@ -115,16 +115,20 @@ class PaymentValidatorTest extends TestCase {
 	}
 
 	private function makeSucceedingDomainSpecificValidator(): DomainSpecificPaymentValidator {
-		$validator = $this->createStub( DomainSpecificPaymentValidator::class );
-		$validator->method( 'validatePaymentData' )->willReturn( ValidationResponse::newSuccessResponse() );
-		return $validator;
+		return $this->createConfiguredStub(
+			DomainSpecificPaymentValidator::class,
+			[ 'validatePaymentData' => ValidationResponse::newSuccessResponse() ]
+		);
 	}
 
 	private function makeFailingDomainSpecificValidator(): DomainSpecificPaymentValidator {
-		$validator = $this->createStub( DomainSpecificPaymentValidator::class );
-		$validator->method( 'validatePaymentData' )->willReturn( ValidationResponse::newFailureResponse( [
-			new ConstraintViolation( 8, 'Amount is bad omen in China', 'domain_specific_check_1' )
-		] ) );
-		return $validator;
+		return $this->createConfiguredStub(
+			DomainSpecificPaymentValidator::class,
+			[
+				'validatePaymentData' => ValidationResponse::newFailureResponse( [
+					new ConstraintViolation( 8, 'Amount is bad omen in China', 'domain_specific_check_1' ),
+				] ),
+			]
+		);
 	}
 }

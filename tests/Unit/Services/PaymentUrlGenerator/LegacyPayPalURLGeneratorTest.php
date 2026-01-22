@@ -119,8 +119,10 @@ class LegacyPayPalURLGeneratorTest extends TestCase {
 	}
 
 	private function newPayPalUrlConfigWithDelayedPayment(): LegacyPayPalURLGeneratorConfig {
-		$descriptionStub = $this->createStub( TranslatableDescription::class );
-		$descriptionStub->method( 'getText' )->willReturn( 'Mentioning that awesome organization on the invoice' );
+		$descriptionStub = $this->createConfiguredStub(
+			TranslatableDescription::class,
+			[ 'getText' => 'Mentioning that awesome organization on the invoice' ]
+		);
 		return LegacyPayPalURLGeneratorConfig::newFromConfig(
 			[
 				'base-url' => self::BASE_URL,
