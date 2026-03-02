@@ -12,7 +12,7 @@ use WMDE\Fundraising\PaymentContext\Domain\Model\PayPalPayment;
 /**
  * The class provides backup configuration data for the backup classes of the bounded contexts.
  *
- * The bounded contexts are responsible for marking their data das "backed up", this class is just here to provide
+ * The bounded contexts are responsible for marking their data as "backed up", this class is just here to provide
  * a subset of payment data for the bounded context and does not provide a `doBackup` method that changes payment state.
  */
 class PersonalDataBackup {

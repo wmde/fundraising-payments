@@ -20,7 +20,7 @@ class PersonalDataBackupTest extends TestCase {
 	}
 
 	public function testReturnsConfigurationForMultipleTables(): void {
-		// A dummy condition because it needs to be a
+		// A dummy condition
 		$condition = 'SELECT id FROM payment';
 		$backup = new PersonalDataBackup( $this->entityManager );
 
