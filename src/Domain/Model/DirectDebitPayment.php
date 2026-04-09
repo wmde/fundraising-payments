@@ -34,11 +34,6 @@ class DirectDebitPayment extends Payment implements CancellablePayment {
 		return new self( $id, $amount, $interval, $iban, $bic );
 	}
 
-	public function anonymise(): void {
-		$this->iban = null;
-		$this->bic = null;
-	}
-
 	protected function getPaymentName(): string {
 		return self::PAYMENT_METHOD;
 	}
@@ -89,5 +84,10 @@ class DirectDebitPayment extends Payment implements CancellablePayment {
 
 	public function isCompleted(): bool {
 		return true;
+	}
+
+	public function scrubPersonalData(): void {
+		$this->iban = null;
+		$this->bic = null;
 	}
 }

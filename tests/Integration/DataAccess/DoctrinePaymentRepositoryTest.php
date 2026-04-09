@@ -187,7 +187,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 	public function testStoreAnonymisedDirectDebitPayment(): void {
 		$payment = DirectDebitPayment::create( 1, Euro::newFromInt( 99 ), PaymentInterval::Quarterly, new Iban( self::IBAN ), self::BIC );
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
-		$payment->anonymise();
+		$payment->scrubPersonalData();
 		$repo->storePayment( $payment );
 
 		$updatedPayment = $this->fetchRawDirectDebitPaymentData();
