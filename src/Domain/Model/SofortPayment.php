@@ -104,10 +104,6 @@ class SofortPayment extends Payment implements BookablePayment {
 		return $data;
 	}
 
-	public function anonymise(): void {
-		$this->paymentReferenceCode = null;
-	}
-
 	public function getDisplayValues(): array {
 		$parentValues = parent::getDisplayValues();
 		$legacySubtypeValues = $this->getPaymentSpecificLegacyData();
@@ -127,5 +123,9 @@ class SofortPayment extends Payment implements BookablePayment {
 
 	public function isCompleted(): bool {
 		return $this->isBooked();
+	}
+
+	public function scrubPersonalData(): void {
+		$this->paymentReferenceCode = null;
 	}
 }

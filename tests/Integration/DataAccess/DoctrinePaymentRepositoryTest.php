@@ -303,7 +303,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 
 		$repo->storePayment( $payment );
-		$payment->anonymise();
+		$payment->scrubPersonalData();
 		$repo->storePayment( $payment );
 
 		$insertedPayment = $this->fetchRawBankTransferPaymentData();
@@ -374,7 +374,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 		$repo = new DoctrinePaymentRepository( $this->entityManager );
 
 		$repo->storePayment( $payment );
-		$payment->anonymise();
+		$payment->scrubPersonalData();
 		$repo->storePayment( $payment );
 
 		$insertedPayment = $this->fetchRawSofortPaymentData();

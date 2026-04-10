@@ -21,9 +21,6 @@ class FeeChangePayment extends Payment {
 		return new self( $id, $amount, $interval );
 	}
 
-	public function anonymise(): void {
-	}
-
 	protected function getPaymentName(): string {
 		return self::PAYMENT_METHOD;
 	}

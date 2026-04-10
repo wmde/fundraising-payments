@@ -21,7 +21,7 @@ class BankTransferPaymentTest extends TestCase {
 
 	public function testGivenAnonymisedPayment_itReturnsFormattedString(): void {
 		$payment = $this->makeBankTransferPayment();
-		$payment->anonymise();
+		$payment->scrubPersonalData();
 
 		$this->assertSame( '', $payment->getPaymentReferenceCode() );
 	}
