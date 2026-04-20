@@ -83,4 +83,7 @@ abstract class Payment implements LegacyDataTransformer {
 	}
 
 	abstract public function isCompleted(): bool;
+
+	public function scrubPersonalData(): void {
+	}
 }

@@ -36,10 +36,6 @@ class BankTransferPayment extends Payment implements CancellablePayment {
 		return $this->paymentReferenceCode->getFormattedCode();
 	}
 
-	public function anonymise(): void {
-		$this->paymentReferenceCode = null;
-	}
-
 	protected function getPaymentName(): string {
 		return self::PAYMENT_METHOD;
 	}
@@ -83,5 +79,9 @@ class BankTransferPayment extends Payment implements CancellablePayment {
 
 	public function isCompleted(): bool {
 		return true;
+	}
+
+	public function scrubPersonalData(): void {
+		$this->paymentReferenceCode = null;
 	}
 }
