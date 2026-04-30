@@ -57,7 +57,7 @@ class DirectDebitPaymentTest extends TestCase {
 	public function testAnonymisedPaymentHasNoIbanAndBic(): void {
 		$payment = $this->makeDirectDebitPayment();
 
-		$payment->anonymise();
+		$payment->scrubPersonalData();
 
 		$this->assertNull( $payment->getIban() );
 		$this->assertNull( $payment->getBic() );
@@ -77,7 +77,7 @@ class DirectDebitPaymentTest extends TestCase {
 
 	public function testAnonymisedPaymentReturnsEmptyIbanAndBicInLegacyData(): void {
 		$payment = $this->makeDirectDebitPayment();
-		$payment->anonymise();
+		$payment->scrubPersonalData();
 
 		$legacyData = $payment->getLegacyData();
 

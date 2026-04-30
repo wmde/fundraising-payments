@@ -27,7 +27,7 @@ class SofortPaymentTest extends TestCase {
 
 	public function testGetPaymentCodeOfAnonymisedPaymentsReturnsEmptyString(): void {
 		$sofortPayment = $this->makeSofortPayment();
-		$sofortPayment->anonymise();
+		$sofortPayment->scrubPersonalData();
 
 		$this->assertSame( '', $sofortPayment->getPaymentReferenceCode() );
 	}
@@ -102,7 +102,7 @@ class SofortPaymentTest extends TestCase {
 
 	public function testAnonymisedPaymentHasEmptyReferenceCodeInLegacyData(): void {
 		$sofortPayment = $this->makeSofortPayment();
-		$sofortPayment->anonymise();
+		$sofortPayment->scrubPersonalData();
 
 		$legacyData = $sofortPayment->getLegacyData();
 
