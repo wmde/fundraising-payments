@@ -120,7 +120,7 @@ class PayPalBookingTransformer {
 			$result[$legacyKey] = $this->rawBookingData[$bookingDataKey] ?? '';
 		}
 
-		if ( isset( $result[self::PAYMENT_STATUS_LEGACY_KEY] ) && isset( $this->rawBookingData[self::TRANSACTION_TYPE_KEY] ) ) {
+		if ( isset( $this->rawBookingData[self::TRANSACTION_TYPE_KEY] ) ) {
 			$result[self::PAYMENT_STATUS_LEGACY_KEY] = $result[self::PAYMENT_STATUS_LEGACY_KEY] . '/' . $this->rawBookingData[self::TRANSACTION_TYPE_KEY];
 		}
 
