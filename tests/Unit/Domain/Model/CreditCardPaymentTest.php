@@ -128,4 +128,27 @@ class CreditCardPaymentTest extends TestCase {
 		unset( $actualDisplayData['ext_payment_timestamp'] );
 		$this->assertEquals( $expectedValues, $actualDisplayData );
 	}
+
+	public function testScrubbedPaymentCannotBeReBooked(): void {
+		$payment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$payment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+		$payment->scrubPersonalData();
+
+		$this->assertFalse( $payment->canBeBooked( [] ) );
+	}
+
+	public function testGetDisplayDataOnScrubbedPaymentReturnsFieldsToDisplay(): void {
+		$payment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
+		$payment->bookPayment( CreditCardPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+		$payment->scrubPersonalData();
+
+		$expectedOutput = [
+			'amount' => 100000,
+			'interval' => 1,
+			'paymentType' => 'MCP'
+		];
+
+		$this->assertNotNull( $payment->getValuationDate() );
+		$this->assertEquals( $expectedOutput, $payment->getDisplayValues() );
+	}
 }

@@ -35,11 +35,11 @@ class CreditCardPayment extends Payment implements BookablePayment {
 	}
 
 	public function isBooked(): bool {
-		return $this->valuationDate !== null && !empty( $this->bookingData );
+		return $this->valuationDate !== null;
 	}
 
 	public function canBeBooked( array $transactionData ): bool {
-		return $this->valuationDate === null && empty( $this->bookingData );
+		return $this->valuationDate === null;
 	}
 
 	public function bookPayment( array $transactionData, PaymentIdRepository $idGenerator ): Payment {
@@ -64,10 +64,11 @@ class CreditCardPayment extends Payment implements BookablePayment {
 	}
 
 	protected function getPaymentSpecificLegacyData(): array {
-		if ( $this->isBooked() ) {
-			return ( new CreditCardBookingTransformer( $this->bookingData ) )->getLegacyData();
+		if ( $this->bookingData === [] ) {
+			return [];
 		}
-		return [];
+
+		return ( new CreditCardBookingTransformer( $this->bookingData ) )->getLegacyData();
 	}
 
 	public function getDisplayValues(): array {
@@ -81,5 +82,9 @@ class CreditCardPayment extends Payment implements BookablePayment {
 
 	public function isCompleted(): bool {
 		return $this->isBooked();
+	}
+
+	public function scrubPersonalData(): void {
+		$this->bookingData = [];
 	}
 }
