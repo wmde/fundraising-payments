@@ -35,7 +35,7 @@ class PayPalPayment extends Payment implements BookablePayment {
 	}
 
 	public function isBooked(): bool {
-		return $this->valuationDate !== null && !empty( $this->bookingData );
+		return $this->valuationDate !== null;
 	}
 
 	public function canBeBooked( array $transactionData ): bool {
@@ -78,7 +78,7 @@ class PayPalPayment extends Payment implements BookablePayment {
 
 	protected function getPaymentSpecificLegacyData(): array {
 		$legacyData = [];
-		if ( $this->isBooked() ) {
+		if ( !empty( $this->bookingData ) ) {
 			$legacyData = ( new PayPalBookingTransformer( $this->bookingData ) )->getLegacyData();
 		}
 		if ( $this->parentPayment !== null ) {
@@ -120,5 +120,10 @@ class PayPalPayment extends Payment implements BookablePayment {
 
 	public function getParentPayment(): ?PayPalPayment {
 		return $this->parentPayment;
+	}
+
+	public function scrubPersonalData(): void {
+		$this->transactionId = null;
+		$this->bookingData = [];
 	}
 }
