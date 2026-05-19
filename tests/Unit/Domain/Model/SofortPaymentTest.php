@@ -100,7 +100,7 @@ class SofortPaymentTest extends TestCase {
 		$this->assertSame( [ 'ueb_code' => 'XW-DAR-E99-X' ], $legacyData->paymentSpecificValues );
 	}
 
-	public function testAnonymisedPaymentHasEmptyReferenceCodeInLegacyData(): void {
+	public function testScrubbedPaymentHasClearsLegacyData(): void {
 		$sofortPayment = $this->makeSofortPayment();
 		$sofortPayment->scrubPersonalData();
 
@@ -138,6 +138,31 @@ class SofortPaymentTest extends TestCase {
 
 		$this->assertNotNull( $payment->getValuationDate() );
 		$this->assertFalse( $payment->canBeBooked( [] ) );
+		$this->assertEquals( $expectedOutput, $payment->getDisplayValues() );
+	}
+
+	public function testScrubbedPaymentCannotBeReBooked(): void {
+		$payment = $this->makeSofortPayment();
+		$payment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
+		$payment->scrubPersonalData();
+
+		$this->assertFalse( $payment->canBeBooked( [] ) );
+	}
+
+	public function testGetDisplayDataOnScrubbedPaymentReturnsFieldsToDisplay(): void {
+		$payment = $this->makeSofortPayment();
+		$payment->bookPayment( $this->makeValidTransactionData(), new DummyPaymentIdRepository() );
+		$payment->scrubPersonalData();
+
+		$expectedOutput = [
+			'amount' => 1000,
+			'interval' => 0,
+			'paymentType' => 'SUB',
+			'paymentReferenceCode' => '',
+			'valuationDate' => '2001-12-24 17:30:00'
+		];
+
+		$this->assertNotNull( $payment->getValuationDate() );
 		$this->assertEquals( $expectedOutput, $payment->getDisplayValues() );
 	}
 
