@@ -55,11 +55,11 @@ class SofortPayment extends Payment implements BookablePayment {
 	}
 
 	public function isBooked(): bool {
-		return $this->valuationDate !== null && $this->transactionId !== null;
+		return $this->valuationDate !== null;
 	}
 
 	public function canBeBooked( array $transactionData ): bool {
-		return $this->transactionId === null;
+		return $this->valuationDate === null;
 	}
 
 	/**
@@ -127,5 +127,6 @@ class SofortPayment extends Payment implements BookablePayment {
 
 	public function scrubPersonalData(): void {
 		$this->paymentReferenceCode = null;
+		$this->transactionId = null;
 	}
 }
