@@ -66,6 +66,14 @@ class PayPalPaymentTest extends TestCase {
 		$this->assertTrue( $payment->canBeBooked( PayPalPaymentBookingData::newValidFollowupBookingData() ) );
 	}
 
+	public function testInitialPaymentCanBeBookedAsFollowupPaymentAfterScrubbing(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::Monthly );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+		$payment->scrubPersonalData();
+
+		$this->assertTrue( $payment->canBeBooked( PayPalPaymentBookingData::newValidFollowupBookingData() ) );
+	}
+
 	public function testBookingABookedParentPaymentCreatesABookedChildPayment(): void {
 		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::Monthly );
 		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
@@ -177,6 +185,32 @@ class PayPalPaymentTest extends TestCase {
 		$this->assertNotNull( $payment->getValuationDate() );
 		$this->assertFalse( $payment->canBeBooked( [] ) );
 		$this->assertEquals( $expectedOutput, $actualDisplayData );
+	}
+
+	public function testGetDisplayDataForScrubbedPaymentReturnsFields(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+		$payment->scrubPersonalData();
+
+		$expectedOutput = [
+			'amount' => 1000,
+			'interval' => 0,
+			'paymentType' => 'PPL',
+		];
+
+		$actualDisplayData = $payment->getDisplayValues();
+
+		$this->assertNotNull( $payment->getValuationDate() );
+		$this->assertFalse( $payment->canBeBooked( [] ) );
+		$this->assertEquals( $expectedOutput, $actualDisplayData );
+	}
+
+	public function testScrubbedPaymentHasNoTransactionId(): void {
+		$payment = new PayPalPayment( 1, Euro::newFromCents( 1000 ), PaymentInterval::OneTime );
+		$payment->bookPayment( PayPalPaymentBookingData::newValidBookingData(), new DummyPaymentIdRepository() );
+		$payment->scrubPersonalData();
+
+		$this->assertNull( $payment->getTransactionId() );
 	}
 
 	private function makeIdGeneratorForFollowupPayments(): PaymentIdRepository {
