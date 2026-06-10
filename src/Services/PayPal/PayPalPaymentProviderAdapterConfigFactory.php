@@ -28,7 +28,7 @@ class PayPalPaymentProviderAdapterConfigFactory {
 	}
 
 	/**
-	 * @param array $subscriptionPlansConfig
+	 * @param array[] $subscriptionPlansConfig
 	 * @param string $productId
 	 * @return array<SubscriptionPlan>
 	 *
