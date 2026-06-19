@@ -163,6 +163,7 @@ class DoctrinePaymentRepositoryTest extends TestCase {
 			'ext_payment_status' => 'processed/express_checkout',
 			'ext_payment_account' => '42DFPNJDF8RED',
 			'ext_payment_timestamp' => '10:54:49 Dec 02, 2012 PST',
+			'is_booked' => true,
 		], $payment->getDisplayValues() );
 
 		$this->assertSame( 1, $followupPayment->getLegacyData()->paymentSpecificValues['parent_payment_id'] );

@@ -84,6 +84,7 @@ class PayPalPayment extends Payment implements BookablePayment {
 		if ( $this->parentPayment !== null ) {
 			$legacyData['parent_payment_id'] = $this->parentPayment->getId();
 		}
+		$legacyData[ 'is_booked' ] = $this->isBooked();
 		return $legacyData;
 	}
 

@@ -101,6 +101,7 @@ class SofortPayment extends Payment implements BookablePayment {
 		] );
 		// always have the payment reference code in here, to enable override of existing code, just in case.
 		$data['ueb_code'] = $this->paymentReferenceCode ? $this->paymentReferenceCode->getFormattedCode() : '';
+		$data['is_booked'] = $this->isBooked();
 		return $data;
 	}
 

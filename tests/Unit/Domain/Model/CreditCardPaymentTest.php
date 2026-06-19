@@ -98,7 +98,7 @@ class CreditCardPaymentTest extends TestCase {
 	public function testGivenNewPayment_paymentLegacyDataIsEmptyArray(): void {
 		$creditCardPayment = new CreditCardPayment( 1, Euro::newFromInt( 1000 ), PaymentInterval::Monthly );
 
-		$this->assertSame( [], $creditCardPayment->getLegacyData()->paymentSpecificValues );
+		$this->assertSame( [ 'is_booked' => false ], $creditCardPayment->getLegacyData()->paymentSpecificValues );
 	}
 
 	public function testGetDisplayDataReturnsAllFieldsToDisplayForBookedPayment(): void {
@@ -118,7 +118,8 @@ class CreditCardPaymentTest extends TestCase {
 			'mcp_country' => 'DE',
 			'mcp_currency' => 'EUR',
 			'mcp_cc_expiry_date' => '',
-			'ext_payment_status' => 'processed'
+			'ext_payment_status' => 'processed',
+			'is_booked' => true,
 		];
 
 		$actualDisplayData = $creditCardPayment->getDisplayValues();
@@ -145,7 +146,8 @@ class CreditCardPaymentTest extends TestCase {
 		$expectedOutput = [
 			'amount' => 100000,
 			'interval' => 1,
-			'paymentType' => 'MCP'
+			'paymentType' => 'MCP',
+			'is_booked' => true,
 		];
 
 		$this->assertNotNull( $payment->getValuationDate() );

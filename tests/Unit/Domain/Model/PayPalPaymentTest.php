@@ -124,7 +124,7 @@ class PayPalPaymentTest extends TestCase {
 
 		$legacyData = $payment->getLegacyData();
 
-		$this->assertSame( [], $legacyData->paymentSpecificValues );
+		$this->assertSame( [ 'is_booked' => false ], $legacyData->paymentSpecificValues );
 		$this->assertSame( 'PPL', $legacyData->paymentName );
 	}
 
@@ -177,7 +177,8 @@ class PayPalPaymentTest extends TestCase {
 			'ext_payment_type' => 'instant',
 			'ext_payment_status' => 'processed/express_checkout',
 			'ext_payment_account' => '42DFPNJDF8RED',
-			'ext_payment_timestamp' => PayPalPaymentBookingData::PAYMENT_DATE
+			'ext_payment_timestamp' => PayPalPaymentBookingData::PAYMENT_DATE,
+			'is_booked' => true,
 		];
 
 		$actualDisplayData = $payment->getDisplayValues();
@@ -196,6 +197,7 @@ class PayPalPaymentTest extends TestCase {
 			'amount' => 1000,
 			'interval' => 0,
 			'paymentType' => 'PPL',
+			'is_booked' => true,
 		];
 
 		$actualDisplayData = $payment->getDisplayValues();

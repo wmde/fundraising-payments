@@ -97,7 +97,7 @@ class SofortPaymentTest extends TestCase {
 
 		$legacyData = $sofortPayment->getLegacyData();
 
-		$this->assertSame( [ 'ueb_code' => 'XW-DAR-E99-X' ], $legacyData->paymentSpecificValues );
+		$this->assertSame( [ 'ueb_code' => 'XW-DAR-E99-X', 'is_booked' => false ], $legacyData->paymentSpecificValues );
 	}
 
 	public function testScrubbedPaymentHasClearsLegacyData(): void {
@@ -106,7 +106,7 @@ class SofortPaymentTest extends TestCase {
 
 		$legacyData = $sofortPayment->getLegacyData();
 
-		$this->assertSame( [ 'ueb_code' => '' ], $legacyData->paymentSpecificValues );
+		$this->assertSame( [ 'ueb_code' => '', 'is_booked' => false ], $legacyData->paymentSpecificValues );
 	}
 
 	public function testBookedPaymentHasTransactionDataInLegacyData(): void {
@@ -115,7 +115,8 @@ class SofortPaymentTest extends TestCase {
 		$expectedLegacyData = [
 			'ueb_code' => 'XW-DAR-E99-X',
 			'transaction_id' => 'yellow',
-			'valuation_date' => '2001-12-24 17:30:00'
+			'valuation_date' => '2001-12-24 17:30:00',
+			'is_booked' => true
 		];
 
 		$legacyData = $sofortPayment->getLegacyData();
@@ -133,7 +134,8 @@ class SofortPaymentTest extends TestCase {
 			'paymentType' => 'SUB',
 			'paymentReferenceCode' => 'XW-DAR-E99-X',
 			'transactionId' => 'yellow',
-			'valuationDate' => '2001-12-24 17:30:00'
+			'valuationDate' => '2001-12-24 17:30:00',
+			'is_booked' => true
 		];
 
 		$this->assertNotNull( $payment->getValuationDate() );
@@ -159,7 +161,8 @@ class SofortPaymentTest extends TestCase {
 			'interval' => 0,
 			'paymentType' => 'SUB',
 			'paymentReferenceCode' => '',
-			'valuationDate' => '2001-12-24 17:30:00'
+			'valuationDate' => '2001-12-24 17:30:00',
+			'is_booked' => true
 		];
 
 		$this->assertNotNull( $payment->getValuationDate() );
