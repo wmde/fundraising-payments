@@ -15,9 +15,10 @@ coverage/
 
 .env
 
-# prevent accidental data uploads, we do not expect any sql files here
+# prevent accidental data uploads, we do not expect any sql or csv files here
 *.sql
 *.sql.gz
+*.csv
 
 *.bak
 
