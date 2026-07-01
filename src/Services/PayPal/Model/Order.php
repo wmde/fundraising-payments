@@ -35,8 +35,10 @@ class Order {
 	}
 
 	/**
-	 * @param array{"rel":string,"href":string}[] $links
+	 * @param array $links
 	 * @return string
+	 *
+	 * @phpstan-param array{"rel":string,"href":string}[] $links
 	 */
 	private static function getUrlFromLinks( array $links ): string {
 		foreach ( $links as $link ) {
