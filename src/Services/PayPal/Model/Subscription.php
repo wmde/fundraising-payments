@@ -47,7 +47,7 @@ class Subscription {
 	}
 
 	/**
-	 * @param array $links
+	 * @param array[] $links
 	 * @return string
 	 *
 	 * @phpstan-param array{"rel":string,"href":string}[] $links
