@@ -41,11 +41,13 @@ class LegacyPayPalURLGeneratorConfig {
 	}
 
 	/**
-	 * @param array{ 'account-address': string, 'locale' : string, 'base-url': string, 'notify-url': string, 'return-url': string, 'cancel-url': string, 'delay-in-days'?: int } $config
+	 * @param array $config
 	 * @param TranslatableDescription $translatableDescription
 	 *
 	 * @return LegacyPayPalURLGeneratorConfig
 	 * @throws RuntimeException
+	 *
+	 * @phpstan-param array{ 'account-address': string, 'locale' : string, 'base-url': string, 'notify-url': string, 'return-url': string, 'cancel-url': string, 'delay-in-days'?: int } $config
 	 */
 	public static function newFromConfig( array $config, TranslatableDescription $translatableDescription ): self {
 		return ( new self(

@@ -28,9 +28,11 @@ class PayPalPaymentProviderAdapterConfigFactory {
 	}
 
 	/**
-	 * @param array{"interval":string, "name":string, "id":string}[] $subscriptionPlansConfig
+	 * @param array $subscriptionPlansConfig
 	 * @param string $productId
 	 * @return array<SubscriptionPlan>
+	 *
+	 * @phpstan-param array{"interval":string, "name":string, "id":string}[] $subscriptionPlansConfig
 	 */
 	private static function createSubscriptionPlans( array $subscriptionPlansConfig, string $productId ): array {
 		$plans = [];
