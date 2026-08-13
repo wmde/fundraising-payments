@@ -139,7 +139,7 @@ class CreatePaymentUseCase {
 	 * @throws PaymentCreationException
 	 */
 	private function createDirectDebitPayment( PaymentParameters $parameters ): DirectDebitPayment {
-		if ( $this->validateIbanUseCase->ibanIsValid( $parameters->iban ) instanceof BankDataFailureResponse ) {
+		if ( $this->validateIbanUseCase->ibanIsValid( $parameters->iban, $parameters->bic ) instanceof BankDataFailureResponse ) {
 			throw new PaymentCreationException( "An invalid IBAN was provided" );
 		}
 

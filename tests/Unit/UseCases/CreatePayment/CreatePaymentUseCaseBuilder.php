@@ -24,6 +24,7 @@ use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\DefaultPaymentProvide
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapter;
 use WMDE\Fundraising\PaymentContext\UseCases\CreatePayment\PaymentProviderAdapterFactory;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
+use WMDE\FunValidators\Validators\BankDataValidator;
 
 class CreatePaymentUseCaseBuilder {
 	private PaymentIdRepository $idGenerator;
@@ -89,7 +90,7 @@ class CreatePaymentUseCaseBuilder {
 	}
 
 	private function makeFailingIbanUseCase(): ValidateIbanUseCase {
-		return new ValidateIbanUseCase( new IbanBlockList( [] ), $this->makeFailingBankDataGenerator() );
+		return new ValidateIbanUseCase( new IbanBlockList( [] ), $this->makeFailingBankDataGenerator(), new BankDataValidator() );
 	}
 
 	public function withIdGenerator( PaymentIdRepository $idGenerator ): self {
@@ -114,7 +115,8 @@ class CreatePaymentUseCaseBuilder {
 	public function withSucceedingIbanValidationUseCase(): self {
 		$this->validateIbanUseCase = new ValidateIbanUseCase(
 			new IbanBlockList( [] ),
-			new KontoCheckBankDataGenerator( new SucceedingIbanValidator() )
+			new KontoCheckBankDataGenerator( new SucceedingIbanValidator() ),
+			new BankDataValidator()
 		);
 		return $this;
 	}
