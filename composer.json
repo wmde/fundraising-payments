@@ -6,7 +6,7 @@
 		"php": ">=8.4",
 
 		"wmde/euro": "~1.0",
-		"wmde/fun-validators": "~v5.0",
+		"wmde/fun-validators": "dev-validate-ibans",
 
 		"doctrine/orm": "~2.18 | ~3.0",
 		"doctrine/dbal": "~3.8 | ~4.0",

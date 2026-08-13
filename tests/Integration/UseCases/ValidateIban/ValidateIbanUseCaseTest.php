@@ -17,6 +17,7 @@ use WMDE\Fundraising\PaymentContext\UseCases\BankDataSuccessResponse;
 use WMDE\Fundraising\PaymentContext\UseCases\ValidateIban\ValidateIbanUseCase;
 use WMDE\FunValidators\ConstraintViolation;
 use WMDE\FunValidators\ValidationResult;
+use WMDE\FunValidators\Validators\BankDataValidator;
 
 #[CoversClass( ValidateIbanUseCase::class )]
 class ValidateIbanUseCaseTest extends TestCase {
@@ -30,7 +31,11 @@ class ValidateIbanUseCaseTest extends TestCase {
 	}
 
 	private function newCheckIbanUseCase(): ValidateIbanUseCase {
-		return new ValidateIbanUseCase( $this->ibanBlocklist, new KontoCheckBankDataGenerator( $this->ibanValidator ) );
+		return new ValidateIbanUseCase(
+			$this->ibanBlocklist,
+			new KontoCheckBankDataGenerator( $this->ibanValidator ),
+			new BankDataValidator()
+		);
 	}
 
 	private function newSucceedingIbanValidator(): IbanValidator {
@@ -40,7 +45,7 @@ class ValidateIbanUseCaseTest extends TestCase {
 		);
 	}
 
-	public function testSucceedingIbanCheckReturnsGeneratedBankData(): void {
+	public function testSucceedingGermanIbanCheckReturnsGeneratedBankData(): void {
 		$useCase = $this->newCheckIbanUseCase();
 		$response = $useCase->ibanIsValid( DirectDebitBankData::IBAN );
 
@@ -57,7 +62,7 @@ class ValidateIbanUseCaseTest extends TestCase {
 		);
 	}
 
-	public function testWhenIbanIsOnBlocklist_failureResponseIsReturned(): void {
+	public function testWhenGermanIbanIsOnBlocklist_failureResponseIsReturned(): void {
 		$this->ibanBlocklist = new IbanBlockList( [ DirectDebitBankData::IBAN ] );
 
 		$useCase = $this->newCheckIbanUseCase();
@@ -66,7 +71,7 @@ class ValidateIbanUseCaseTest extends TestCase {
 		$this->assertInstanceOf( BankDataFailureResponse::class, $response );
 	}
 
-	public function testWhenIbanIsInvalid_failureResponseIsReturned(): void {
+	public function testWhenGermanIbanIsInvalid_failureResponseIsReturned(): void {
 		$this->ibanValidator = $this->createConfiguredStub(
 			IbanValidator::class,
 			[
@@ -81,6 +86,24 @@ class ValidateIbanUseCaseTest extends TestCase {
 
 		$useCase = $this->newCheckIbanUseCase();
 		$response = $useCase->ibanIsValid( DirectDebitBankData::IBAN );
+
+		$this->assertInstanceOf( BankDataFailureResponse::class, $response );
+	}
+
+	public function testSucceedingOtherIbanCheckReturnsGeneratedBankData(): void {
+		$useCase = $this->newCheckIbanUseCase();
+		$response = $useCase->ibanIsValid( DirectDebitBankData::IRISH_IBAN, DirectDebitBankData::IRISH_BIC );
+
+		$this->assertInstanceOf( BankDataSuccessResponse::class, $response );
+		$this->assertEquals(
+			DirectDebitBankData::validIrishBankData(),
+			$response->bankData
+		);
+	}
+
+	public function testWhenOtherIbanIsInvalid_failureResponseIsReturned(): void {
+		$useCase = $this->newCheckIbanUseCase();
+		$response = $useCase->ibanIsValid( DirectDebitBankData::IRISH_IBAN, DirectDebitBankData::INVALID_IRISH_IBAN );
 
 		$this->assertInstanceOf( BankDataFailureResponse::class, $response );
 	}
