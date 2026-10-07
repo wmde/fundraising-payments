@@ -23,22 +23,22 @@ class SofortLibClientTest extends TestCase {
 
 		$api = $this->createMock( Sofortueberweisung::class );
 
-		$api
+		$api->expects( $this->once() )
 			->method( 'setAmount' )
 			->with( $amountConvertedToFloat );
-		$api
+		$api->expects( $this->once() )
 			->method( 'setCurrencyCode' )
 			->with( 'EUR' );
-		$api
+		$api->expects( $this->once() )
 			->method( 'setReason' )
 			->with( 'Donation', '529836' );
-		$api
+		$api->expects( $this->once() )
 			->method( 'setSuccessUrl' )
 			->with( 'https://us.org/yes?id=529836&accessToken=letmein', true );
-		$api
+		$api->expects( $this->once() )
 			->method( 'setAbortUrl' )
 			->with( 'https://us.org/no' );
-		$api
+		$api->expects( $this->once() )
 			->method( 'setNotificationUrl' )
 			->with( 'https://us.org/callback' );
 		$api
