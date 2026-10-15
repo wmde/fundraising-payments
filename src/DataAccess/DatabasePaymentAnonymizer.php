@@ -5,8 +5,9 @@ declare( strict_types = 1 );
 namespace WMDE\Fundraising\PaymentContext\DataAccess;
 
 use Doctrine\ORM\EntityManager;
-use WMDE\Fundraising\PaymentContext\Domain\AnonymizationException;
+use Symfony\Component\Console\Output\OutputInterface;
 use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentNotFoundException;
+use WMDE\Fundraising\PaymentContext\Domain\Exception\PaymentOverrideException;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentAnonymizer;
 use WMDE\Fundraising\PaymentContext\Domain\PaymentRepository;
 
@@ -16,7 +17,8 @@ class DatabasePaymentAnonymizer implements PaymentAnonymizer {
 
 	public function __construct(
 		private readonly PaymentRepository $paymentRepository,
-		private readonly EntityManager $entityManager
+		private readonly EntityManager $entityManager,
+		private readonly OutputInterface $output
 	) {
 	}
 
@@ -26,12 +28,12 @@ class DatabasePaymentAnonymizer implements PaymentAnonymizer {
 		foreach ( $paymentIds as $id ) {
 			try {
 				$payment = $this->paymentRepository->getPaymentById( $id );
-			} catch ( PaymentNotFoundException $e ) {
-				throw new AnonymizationException( $e->getMessage() );
+				$payment->scrubPersonalData();
+				$this->paymentRepository->storePayment( $payment );
+			} catch ( PaymentNotFoundException | PaymentOverrideException $e ) {
+				$this->output->writeln( "Failed to anonymize payment id: $id" );
+				$this->output->writeln( $e->getMessage() );
 			}
-
-			$payment->scrubPersonalData();
-			$this->paymentRepository->storePayment( $payment );
 
 			$counter++;
 			if ( $counter % self::BATCH_SIZE === 0 ) {
