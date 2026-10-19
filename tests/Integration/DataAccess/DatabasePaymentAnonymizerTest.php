@@ -7,10 +7,10 @@ namespace WMDE\Fundraising\PaymentContext\Tests\Integration\DataAccess;
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Output\OutputInterface;
 use WMDE\Euro\Euro;
 use WMDE\Fundraising\PaymentContext\DataAccess\DatabasePaymentAnonymizer;
 use WMDE\Fundraising\PaymentContext\DataAccess\DoctrinePaymentRepository;
-use WMDE\Fundraising\PaymentContext\Domain\AnonymizationException;
 use WMDE\Fundraising\PaymentContext\Domain\Model\DirectDebitPayment;
 use WMDE\Fundraising\PaymentContext\Domain\Model\Iban;
 use WMDE\Fundraising\PaymentContext\Domain\Model\PaymentInterval;
@@ -37,7 +37,7 @@ class DatabasePaymentAnonymizerTest extends TestCase {
 	public function testAnonymisesDirectDebitPayments(): void {
 		$this->insertExamplePayments();
 
-		$anonymizer = new DatabasePaymentAnonymizer( $this->paymentRepository, $this->entityManager );
+		$anonymizer = new DatabasePaymentAnonymizer( $this->paymentRepository, $this->entityManager, $this->createStub( OutputInterface::class ) );
 
 		$anonymizer->anonymizeWithIds( ...[ 1, 2 ] );
 
@@ -53,13 +53,14 @@ class DatabasePaymentAnonymizerTest extends TestCase {
 		$this->assertSame( self::BIC, $payment3->getDisplayValues()[ 'bic' ] );
 	}
 
-	public function testThrowsWhenCantFindPayment(): void {
+	public function testOutputsWhenCantFindPayment(): void {
 		$this->insertExamplePayments();
 
-		$anonymizer = new DatabasePaymentAnonymizer( $this->paymentRepository, $this->entityManager );
+		$output = $this->createMock( OutputInterface::class );
+		$output->expects( $this->exactly( 2 ) )->method( 'writeln' )
+			->withParameterSetsInOrder( 'Failed to anonymize payment id: 4', 'Payment with id 4 not found' );
 
-		$this->expectException( AnonymizationException::class );
-		$this->expectExceptionMessageMatches( "/Payment with id 4 not found/" );
+		$anonymizer = new DatabasePaymentAnonymizer( $this->paymentRepository, $this->entityManager, $output );
 
 		$anonymizer->anonymizeWithIds( 4 );
 	}

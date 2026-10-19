@@ -65,7 +65,7 @@ deptrac:
     - name: Symfony Config
       collectors:
         - type: classNameRegex
-          value: /^Symfony\\Component\\(Config|Yaml)\\.*/
+          value: /^Symfony\\Component\\(Config|Yaml|Console)\\.*/
   ruleset:
     Domain:
       - DomainLibrary
@@ -80,6 +80,7 @@ deptrac:
       - Domain
       - DomainLibrary
       - Doctrine
+      - Symfony Config
     Service:
       - DomainLibrary
       - Domain
