@@ -31,6 +31,7 @@ class DefaultPaymentProviderAdapterTest extends TestCase {
 		return new CreditCardURLGenerator(
 			CreditCardURLGeneratorConfig::newFromConfig(
 				[
+					'access-key' => 'access key',
 					'base-url' => 'https://credit-card.micropayment.de/creditcard/event/index.php?',
 					'project-id' => 'wikimedia',
 					'locale' => 'de',

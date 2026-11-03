@@ -20,6 +20,22 @@ use WMDE\Fundraising\PaymentContext\Tests\Fixtures\FakeUrlAuthenticator;
 #[CoversClass( DomainSpecificContext::class )]
 class CreditCardURLGeneratorTest extends TestCase {
 
+	private const ACCESS_KEY = 'access key';
+
+	/**
+	 * This function is copied from the MCP example code.
+	 *
+	 * @param string $accessKey
+	 * @param string $url
+	 * @return string
+	 */
+	private function sealUrl( $accessKey, $url ) {
+		$matches = [];
+		preg_match( '/^(http(?:s?):\/\/[^?]*?\?)?\?*(.*?)(?:&?seal=([^&]*)(&?.*)?)?$/', $url, $matches );
+		$matches = array_merge( $matches, [ 1 => '', 2 => '', 3 => '', 4 => '' ] );
+		return (string)$matches[1] . (string)$matches[2] . '&seal=' . md5( urldecode( (string)$matches[2] ) . (string)$accessKey ) . (string)$matches[4];
+	}
+
 	#[DataProvider( 'donationProvider' )]
 	public function testUrlGeneration(
 		string $expected,
@@ -40,6 +56,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 		$urlGenerator = new CreditCardURLGenerator(
 			CreditCardURLGeneratorConfig::newFromConfig(
 				[
+					'access-key' => self::ACCESS_KEY,
 					'base-url' => 'https://credit-card.micropayment.de/creditcard/event/index.php?',
 					'project-id' => 'wikimedia',
 					'locale' => 'de',
@@ -60,7 +77,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 			lastName: $lastName,
 		);
 		$this->assertSame(
-			$expected,
+			$this->sealUrl( self::ACCESS_KEY, $expected ),
 			$urlGenerator->generateUrl( $requestContext )
 		);
 	}
@@ -73,6 +90,7 @@ class CreditCardURLGeneratorTest extends TestCase {
 		$urlGenerator = new CreditCardURLGenerator(
 			CreditCardURLGeneratorConfig::newFromConfig(
 				[
+					'access-key' => self::ACCESS_KEY,
 					'base-url' => 'https://credit-card.micropayment.de/creditcard/event/index.php?',
 					'project-id' => 'wikimedia',
 					'locale' => 'de',
@@ -93,9 +111,10 @@ class CreditCardURLGeneratorTest extends TestCase {
 			lastName: "Nissen",
 		);
 		$this->assertSame(
-			'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
-			'paytext=Ich+spende+einmalig&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
-			'amount=100&theme=wikimedia&producttype=fee&lang=de&token=p-test-param-0&utoken=p-test-param-1&testmode=1',
+			$this->sealUrl( self::ACCESS_KEY,
+				'https://credit-card.micropayment.de/creditcard/event/index.php?project=wikimedia&bgcolor=CCE7CD&' .
+				'paytext=Ich+spende+einmalig&mp_user_firstname=Kai&mp_user_surname=Nissen&sid=1234567&gfx=wikimedia_black&' .
+				'amount=100&theme=wikimedia&producttype=fee&lang=de&token=p-test-param-0&utoken=p-test-param-1&testmode=1' ),
 			$urlGenerator->generateUrl( $requestContext )
 		);
 	}
