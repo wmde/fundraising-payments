@@ -6,6 +6,7 @@ namespace WMDE\Fundraising\PaymentContext\Services\PaymentUrlGenerator;
 
 class CreditCardURLGeneratorConfig {
 
+	private const CONFIG_KEY_ACCESS_KEY = 'access-key';
 	private const CONFIG_KEY_BASE_URL = 'base-url';
 	private const CONFIG_KEY_PROJECT_ID = 'project-id';
 	private const CONFIG_KEY_LOCALE = 'locale';
@@ -14,29 +15,21 @@ class CreditCardURLGeneratorConfig {
 	private const CONFIG_KEY_THEME = 'theme';
 	private const CONFIG_KEY_TESTMODE = 'testmode';
 
-	private string $baseUrl;
-	private string $projectId;
-	private string $locale;
-	private string $backgroundColor;
-	private string $logo;
-	private string $theme;
-	private bool $testMode;
-	private TranslatableDescription $translatableDescription;
-
-	private function __construct( string $baseUrl, string $projectId, string $locale, string $backgroundColor, string $logo, string $theme,
-		bool $testMode, TranslatableDescription $translatableDescription ) {
-		$this->baseUrl = $baseUrl;
-		$this->projectId = $projectId;
-		$this->locale = $locale;
-		$this->backgroundColor = $backgroundColor;
-		$this->logo = $logo;
-		$this->theme = $theme;
-		$this->testMode = $testMode;
-		$this->translatableDescription = $translatableDescription;
+	private function __construct(
+		private string $accessKey,
+		private string $baseUrl,
+		private string $projectId,
+		private string $locale,
+		private string $backgroundColor,
+		private string $logo,
+		private string $theme,
+		private bool $testMode,
+		private TranslatableDescription $translatableDescription,
+	) {
 	}
 
 	/**
-	 * @param array{base-url:string,project-id:string,locale:string,background-color:string,logo:string,theme:string,testmode:boolean} $config
+	 * @param array{access-key:string,base-url:string,project-id:string,locale:string,background-color:string,logo:string,theme:string,testmode:boolean} $config
 	 * @param TranslatableDescription $translatableDescription
 	 *
 	 * @return self
@@ -44,6 +37,7 @@ class CreditCardURLGeneratorConfig {
 	 */
 	public static function newFromConfig( array $config, TranslatableDescription $translatableDescription ): self {
 		return ( new self(
+			$config[self::CONFIG_KEY_ACCESS_KEY],
 			$config[self::CONFIG_KEY_BASE_URL],
 			$config[self::CONFIG_KEY_PROJECT_ID],
 			$config[self::CONFIG_KEY_LOCALE],
@@ -63,6 +57,10 @@ class CreditCardURLGeneratorConfig {
 		}
 
 		return $this;
+	}
+
+	public function getAccessKey(): string {
+		return $this->accessKey;
 	}
 
 	public function getBaseUrl(): string {

@@ -38,7 +38,10 @@ class CreditCardURLGenerator implements PaymentCompletionURLGenerator {
 			$params['testmode'] = '1';
 		}
 
-		return $baseUrl . http_build_query( $params );
+		$paramsStr = http_build_query( $params );
+		$seal = md5( urldecode( $paramsStr . $this->config->getAccessKey() ) );
+
+		return $baseUrl . $paramsStr . '&seal=' . $seal;
 	}
 
 }
